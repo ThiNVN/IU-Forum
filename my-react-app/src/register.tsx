@@ -1,64 +1,100 @@
-import React from 'react';
+import React, { useEffect, useRef} from 'react';
 import ReactDOM from 'react-dom/client';
 import './css/register.css';
-import './css/reglog-gradientbg.css'
+import './css/gradientbg.scss'
 
-interface AppState{
-    animationClass: string;
-}
+const InteractiveBubble: React.FC = () => {
+    const bubbleRef = useRef<HTMLDivElement>(null);
 
-class Application extends React.Component<{}, AppState> {
-    constructor(props: {}) {
-        super(props);
-        this.state = {
-            animationClass: 'gradient'
-        }
-        this.changeState = this.changeState.bind(this);
-    }
+    useEffect(() => {
+        let curX = 0;
+        let curY = 0;
+        let tgX = 0;
+        let tgY = 0;
 
-    changeState() {
-        if (this.state.animationClass === 'gradient') {
-            this.setState({
-                animationClass: 'gradient paused'
-            });
-        } else {
-            this.setState({
-                animationClass: 'gradient'
-            });
-        }
-    }
-    render() {
-        return (
-            <div className={this.state.animationClass}>
-                {/* <h1>Pure CSS3 Animated Gradient Background</h1>
-                <button onClick={this.changeState}>Stop / Start</button> */}
-                <form>
-                    <div className="form-group">
-                        <label htmlFor="username">Username</label>
-                        <input type="text" id="username" name="username" />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="email">Email</label>
-                        <input type="email" id="email" name="email" />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="password">Password</label>
-                        <input type="password" id="password" name="password" />
-                    </div>
-                    <button type="submit">Register</button>
-                </form>
+        function move () {
+            curX += (tgX - curX) / 20;
+            curY += (tgY - curY) / 20;
+            if (bubbleRef.current) {
+                bubbleRef.current.style.transform = `translate(${Math.round(curX)}px, ${Math.round(curY)}px)`;
+            }
+            requestAnimationFrame(move);
+        };
+
+        const handleMouseMove = (event: MouseEvent) => {
+            tgX = event.clientX;
+            tgY = event.clientY;
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        move();
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, []);
+
+    return <div ref={bubbleRef} className="interactive"></div>;
+};
+
+const App: React.FC = () => {
+    return (
+        <div>
+
+            {/* OTHER COMPONENTS */}
+            {/* <div className="text-container">
+                <h1>Bubbles</h1>
+                
+            </div> */}
+
+            <div className="leftPanel" style={{ margin: "20px 0 20px 20px" }}>
+                <div className="HPanel">
+                    <div className="logo"></div>
+                    <div className="link"></div>
+                    <div className="title">Bubbles</div>
+                </div>
             </div>
 
-        );
-    }
-}
+            <div className="gradient-bg">
 
+                {/* mix color */}
+                <svg xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="goo">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                            <feColorMatrix
+                                in="blur"
+                                type="matrix"
+                                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8"
+                                result="goo"
+                            />
+                            <feBlend in="SourceGraphic" in2="goo" />
+                        </filter>
+                    </defs>
+                </svg>
+                {/* Colors */}
+
+                <div className="gradients-container">
+                    <div className="g1"></div>
+                    <div className="g2"></div>
+                    <div className="g3"></div>
+                    <div className="g4"></div>
+                    <div className="g5"></div>
+                    {/* <div className="interactive"></div> */}
+                    <InteractiveBubble />
+                </div>
+
+
+            </div>
+        </div>
+    );
+};
+
+// export { App, InteractiveBubble };
 export default function Register() {
     return (
-        <div className="register">
-            <h1>Register</h1>
-            <Application /> {}
-            
+        <div>
+            <App />
         </div>
     );
 }
