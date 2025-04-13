@@ -1,5 +1,8 @@
-import React, { useEffect, useRef} from 'react';
+import React, { useEffect, useRef, useState} from 'react';
 import ReactDOM from 'react-dom/client';
+import InputField from '../components/InputField';
+import Checkbox from '../components/Checkbox';
+import SubmitButton from '../components/SubmitButton';
 import '../styles/register.css';
 import '../styles/gradientbg.scss'
 
@@ -37,24 +40,110 @@ const InteractiveBubble: React.FC = () => {
     return <div ref={bubbleRef} className="interactive"></div>;
 };
 
+interface RegisterFormData{
+    username: string;
+    displayName: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    terms: boolean;
+}
 const App: React.FC = () => {
+    const [formData, setFormData] = useState<RegisterFormData>({
+        username: '',
+        displayName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        terms: false,
+    });
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
+    };
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!isFormValid()) {
+            alert('Please fill in all information correctly!');
+        }
+        console.log('Registered', formData);
+    };
+
+    const isFormValid = () => {
+        return (
+            formData.username.trim() &&
+            formData.displayName.trim() &&
+            formData.email.trim() &&
+            formData.password.trim() &&
+            formData.password === formData.confirmPassword &&
+            formData.terms
+        );
+    };
     return (
         <div>
+    <div className="container">
+        <div className='card'>
+            <form action="#" onSubmit={handleSubmit} className='form'>
+                <h2 className='title'>Register</h2>
 
-            {/* OTHER COMPONENTS */}
-            {/* <div className="text-container">
-                <h1>Bubbles</h1>
-                
-            </div> */}
+                <InputField
+                label="Username"
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                placeholder="nguyenvana.deptrai"
+                />
 
-            <div className="leftPanel" style={{ margin: "20px 0 20px 20px" }}>
-                <div className="HPanel">
-                    <div className="logo"></div>
-                    <div className="link"></div>
-                    <div className="title">Bubbles</div>
-                </div>
-            </div>
+                <InputField
+                label="Email"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder='example@student.hcmiu.edu.vn'
+                />
 
+                <InputField
+                label="Display Name"
+                name="displayName"
+                value={formData.displayName}
+                onChange={handleInputChange}
+                placeholder='Nguyen Van A'
+                />
+
+                <InputField
+                label = "Password"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder='vana@123'
+                />
+
+                <InputField
+                label = "Confirm Password"
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                placeholder='vana@123'
+                />
+                <Checkbox
+                label = "I agree to the terms and conditions"
+                name="terms"
+                checked={formData.terms}
+                onChange={handleInputChange}
+                />
+                <SubmitButton disabled={!isFormValid()} label="Register" />
+            </form>
+        </div>
+    </div>
+            
             <div className="gradient-bg">
 
                 {/* mix color */}
