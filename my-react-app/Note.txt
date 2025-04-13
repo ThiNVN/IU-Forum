@@ -1,0 +1,5 @@
+npm start
+node Backend/server.js
+
+Need to make yourself a .env 
+npm install + name of require package 

@@ -1,13 +1,13 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve('./Backend/.env') });
 const mysql = require('mysql2/promise');
-//Test .env
+// Test .env
 // console.log('DB_HOST:', process.env.DB_HOST);
 // console.log('DB_PORT:', process.env.DB_PORT);
 // console.log('DB_USER:', process.env.DB_USER);
 // console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? 'Exists' : 'Not Found');
 // console.log('DB_NAME:', process.env.DB_NAME);
-//Test DB
+// Test DB
 (async () => {
     try {
 
