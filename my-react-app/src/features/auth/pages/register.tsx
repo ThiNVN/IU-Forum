@@ -1,8 +1,10 @@
+// Suggested code may be subject to a license. Learn more: ~LicenseLog:277995103.
 import React, { useEffect, useRef, useState} from 'react';
 import ReactDOM from 'react-dom/client';
 import InputField from '../components/InputField';
 import Checkbox from '../components/Checkbox';
 import SubmitButton from '../components/SubmitButton';
+import LeftPanel from '../components/LeftPanel';
 import '../styles/register.css';
 import '../styles/gradientbg.scss'
 
@@ -84,65 +86,71 @@ const App: React.FC = () => {
         );
     };
     return (
-        <div>
-    <div className="container">
-        <div className='card'>
-            <form action="#" onSubmit={handleSubmit} className='form'>
-                <h2 className='title'>Register</h2>
+    <div className="pageWrapper">
+      <LeftPanel />
 
-                <InputField
-                label="Username"
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                placeholder="nguyenvana.deptrai"
-                />
+      <div className="rightPanel">
+        <form onSubmit={handleSubmit} className="form">
+          <h2 className="formTitle">Register</h2>
 
-                <InputField
-                label="Email"
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder='example@student.hcmiu.edu.vn'
-                />
+          <InputField
+            label="Username"
+            type="text"
+            name="username"
+            value={formData.username}
+            onChange={handleInputChange}
+            placeholder="nguyenvana.deptrai"
+          />
 
-                <InputField
-                label="Display Name"
-                name="displayName"
-                value={formData.displayName}
-                onChange={handleInputChange}
-                placeholder='Nguyen Van A'
-                />
+          <InputField
+            label="Email"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            placeholder="example@student.hcmiu.edu.vn"
+          />
 
-                <InputField
-                label = "Password"
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder='vana@123'
-                />
+          <InputField
+            label="Display Name"
+            name="displayName"
+            value={formData.displayName}
+            onChange={handleInputChange}
+            placeholder="Nguyen Van A"
+          />
 
-                <InputField
-                label = "Confirm Password"
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                placeholder='vana@123'
-                />
-                <Checkbox
-                label = "I agree to the terms and conditions"
-                name="terms"
-                checked={formData.terms}
-                onChange={handleInputChange}
-                />
-                <SubmitButton disabled={!isFormValid()} label="Register" />
-            </form>
-        </div>
-    </div>
+          <InputField
+            label="Password"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            placeholder="••••••••"
+          />
+
+          <InputField
+            label="Confirm Password"
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleInputChange}
+            placeholder="••••••••"
+          />
+
+          <Checkbox
+            label="I agree to the terms and conditions"
+            name="terms"
+            checked={formData.terms}
+            onChange={handleInputChange}
+          />
+
+          <SubmitButton disabled={!isFormValid()} label="Register" />
+
+          <div className="loginLink">
+            Already have an account? <a href="#">Login</a>
+          </div>
+        </form>
+      </div>
             
             <div className="gradient-bg">
 

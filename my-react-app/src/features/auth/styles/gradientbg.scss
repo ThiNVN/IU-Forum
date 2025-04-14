@@ -72,8 +72,8 @@ html, body {
 
 
 .gradient-bg {
-  width: 100vw;
-  height: 100vh;
+  width: 99vw;
+  height: 130vh;
   position: relative;
   overflow: hidden;
   background: linear-gradient(70deg, var(--color-bg1) 30%, var(--color-bg2) 70%);
