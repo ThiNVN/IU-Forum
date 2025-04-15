@@ -1,1 +1,0 @@
-# global style, ảnh font, static
