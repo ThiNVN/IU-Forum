@@ -1,5 +1,5 @@
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:277995103.
-import React, { useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import InputField from '../../components/InputField';
 import Checkbox from '../../components/Checkbox';
@@ -17,7 +17,7 @@ const InteractiveBubble: React.FC = () => {
         let tgX = 0;
         let tgY = 0;
 
-        function move () {
+        function move() {
             curX += (tgX - curX) / 20;
             curY += (tgY - curY) / 20;
             if (bubbleRef.current) {
@@ -42,7 +42,7 @@ const InteractiveBubble: React.FC = () => {
     return <div ref={bubbleRef} className="interactive"></div>;
 };
 
-interface RegisterFormData{
+interface RegisterFormData {
     username: string;
     displayName: string;
     email: string;
@@ -67,14 +67,42 @@ const App: React.FC = () => {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    //     e.preventDefault();
+    //     if (!isFormValid()) {
+    //         alert('Please fill in all information correctly!');
+    //     }
+    //     console.log('Registered', formData);
+    // };
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!isFormValid()) {
             alert('Please fill in all information correctly!');
+            return;
         }
-        console.log('Registered', formData);
-    };
 
+        try {
+            // Sending data to the backend using fetch
+            const response = await fetch("http://localhost:8081/api/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert(result.message);
+            } else {
+                const errorData = await response.json();
+                alert(errorData.message);
+            }
+        } catch (error) {
+            console.error("Error during form submission:", error);
+            alert("Something went wrong. Please try again.");
+        }
+    };
     const isFormValid = () => {
         return (
             formData.username.trim() &&
@@ -86,72 +114,72 @@ const App: React.FC = () => {
         );
     };
     return (
-    <div className="pageWrapper">
-      <LeftPanel />
+        <div className="pageWrapper">
+            <LeftPanel />
 
-      <div className="rightPanel">
-        <form onSubmit={handleSubmit} className="form">
-          <h2 className="formTitle">Register</h2>
+            <div className="rightPanel">
+                <form onSubmit={handleSubmit} className="form">
+                    <h2 className="formTitle">Register</h2>
 
-          <InputField
-            label="Username"
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleInputChange}
-            placeholder="nguyenvana.deptrai"
-          />
+                    <InputField
+                        label="Username"
+                        type="text"
+                        name="username"
+                        value={formData.username}
+                        onChange={handleInputChange}
+                        placeholder="nguyenvana.deptrai"
+                    />
 
-          <InputField
-            label="Email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            placeholder="example@student.hcmiu.edu.vn"
-          />
+                    <InputField
+                        label="Email"
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="example@student.hcmiu.edu.vn"
+                    />
 
-          <InputField
-            label="Display Name"
-            name="displayName"
-            value={formData.displayName}
-            onChange={handleInputChange}
-            placeholder="Nguyen Van A"
-          />
+                    <InputField
+                        label="Display Name"
+                        name="displayName"
+                        value={formData.displayName}
+                        onChange={handleInputChange}
+                        placeholder="Nguyen Van A"
+                    />
 
-          <InputField
-            label="Password"
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            placeholder="••••••••"
-          />
+                    <InputField
+                        label="Password"
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        placeholder="••••••••"
+                    />
 
-          <InputField
-            label="Confirm Password"
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleInputChange}
-            placeholder="••••••••"
-          />
+                    <InputField
+                        label="Confirm Password"
+                        type="password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleInputChange}
+                        placeholder="••••••••"
+                    />
 
-          <Checkbox
-            label="I agree to the terms and conditions"
-            name="terms"
-            checked={formData.terms}
-            onChange={handleInputChange}
-          />
+                    <Checkbox
+                        label="I agree to the terms and conditions"
+                        name="terms"
+                        checked={formData.terms}
+                        onChange={handleInputChange}
+                    />
 
-          <SubmitButton disabled={!isFormValid()} label="Register" />
+                    <SubmitButton disabled={!isFormValid()} label="Register" />
 
-          <div className="loginLink">
-            Already have an account? <a href="#">Login</a>
-          </div>
-        </form>
-      </div>
-            
+                    <div className="loginLink">
+                        Already have an account? <a href="#">Login</a>
+                    </div>
+                </form>
+            </div>
+
             <div className="gradient-bg">
 
                 {/* mix color */}
