@@ -1,7 +1,7 @@
 // src/App.tsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Register from "../features/auth/pages/register";
+import Register from "../pages/auth/register";
 //import Login from "../features/auth/pages/Login";
 //import ThreadList from "../features/threads/pages/ThreadList";
 

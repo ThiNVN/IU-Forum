@@ -1,6 +1,6 @@
 // src/components/auth/LeftPanel.tsx
 import React from 'react';
-import logo from './logo.jpg';
+import logo from '../assets/img/UIlogo.png';
 import '../styles/register.css';
 
 interface LeftPanelProps {

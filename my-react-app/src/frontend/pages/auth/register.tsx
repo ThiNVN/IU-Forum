@@ -1,12 +1,12 @@
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:277995103.
 import React, { useEffect, useRef, useState} from 'react';
 import ReactDOM from 'react-dom/client';
-import InputField from '../components/InputField';
-import Checkbox from '../components/Checkbox';
-import SubmitButton from '../components/SubmitButton';
-import LeftPanel from '../components/LeftPanel';
-import '../styles/register.css';
-import '../styles/gradientbg.scss'
+import InputField from '../../components/InputField';
+import Checkbox from '../../components/Checkbox';
+import SubmitButton from '../../components/SubmitButton';
+import LeftPanel from '../../components/LeftPanel';
+import '../../styles/register.css';
+import '../../styles/gradientbg.scss'
 
 const InteractiveBubble: React.FC = () => {
     const bubbleRef = useRef<HTMLDivElement>(null);
