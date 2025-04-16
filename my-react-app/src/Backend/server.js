@@ -3,7 +3,7 @@ const cors = require('cors');
 
 const app = express();
 const PORT = 8081;
-const webRoutes = require('./src/routes/web');
+const webRoutes = require('./routes/web');
 const path = require('path');
 console.log("Looking for web.js at:", path.resolve(__dirname, './src/routes/web'));
 app.use(cors());
