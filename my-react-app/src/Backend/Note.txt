@@ -1,0 +1,5 @@
+node src/Backend/server.js
+
+npm install express cors dotenv mysql2 bcrypt
+
+npm install react-scripts

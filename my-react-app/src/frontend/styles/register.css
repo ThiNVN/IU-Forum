@@ -1,0 +1,221 @@
+/* register.module.css */
+
+/* .pageWrapper {
+    flex-direction: column;
+    gap: 3rem;
+    z-index: 100;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+} */
+  
+  .leftPanel,
+.rightPanel {
+  height: 100%;
+  max-width: 45%;
+  z-index: 101;
+}
+
+.leftPanel {
+  position: absolute;
+  top: 45px;
+  left: 45px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 20px;
+  opacity: 1;
+  background: linear-gradient(
+    45deg,
+    #ff9aa9 0%,
+    #ff9aa9cc 10%,
+    #ff9aa99d 20%,
+    #ff9aa971 30%,
+    #d7c7d46e 40%,
+    #d7c7d48f 50%,
+    #d7c7d456 60%,
+    #aff3ff60 70%,
+    #aff3ff9d 80%,
+    #aff3ffbb 90%,
+    #aff3ff 100%
+  );
+  
+}
+
+.leftContent {
+  margin-left: 50px;
+  margin-right: 50px;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: space-between; */
+  height: 100%;
+  
+
+
+}
+
+.logoPlaceholder {
+  margin: 40px auto 1rem auto; /*center the logo*/
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: #fff;
+  color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  box-shadow: 3px 3px 5px 5px rgba(0, 0, 0, 0.2);
+}
+
+.logoPlaceholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 1rem 0;
+  color: white;
+}
+
+.breakingNews {
+  background-color: rgba(255,255,255,0.2);
+  border: 1px dashed white;
+  padding: 1rem;
+  text-align: center;
+  margin: 1rem 0;
+  border-radius: 8px;
+  color: white;
+}
+
+.leftContent > .footerLinks {
+  position: absolute;
+  bottom: 20px;
+  left: 70px;
+  font-size: 0.9rem;
+  color: white;
+}
+
+.rightPanel {
+  position: absolute;
+  top: 2.5%;
+  right: 150px;
+  padding: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  z-index: 102;
+}
+
+.formTitle {
+  font-size: 3rem;
+  color: white;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  justify-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  max-width: 400px;
+  
+}
+
+input {
+  background-color: #2a2a2a;
+  color: #eee;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  gap: 1rem;
+}
+
+input::placeholder {
+  color: #ccc;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+}
+
+.inputField{
+  width: 400px;
+  height: 30px;
+}
+
+label {
+  margin-bottom: 0.4rem;
+  color: #ddd; /* light color like you wanted */
+  font-size: 1rem;
+}
+
+/* .checkboxGroup{
+  
+} */
+.checkboxInput{
+width: 1rem;
+height: 1rem;
+background-color: black;
+border-color: black;
+}
+button {
+  background: linear-gradient(45deg, rgba(255,105,135,0.9), rgba(255,182,193,0.9));
+  color: white;
+  font-weight: bold;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loginLink {
+  color: white;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.loginLink a {
+  color: #f8b6c1;
+  text-decoration: none;
+  margin-left: 0.3rem;
+}
+
+.link {
+  color: white;
+  text-decoration: none;
+}
+
+/* Mobile View */
+@media (max-width: 768px) {
+  .leftPanel {
+    display: none;
+  }
+
+  .rightPanel {
+    right: 40px;
+    left: 40px;
+    max-width: none;
+    width: auto;
+  }
+}
