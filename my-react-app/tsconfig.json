@@ -22,5 +22,5 @@
   },
   "include": [
     "src"
-  ]
+, "src/index.tsx", "src/image.d.ts", "src/frontend/pages/auth", "src/frontend/app", "src/frontend/components"  ]
 }
