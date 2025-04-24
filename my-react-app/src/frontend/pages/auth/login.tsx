@@ -43,33 +43,43 @@ const InteractiveBubble: React.FC = () => {
     return <div ref={bubbleRef} className="interactive"></div>;
 };
 
-interface RegisterFormData {
-    username: string;
-    displayName: string;
-    email: string;
+interface LoginFormData {
+    userIdentifier: string;
     password: string;
-    confirmPassword: string;
-    terms: boolean;
 }
-
-const RegisterForm: React.FC = () => {
-    const [formData, setFormData] = useState<RegisterFormData>({
-        username: '',
-        displayName: '',
-        email: '',
+const App: React.FC = () => {
+    const [formData, setFormData] = useState<LoginFormData>({
+        userIdentifier: '',
         password: '',
-        confirmPassword: '',
-        terms: false,
     });
+    const [identifierType, setIdentifierType] = useState<'email'|'username'|null>(null);
 
+    const validateIdentifier = (value: string) =>{
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (emailPattern.test(value)){
+            setIdentifierType('email');
+        }else {
+            setIdentifierType('username');
+        }
+    }
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value,
+            [name]: value,
         }));
+        if(name === 'userIdentifier'){
+            validateIdentifier(value);
+        }
     };
 
+    // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    //     e.preventDefault();
+    //     if (!isFormValid()) {
+    //         alert('Please fill in all information correctly!');
+    //     }
+    //     console.log('Registered', formData);
+    // };
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!isFormValid()) {
@@ -79,12 +89,14 @@ const RegisterForm: React.FC = () => {
 
         try {
             // Sending data to the backend using fetch
-            const response = await fetch("http://localhost:8081/api/register", {
+            const response = await fetch("http://localhost:8081/api/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData, identifierType,
+                }),
             });
 
             if (response.ok) {
@@ -99,49 +111,35 @@ const RegisterForm: React.FC = () => {
             alert("Something went wrong. Please try again.");
         }
     };
-
     const isFormValid = () => {
-        return (
-            formData.username.trim() &&
-            formData.displayName.trim() &&
-            formData.email.trim() &&
-            formData.password.trim() &&
-            formData.password === formData.confirmPassword &&
-            formData.terms
-        );
+        const{userIdentifier, password} = formData;
+        if(!userIdentifier.trim() || !password.trim()) {return false};
+        // return (
+        //     formData.username.trim() &&
+        //     formData.email.trim() &&
+        //     formData.password.trim()
+        // );
+        if(userIdentifier.includes('@')){
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailPattern.test(userIdentifier);
+        }
+        return userIdentifier.length >= 3;
     };
-
     return (
         <div className="pageWrapper">
             <LeftPanel />
+
             <div className="rightPanel">
                 <form onSubmit={handleSubmit} className="form">
-                    <h2 className="formTitle">Register</h2>
+                    <h2 className="formTitle">Login</h2>
 
                     <InputField
-                        label="Username"
+                        label="Email or Username"
                         type="text"
-                        name="username"
-                        value={formData.username}
+                        name="userIdentifier"
+                        value={formData.userIdentifier}
                         onChange={handleInputChange}
-                        placeholder="nguyenvana.deptrai"
-                    />
-
-                    <InputField
-                        label="Email"
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="example@student.hcmiu.edu.vn"
-                    />
-
-                    <InputField
-                        label="Display Name"
-                        name="displayName"
-                        value={formData.displayName}
-                        onChange={handleInputChange}
-                        placeholder="Nguyen Van A"
+                        placeholder="Enter email or username"
                     />
 
                     <InputField
@@ -153,30 +151,15 @@ const RegisterForm: React.FC = () => {
                         placeholder="••••••••"
                     />
 
-                    <InputField
-                        label="Confirm Password"
-                        type="password"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        placeholder="••••••••"
-                    />
-
-                    <Checkbox
-                        label="I agree to the terms and conditions"
-                        name="terms"
-                        checked={formData.terms}
-                        onChange={handleInputChange}
-                    />
-
-                    <SubmitButton disabled={!isFormValid()} label="Register" />
-
+                    <SubmitButton disabled={!isFormValid()} label="Login" />
                     <div className="loginLink">
-                        Already have an account? <Link to="/login">Login</Link>
+                        Don't have an account? <Link to="/register">Register</Link>
                     </div>
                 </form>
             </div>
+
             <div className="gradient-bg">
+
                 {/* mix color */}
                 <svg xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -203,11 +186,18 @@ const RegisterForm: React.FC = () => {
                     {/* <div className="interactive"></div> */}
                     <InteractiveBubble />
                 </div>
+
+
             </div>
         </div>
     );
 };
 
-export default function Register() {
-    return <RegisterForm />;
+// export { App, InteractiveBubble };
+export default function Login() {
+    return (
+        <div>
+            <App />
+        </div>
+    );
 }
