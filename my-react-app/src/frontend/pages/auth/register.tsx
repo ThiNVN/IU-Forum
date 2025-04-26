@@ -6,7 +6,7 @@ import Checkbox from '../../components/Checkbox';
 import SubmitButton from '../../components/SubmitButton';
 import LeftPanel from '../../components/LeftPanel';
 import EmailVerification from '../../components/EmailVerification';
-import {Navigate} from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import '../../styles/register.css';
 import '../../styles/gradientbg.scss'
 import { Link } from 'react-router-dom';
@@ -82,50 +82,50 @@ const RegisterForm: React.FC = () => {
 
         try {
             // Sending data to the backend using fetch
-        //     const response = await fetch("http://localhost:8081/api/register", {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //         },
-        //         body: JSON.stringify(formData),
-        //     });
+            //     const response = await fetch("http://localhost:8081/api/register", {
+            //         method: "POST",
+            //         headers: {
+            //             "Content-Type": "application/json",
+            //         },
+            //         body: JSON.stringify(formData),
+            //     });
 
-        //     if (response.ok) {
-        //         const result = await response.json();
-        //         alert(result.message);
-        //     } else {
-        //         const errorData = await response.json();
-        //         alert(errorData.message);
-        //     }
-        // } catch (error) {
-        //     console.error("Error during form submission:", error);
-        //     alert("Something went wrong. Please try again.");
-        // }
-        const verificationResponse = await fetch("https://localhost:8081/api/verification", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email: formData.email,
-                username: formData.username
-            }),
-        });
-        if (verificationResponse.ok) {
+            //     if (response.ok) {
+            //         const result = await response.json();
+            //         alert(result.message);
+            //     } else {
+            //         const errorData = await response.json();
+            //         alert(errorData.message);
+            //     }
+            // } catch (error) {
+            //     console.error("Error during form submission:", error);
+            //     alert("Something went wrong. Please try again.");
+            // }
+            const verificationResponse = await fetch("http://localhost:8081/api/verification", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: formData.email,
+                    username: formData.username
+                }),
+            });
+            if (verificationResponse.ok) {
                 setIsEmailVerificationOpen(true);
                 setVerificationInProgress(true);
-        } else {
-            const errorData = await verificationResponse.json();
-            alert(errorData.message);
-        }
-            }catch (error){
-                console.error("Error during verification:", error);
-                alert("Something went wrong. Please try again.");
+            } else {
+                const errorData = await verificationResponse.json();
+                alert(errorData.message);
             }
+        } catch (error) {
+            console.error("Error during verification:", error);
+            alert("Something went wrong. Please try again.");
+        }
     };
     const handleVerificationComplete = async (code: string) => {
         try {
-            const verificationResponse = await fetch("https://localhost:8081/api/verify-code", {
+            const verificationResponse = await fetch("http://localhost:8081/api/verify-code", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -136,14 +136,14 @@ const RegisterForm: React.FC = () => {
                 }),
             });
             if (verificationResponse.ok) {
-                const registerResponse = await fetch("https://localhost:8081/api/register", {
+                const registerResponse = await fetch("http://localhost:8081/api/register", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(formData),
                 });
-                if(registerResponse.ok){
+                if (registerResponse.ok) {
                     alert("Registration successful! Please login to continue.");
                     /*redirect login Navigate("/login")*/
                 } else {
@@ -157,13 +157,13 @@ const RegisterForm: React.FC = () => {
         } catch (error) {
             console.error("Error during verification:", error);
             alert("Something went wrong. Please try again.");
-        }finally {
+        } finally {
             setVerificationInProgress(false);
             setIsEmailVerificationOpen(false);
         }
     };
     const isFormValid = () => {
-        return (   
+        return (
             formData.username.trim() &&
             formData.displayName.trim() &&
             formData.email.trim() &&

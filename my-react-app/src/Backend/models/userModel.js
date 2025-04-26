@@ -49,7 +49,6 @@ class User {
         try {
             const saltRounds = 10;
             const hash = await bcrypt.hash(password, saltRounds);
-            console.log('Hashed password:', hash);
             return hash;
         } catch (err) {
             console.error('Error hashing password:', err);
