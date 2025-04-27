@@ -1,7 +1,7 @@
 // src/components/Header.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import InputField from './InputField';
-import '../styles/Header.css';
+import '../styles/header.css';
 // import { getUser } from '../services/userService'; // your API service
 
 const Header: React.FC = () => {
