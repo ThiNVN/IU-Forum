@@ -6,24 +6,21 @@ import '../styles/Header.css';
 const Header: React.FC = () => {
   const [username, setUsername] = useState<string>('Loading...');
 
-  useEffect(() => {
-    const fetchUsername = async () => {
-      try {
-        // const response = await fetch('/api/user');
-        // const data = await response.json();
-        // setUsername(data.username);
+//   useEffect(() => {
+//     const fetchUsername = async () => {
+//       try {
+//         const fetchUsername = async () => {
+//             const user = await getUser();
+//             setUsername(user.username);
+//           };
+//       } catch (error) {
+//         console.error('Failed to fetch username:', error);
+//         setUsername('Guest');
+//       }
+//     };
 
-        setTimeout(() => {
-          setUsername('AR. Jakir'); // Replace this with API result
-        }, 1000);
-      } catch (error) {
-        console.error('Failed to fetch username:', error);
-        setUsername('Guest');
-      }
-    };
-
-    fetchUsername();
-  }, []);
+//     fetchUsername();
+//   }, []);
 
   return (
     <header className="header">
