@@ -3,8 +3,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Register from "../pages/auth/register";
 import Main from "../pages/main";
-import Login from "../pages/auth/
- ZQAxw3e eeeeeeee e e de
+import Login from "../pages/auth/login";
 //import ThreadList from "../features/threads/pages/ThreadList";
 
 export default function App() {
