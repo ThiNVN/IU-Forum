@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 //import App from "./app/App";
 import Register from "./frontend/pages/auth/register";
 import "./index.css";
+import App from "./frontend/app/App";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
 // const root = ReactDOM.createRoot(
@@ -15,6 +16,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     {/* <BrowserRouter>
       <Register />
     </BrowserRouter> */}
-    <Register />
+    <App />
   </React.StrictMode>
 );

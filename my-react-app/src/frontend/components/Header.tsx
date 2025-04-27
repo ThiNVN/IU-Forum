@@ -1,7 +1,9 @@
 // src/components/Header.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import InputField from './InputField';
-import '../styles/Header.css';
+import logo from '../assets/img/UIlogo.png';
+import SearchBar from '../components/Searchbar';
+
+import '../styles/header.css';
 // import { getUser } from '../services/userService'; // your API service
 
 const Header: React.FC = () => {
@@ -45,20 +47,13 @@ const Header: React.FC = () => {
 
   return (
     <header className="header">
-      <div className="logoTitle">
-        <img src="../assets/img/IUlogo.png" alt="IU Logo" className="logoImage" />
+      <a href='/main' className="logoTitle">
+        <img src={logo} alt="IU Logo" className="logoImage" />
         <span className="forumTitle">IU Forum</span>
-      </div>
+      </a>
 
       <div className="searchBar">
-        <InputField
-          label=""
-          name="search"
-          value=""
-          onChange={() => {}}
-          placeholder="Type here to search"
-        />
-        <button className="searchButton">🔍</button>
+        <SearchBar />
       </div>
 
       <div className="actions">
@@ -69,7 +64,7 @@ const Header: React.FC = () => {
         {/* User Avatar with dropdown */}
         <div className="userProfile" onClick={toggleDropdown} ref={profileRef}>
           <img
-            src={isGuest ? '../assets/img/guest-avatar.png' : '../assets/img/avatar.png'}
+            src={isGuest ? '../assets/img/guest_avatar.png' : '../assets/img/avatar.png'}
             alt="User Avatar"
             className="avatar"
           />
@@ -82,7 +77,7 @@ const Header: React.FC = () => {
               {isGuest ? (
                 <a href="/login" className="dropdownItem">Login</a>
               ) : (
-                <a href="/logout" className="dropdownItem">Logout</a>
+                <a href="/register" className="dropdownItem">Logout</a>
               )}
             </div>
           )}
