@@ -10,8 +10,6 @@ const Main: React.FC = () => {
       <Navbar />
 
       <main className="mainContent">
-        <h1>Welcome to IU Forum!</h1>
-        <p>This is your main page content. 🚀</p>
       </main>
     </div>
   );
