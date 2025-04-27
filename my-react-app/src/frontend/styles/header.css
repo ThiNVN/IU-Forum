@@ -88,3 +88,49 @@
     font-size: 16px;
   }
   
+  /* --- Dropdown Menu Styles --- */
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative; /* Needed for dropdown positioning */
+  cursor: pointer;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  margin-top: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  z-index: 100;
+  animation: dropdownFade 0.3s ease; /* Optional: Fade animation */
+}
+
+.dropdownItem {
+  display: block;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+}
+
+.dropdownItem:hover {
+  background-color: #f0f0f0;
+}
+
+/* Optional: Smooth dropdown fade animation */
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

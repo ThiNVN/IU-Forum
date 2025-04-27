@@ -1,18 +1,20 @@
 // src/components/Header.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import InputField from './InputField';
 import '../styles/Header.css';
+// import { getUser } from '../services/userService'; // your API service
 
 const Header: React.FC = () => {
   const [username, setUsername] = useState<string>('Loading...');
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+
+  const profileRef = useRef<HTMLDivElement>(null);
 
 //   useEffect(() => {
 //     const fetchUsername = async () => {
 //       try {
-//         const fetchUsername = async () => {
-//             const user = await getUser();
-//             setUsername(user.username);
-//           };
+//         const user = await getUser();
+//         setUsername(user.username);
 //       } catch (error) {
 //         console.error('Failed to fetch username:', error);
 //         setUsername('Guest');
@@ -21,6 +23,25 @@ const Header: React.FC = () => {
 
 //     fetchUsername();
 //   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const toggleDropdown = () => {
+    setDropdownOpen((prev) => !prev);
+  };
+
+  const isGuest = username === 'Guest';
 
   return (
     <header className="header">
@@ -45,9 +66,26 @@ const Header: React.FC = () => {
         <button className="iconButton">✉️</button>
         <button className="createButton">+ Create</button>
 
-        <div className="userProfile">
-          <img src="../assets/img/avatar.png" alt="User Avatar" className="avatar" />
+        {/* User Avatar with dropdown */}
+        <div className="userProfile" onClick={toggleDropdown} ref={profileRef}>
+          <img
+            src={isGuest ? '../assets/img/guest-avatar.png' : '../assets/img/avatar.png'}
+            alt="User Avatar"
+            className="avatar"
+          />
           <span className="userName">{username}</span>
+
+          {dropdownOpen && (
+            <div className="dropdownMenu">
+              {!isGuest && <a href="/profile" className="dropdownItem">Profile</a>}
+              <a href="/settings" className="dropdownItem">Settings</a>
+              {isGuest ? (
+                <a href="/login" className="dropdownItem">Login</a>
+              ) : (
+                <a href="/logout" className="dropdownItem">Logout</a>
+              )}
+            </div>
+          )}
         </div>
 
         <button className="iconButton">🎨</button>
