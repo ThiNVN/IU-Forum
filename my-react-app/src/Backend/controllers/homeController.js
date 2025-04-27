@@ -1,0 +1,108 @@
+const User = require('../models/userModel');
+const nodemailer = require("nodemailer");
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../', '.env') });
+
+const registerUser = async (req, res) => {
+    const { username, email, displayName, password } = req.body;
+
+    // Check if the required fields are present
+    if (!username || !email || !password) {
+        return res.status(400).json({ message: 'Missing required fields.' });
+    }
+
+    try {
+        // Insert the new user into the database
+        const userId = await User.insertNewUser(username, email, displayName, password);
+
+        // Respond with success message and user ID
+        res.status(201).json({ message: 'User created successfully', userId });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const loginUser = async (req, res) => {
+    const { userIdentifier, password } = req.body;
+
+    // Check if the required fields are present
+    if (!userIdentifier || !password) {
+        return res.status(400).json({ message: 'Missing required fields.' });
+    }
+
+    try {
+        // Insert the new user into the database
+        const userId = await User.checkUserCredentials(userIdentifier, password);
+
+        // Respond with success message and user ID
+        res.status(201).json({ message: 'Login accept', userId });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+//send verification email
+const verificationCodes = {};
+
+const verificationEmail = async (req, res) => {
+    const { email, username } = req.body;
+
+    const emailSender = process.env.Email;
+    const password = process.env.Email_Password;
+
+    // Generate 6-digit code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+
+    // Configure your transporter (use your own credentials here)
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: emailSender,
+            pass: password // Use App Passwords or OAuth2 for Gmail
+        }
+    });
+
+    // Email content
+    const mailOptions = {
+        from: '"IU Forum"',
+        to: email,
+        subject: 'Your Verification Code',
+        text: `Hello ${username},\n\nYour verification code is: ${verificationCode}\n\nThanks!`,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        verificationCodes[email] = verificationCode;
+        res.status(200).json({ message: 'Verification email sent', code: verificationCode });
+    } catch (error) {
+        console.error("Error sending email:", error);
+        res.status(500).json({ message: 'Failed to send verification email' });
+    }
+};
+
+//Verify code from user
+const verifyCode = (req, res) => {
+    const { email, code } = req.body;
+
+    const storedCode = verificationCodes[email];
+    console.log(storedCode, code)
+    if (!storedCode) {
+        return res.status(400).json({ message: 'No verification code found for this email.' });
+    }
+
+    if (parseInt(code) === storedCode) {
+        // Optionally delete the code after successful verification
+        delete verificationCodes[email];
+        return res.status(200).json({ message: 'Code verified successfully!' });
+    } else {
+        return res.status(401).json({ message: 'Invalid verification code.' });
+    }
+};
+module.exports = {
+    registerUser,
+    loginUser,
+    verificationEmail,
+    verifyCode
+};

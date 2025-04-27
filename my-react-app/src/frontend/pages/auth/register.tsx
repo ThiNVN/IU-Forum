@@ -1,12 +1,15 @@
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:277995103.
-import React, { useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import InputField from '../../components/InputField';
 import Checkbox from '../../components/Checkbox';
 import SubmitButton from '../../components/SubmitButton';
 import LeftPanel from '../../components/LeftPanel';
+import EmailVerification from '../../components/EmailVerification';
+import { Navigate } from 'react-router-dom';
 import '../../styles/register.css';
 import '../../styles/gradientbg.scss'
+import { Link } from 'react-router-dom';
 
 const InteractiveBubble: React.FC = () => {
     const bubbleRef = useRef<HTMLDivElement>(null);
@@ -17,7 +20,7 @@ const InteractiveBubble: React.FC = () => {
         let tgX = 0;
         let tgY = 0;
 
-        function move () {
+        function move() {
             curX += (tgX - curX) / 20;
             curY += (tgY - curY) / 20;
             if (bubbleRef.current) {
@@ -42,7 +45,7 @@ const InteractiveBubble: React.FC = () => {
     return <div ref={bubbleRef} className="interactive"></div>;
 };
 
-interface RegisterFormData{
+interface RegisterFormData {
     username: string;
     displayName: string;
     email: string;
@@ -50,7 +53,8 @@ interface RegisterFormData{
     confirmPassword: string;
     terms: boolean;
 }
-const App: React.FC = () => {
+
+const RegisterForm: React.FC = () => {
     const [formData, setFormData] = useState<RegisterFormData>({
         username: '',
         displayName: '',
@@ -59,6 +63,7 @@ const App: React.FC = () => {
         confirmPassword: '',
         terms: false,
     });
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
@@ -66,15 +71,97 @@ const App: React.FC = () => {
             [name]: type === 'checkbox' ? checked : value,
         }));
     };
-
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const [isEmailVerificationOpen, setIsEmailVerificationOpen] = useState(false);
+    const [verificationInProgress, setVerificationInProgress] = useState(false);
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!isFormValid()) {
             alert('Please fill in all information correctly!');
+            return;
         }
-        console.log('Registered', formData);
-    };
 
+        try {
+            // Sending data to the backend using fetch
+            //     const response = await fetch("http://localhost:8081/api/register", {
+            //         method: "POST",
+            //         headers: {
+            //             "Content-Type": "application/json",
+            //         },
+            //         body: JSON.stringify(formData),
+            //     });
+
+            //     if (response.ok) {
+            //         const result = await response.json();
+            //         alert(result.message);
+            //     } else {
+            //         const errorData = await response.json();
+            //         alert(errorData.message);
+            //     }
+            // } catch (error) {
+            //     console.error("Error during form submission:", error);
+            //     alert("Something went wrong. Please try again.");
+            // }
+            const verificationResponse = await fetch("http://localhost:8081/api/verification", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: formData.email,
+                    username: formData.username
+                }),
+            });
+            if (verificationResponse.ok) {
+                setIsEmailVerificationOpen(true);
+                setVerificationInProgress(true);
+            } else {
+                const errorData = await verificationResponse.json();
+                alert(errorData.message);
+            }
+        } catch (error) {
+            console.error("Error during verification:", error);
+            alert("Something went wrong. Please try again.");
+        }
+    };
+    const handleVerificationComplete = async (code: string) => {
+        try {
+            const verificationResponse = await fetch("http://localhost:8081/api/verify-code", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: formData.email,
+                    code: code,
+                }),
+            });
+            if (verificationResponse.ok) {
+                const registerResponse = await fetch("http://localhost:8081/api/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                });
+                if (registerResponse.ok) {
+                    alert("Registration successful! Please login to continue.");
+                    /*redirect login Navigate("/login")*/
+                } else {
+                    const errorData = await registerResponse.json();
+                    alert(errorData.message);
+                }
+            } else {
+                const errorData = await verificationResponse.json();
+                alert(errorData.message);
+            }
+        } catch (error) {
+            console.error("Error during verification:", error);
+            alert("Something went wrong. Please try again.");
+        } finally {
+            setVerificationInProgress(false);
+            setIsEmailVerificationOpen(false);
+        }
+    };
     const isFormValid = () => {
         return (
             formData.username.trim() &&
@@ -85,75 +172,79 @@ const App: React.FC = () => {
             formData.terms
         );
     };
+
     return (
-    <div className="pageWrapper">
-      <LeftPanel />
+        <div className="pageWrapper">
+            <LeftPanel />
+            <div className="rightPanel">
+                <form onSubmit={handleSubmit} className="form">
+                    <h2 className="formTitle">Register</h2>
 
-      <div className="rightPanel">
-        <form onSubmit={handleSubmit} className="form">
-          <h2 className="formTitle">Register</h2>
+                    <InputField
+                        label="Username"
+                        type="text"
+                        name="username"
+                        value={formData.username}
+                        onChange={handleInputChange}
+                        placeholder="nguyenvana.deptrai"
+                    />
 
-          <InputField
-            label="Username"
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleInputChange}
-            placeholder="nguyenvana.deptrai"
-          />
+                    <InputField
+                        label="Email"
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="example@student.hcmiu.edu.vn"
+                    />
 
-          <InputField
-            label="Email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            placeholder="example@student.hcmiu.edu.vn"
-          />
+                    <InputField
+                        label="Display Name"
+                        name="displayName"
+                        value={formData.displayName}
+                        onChange={handleInputChange}
+                        placeholder="Nguyen Van A"
+                    />
 
-          <InputField
-            label="Display Name"
-            name="displayName"
-            value={formData.displayName}
-            onChange={handleInputChange}
-            placeholder="Nguyen Van A"
-          />
+                    <InputField
+                        label="Password"
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        placeholder="••••••••"
+                    />
 
-          <InputField
-            label="Password"
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            placeholder="••••••••"
-          />
+                    <InputField
+                        label="Confirm Password"
+                        type="password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleInputChange}
+                        placeholder="••••••••"
+                    />
 
-          <InputField
-            label="Confirm Password"
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleInputChange}
-            placeholder="••••••••"
-          />
+                    <Checkbox
+                        label="I agree to the terms and conditions"
+                        name="terms"
+                        checked={formData.terms}
+                        onChange={handleInputChange}
+                    />
 
-          <Checkbox
-            label="I agree to the terms and conditions"
-            name="terms"
-            checked={formData.terms}
-            onChange={handleInputChange}
-          />
+                    <SubmitButton disabled={!isFormValid()} label="Register" />
 
-          <SubmitButton disabled={!isFormValid()} label="Register" />
-
-          <div className="loginLink">
-            Already have an account? <a href="#">Login</a>
-          </div>
-        </form>
-      </div>
-            
+                    <div className="loginLink">
+                        Already have an account? <Link to="/login">Login</Link>
+                    </div>
+                </form>
+                <EmailVerification
+                    isOpen={isEmailVerificationOpen}
+                    onClose={() => setIsEmailVerificationOpen(false)}
+                    onVerify={handleVerificationComplete}
+                    email={formData.email}
+                />
+            </div>
             <div className="gradient-bg">
-
                 {/* mix color */}
                 <svg xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -180,18 +271,11 @@ const App: React.FC = () => {
                     {/* <div className="interactive"></div> */}
                     <InteractiveBubble />
                 </div>
-
-
             </div>
         </div>
     );
 };
 
-// export { App, InteractiveBubble };
 export default function Register() {
-    return (
-        <div>
-            <App />
-        </div>
-    );
+    return <RegisterForm />;
 }
