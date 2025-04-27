@@ -1,0 +1,136 @@
+/* src/styles/Header.css */
+
+.header {
+    background-color: #2C2C84;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .logoTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .logoImage {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .forumTitle {
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  .searchBar {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    margin: 0 16px;
+    background-color: white;
+    border: 2px solid white;
+    border-radius: 6px;
+  }
+  
+  .searchButton {
+    background: none;
+    border: none;
+    padding: 8px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: white;
+  }
+  
+  .iconButton {
+    background: none;
+    border: none;
+    padding: 8px;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  .createButton {
+    background: none;
+    border: 1px solid white;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 16px;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .userProfile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+  }
+  
+  .userName {
+    color: white;
+    font-size: 16px;
+  }
+  
+  /* --- Dropdown Menu Styles --- */
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative; /* Needed for dropdown positioning */
+  cursor: pointer;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  margin-top: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  z-index: 100;
+  animation: dropdownFade 0.3s ease; /* Optional: Fade animation */
+}
+
+.dropdownItem {
+  display: block;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+}
+
+.dropdownItem:hover {
+  background-color: #f0f0f0;
+}
+
+/* Optional: Smooth dropdown fade animation */
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
