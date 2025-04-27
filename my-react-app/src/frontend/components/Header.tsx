@@ -1,8 +1,30 @@
-import React from 'react';
+// src/components/Header.tsx
+import React, { useState, useEffect } from 'react';
 import InputField from './InputField';
 import '../styles/Header.css';
 
 const Header: React.FC = () => {
+  const [username, setUsername] = useState<string>('Loading...');
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        // const response = await fetch('/api/user');
+        // const data = await response.json();
+        // setUsername(data.username);
+
+        setTimeout(() => {
+          setUsername('AR. Jakir'); // Replace this with API result
+        }, 1000);
+      } catch (error) {
+        console.error('Failed to fetch username:', error);
+        setUsername('Guest');
+      }
+    };
+
+    fetchUsername();
+  }, []);
+
   return (
     <header className="header">
       <div className="logoTitle">
@@ -28,7 +50,7 @@ const Header: React.FC = () => {
 
         <div className="userProfile">
           <img src="../assets/img/avatar.png" alt="User Avatar" className="avatar" />
-          <span className="userName">AR. Jakir</span>
+          <span className="userName">{username}</span>
         </div>
 
         <button className="iconButton">🎨</button>
