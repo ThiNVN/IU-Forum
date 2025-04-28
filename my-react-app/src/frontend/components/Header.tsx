@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import logo from '../assets/img/UIlogo.png';
 import SearchBar from '../components/Searchbar';
-
 import '../styles/header.css';
 // import { getUser } from '../services/userService'; // your API service
 
@@ -46,7 +45,8 @@ const Header: React.FC = () => {
   const isGuest = username === 'Guest';
 
   return (
-    <header className="header">
+    <header>
+      <div className='header'>
       <a href='/main' className="logoTitle">
         <img src={logo} alt="IU Logo" className="logoImage" />
         <span className="forumTitle">IU Forum</span>
@@ -86,6 +86,7 @@ const Header: React.FC = () => {
         <button className="iconButton">🎨</button>
         <button className="iconButton">🌙</button>
       </div>
+    </div>
     </header>
   );
 };
