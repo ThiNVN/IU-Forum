@@ -2,15 +2,25 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Register from "../pages/auth/register";
-import Main from "../pages/main";
+import LayoutComponent from "../components/layoutComponent";
+import Main from "../pages/main/main";
 import Login from "../pages/auth/login";
+import UserProfile from "../pages/profile/[id]";
+import Profile from "../pages/profile/profile";
+
 //import ThreadList from "../features/threads/pages/ThreadList";
 
 export default function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/main" element={<Main />} />
+                <Route element={<LayoutComponent />}>
+                    <Route path="/main" element={<Main />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/profile/:id" element={<UserProfile />} />
+                </Route>
+
+                {/* <Route path="/main" element={<Main />} /> */}
                 <Route path="/" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
