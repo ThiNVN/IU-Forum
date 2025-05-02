@@ -1,5 +1,10 @@
 import React from 'react';
+import ProfilePosts from './ProfilePosts';
+import LatestActivity from './LatestActivity';
+import Postings from './Postings';
+import About from './About';
 import '../styles/ProfilePage.css';
+import '../styles/ProfileTabs.css';
 
 
 interface ProfilePageProps {
@@ -34,7 +39,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
         { label: "About", path: `${baseProfileUrl}/about` },
     ];
     // You can use a prop or state to determine the active tab if needed
-    const activeTab = 0; // For now, just highlight the first tab
+    var activeTab = 0; // For now, just highlight the first tab
 //     What does activeTab mean ?
 // activeTab is a variable(or state) that determines which tab is currently selected
 //           or highlighted in your tab navigation.
@@ -42,6 +47,33 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
 //          the second tab("Latest activity") is active, and so on.
 // In a real application, you would set activeTab based on the current URL or user interaction,
 //           so the correct tab is highlighted as the user navigates.
+
+const renderActiveTab = () => {
+  switch (activeTab) {
+    case 0:
+      return <ProfilePosts userId={userId} />;
+    case 1:
+      return <LatestActivity userId={userId} />;
+    case 2:
+      return <Postings userId={userId} />;
+    case 3:
+      return <About userId={userId} userInfo={{
+        biography: "This is a sample biography...",
+        location: "Sample Location",
+        occupation: "Sample Occupation",
+        interests: ["Technology", "Gaming", "Reading"],
+        website: "https://example.com",
+        socialLinks: {
+          Twitter: "https://twitter.com/example",
+          LinkedIn: "https://linkedin.com/in/example"
+        }
+      }} />;
+    default:
+      return <ProfilePosts userId={userId} />;
+  }
+};
+
+
 
   return (
     <div className="profile-page">
@@ -75,6 +107,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
 
       </div>
           <h2 className="profile-tabs-header" role="tablist">
+          <div className="profile-content">
+            {renderActiveTab()}
+          </div>
               <span className="profile-tabs-scroll">
                   {tabs.map((tab, idx) => (
                       <a

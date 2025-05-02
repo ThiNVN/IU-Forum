@@ -1,0 +1,125 @@
+.profile-content {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+/* Profile Posts */
+.profile-post {
+  border-bottom: 1px solid #eee;
+  padding: 15px 0;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.post-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-author {
+  font-weight: bold;
+}
+
+.post-date {
+  font-size: 0.9em;
+  color: #666;
+}
+
+/* Latest Activity */
+.activity-timeline {
+  padding: 10px 0;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.activity-icon {
+  margin-right: 15px;
+  font-size: 1.2em;
+}
+
+/* Postings */
+.postings-filter {
+  margin-bottom: 20px;
+}
+
+.filter-button {
+  padding: 8px 16px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 4px;
+  background: #f0f0f0;
+  cursor: pointer;
+}
+
+.filter-button.active {
+  background: #183254;
+  color: white;
+}
+
+/* About Section */
+.about-section {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about-item {
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.detail-label {
+  font-weight: bold;
+  min-width: 120px;
+}
+
+.interests-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.interest-tag {
+  background: #e9ecef;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.social-links {
+  display: flex;
+  gap: 10px;
+}
+
+.social-link {
+  color: #183254;
+  text-decoration: none;
+}
+
+.social-link:hover {
+  text-decoration: underline;
+} 
