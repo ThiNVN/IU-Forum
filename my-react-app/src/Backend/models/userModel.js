@@ -113,6 +113,7 @@ class User {
                 }
             }
 
+
             // Commit transaction (optional based on your business logic)
             await dbConnection.commit();
 
@@ -155,8 +156,11 @@ class User {
     }
 
     // Get User by id
-    static async getUserByID(ID, dbConnection) {
+    static async getUserByID(ID) {
+        const dbConnection = await connection.getConnection();  // Get a connection for the transaction
+        await dbConnection.beginTransaction();  // Start transaction
         try {
+            console.log(ID)
             // Get user credential by id
             const [Result] = await dbConnection.query(
                 'SELECT * FROM user WHERE ID = ?',
@@ -164,8 +168,12 @@ class User {
             );
             return Result;
         } catch (err) {
+            // Rollback the transaction in case of an error
+            await dbConnection.rollback();
             console.error("Database error:", err);
-            throw err;
+            throw err;  // Re-throw the error so it can be handled elsewhere
+        } finally {
+            dbConnection.release();  // Release the connection back to the pool
         }
     }
 
@@ -191,8 +199,29 @@ class User {
 
         try {
             const [Result] = await dbConnection.query(
-                'UPDATE user SET username = ?, full_name = ?, avatar = ?, age = ?, school = ?, major = ?, bio = ? WHERE id =  ?',
+                'UPDATE user SET username = ?, full_name = ?, avatar = ?, age = ?, school = ?, major = ?, bio = ? WHERE ID =  ?',
                 [username, full_name, avatar, age, school, major, bio, ID]
+            );
+            await dbConnection.commit();
+            return 1;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    //Update user last login status
+    static async updateUserLastLoginStatus(user_id) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            const [Result] = await dbConnection.query(
+                'UPDATE user SET last_login = NOW() WHERE ID =  ?',
+                [user_id]
             );
             await dbConnection.commit();
             return 1;
