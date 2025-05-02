@@ -52,13 +52,13 @@ const App: React.FC = () => {
         userIdentifier: '',
         password: '',
     });
-    const [identifierType, setIdentifierType] = useState<'email'|'username'|null>(null);
+    const [identifierType, setIdentifierType] = useState<'email' | 'username' | null>(null);
 
-    const validateIdentifier = (value: string) =>{
+    const validateIdentifier = (value: string) => {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (emailPattern.test(value)){
+        if (emailPattern.test(value)) {
             setIdentifierType('email');
-        }else {
+        } else {
             setIdentifierType('username');
         }
     }
@@ -68,7 +68,7 @@ const App: React.FC = () => {
             ...prev,
             [name]: value,
         }));
-        if(name === 'userIdentifier'){
+        if (name === 'userIdentifier') {
             validateIdentifier(value);
         }
     };
@@ -102,6 +102,10 @@ const App: React.FC = () => {
             if (response.ok) {
                 const result = await response.json();
                 alert(result.message);
+                sessionStorage.setItem('userId', result.userId);
+                setTimeout(() => {
+                    window.location.href = "/main";
+                }, 1000); // 1 second delay
             } else {
                 const errorData = await response.json();
                 alert(errorData.message);
@@ -112,14 +116,14 @@ const App: React.FC = () => {
         }
     };
     const isFormValid = () => {
-        const{userIdentifier, password} = formData;
-        if(!userIdentifier.trim() || !password.trim()) {return false};
+        const { userIdentifier, password } = formData;
+        if (!userIdentifier.trim() || !password.trim()) { return false };
         // return (
         //     formData.username.trim() &&
         //     formData.email.trim() &&
         //     formData.password.trim()
         // );
-        if(userIdentifier.includes('@')){
+        if (userIdentifier.includes('@')) {
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailPattern.test(userIdentifier);
         }

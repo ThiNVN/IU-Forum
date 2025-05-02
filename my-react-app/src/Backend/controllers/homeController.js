@@ -34,7 +34,7 @@ const loginUser = async (req, res) => {
     try {
         // Insert the new user into the database
         const userId = await User.checkUserCredentials(userIdentifier, password);
-
+        User.updateUserLastLoginStatus(userId);
         // Respond with success message and user ID
         res.status(201).json({ message: 'Login accept', userId });
     } catch (err) {
@@ -100,9 +100,25 @@ const verifyCode = (req, res) => {
         return res.status(401).json({ message: 'Invalid verification code.' });
     }
 };
+
+const getUserProfile = async (req, res) => {
+    const { userId } = req.body;
+
+    try {
+        // Get user profile
+        const userProfile = await User.getUserByID(userId);
+        console.log(userProfile)
+        // Respond with success message and user ID
+        res.status(201).json({ message: 'Successful get user profile', userProfile: userProfile[0] });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
 module.exports = {
     registerUser,
     loginUser,
     verificationEmail,
-    verifyCode
+    verifyCode,
+    getUserProfile
 };

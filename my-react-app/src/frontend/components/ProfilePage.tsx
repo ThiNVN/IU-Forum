@@ -24,12 +24,30 @@ interface ProfilePageProps {
   };
 }
 
+function timeAgo(dateString: string): string {
+  const now = new Date();
+  const then = new Date(dateString);
+  const diffInSeconds = Math.floor((now.getTime() - then.getTime()) / 1000);
+
+  const minutes = Math.floor(diffInSeconds / 60);
+  const hours = Math.floor(diffInSeconds / 3600);
+  const days = Math.floor(diffInSeconds / 86400);
+
+  if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+  if (minutes < 60) return `${minutes} minutes ago`;
+  if (hours < 24) return `${hours} hours ago`;
+  return `${days} days ago`;
+}
+
 const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
   const avatar = user.avatar || '/assets/img/guest_avatar.png';
   const title = user.title || 'Member';
   const joined = user.joined || 'Unknown';
+
   const lastSeen = user.lastSeen || 'Unknown';
+  const displayTime = lastSeen ? timeAgo(lastSeen) : 'Unknown';
   const stats = user.stats || { messages: 0, reactionScore: 0, points: 0 };
+
     const userId = user.id;
     const baseProfileUrl = `/profile/${userId}`;
     const tabs = [
@@ -87,7 +105,7 @@ const renderActiveTab = () => {
           <div className="profile-title">{title}</div>
           <div className="profile-details">
             <div>Joined: {joined}</div>
-            <div>Last seen: {lastSeen}</div>
+            <div>Last seen: {displayTime}</div>
           </div>
         </div>
       </div>
