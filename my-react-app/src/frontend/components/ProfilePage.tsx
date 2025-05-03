@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ProfilePosts from './ProfilePosts';
 import LatestActivity from './LatestActivity';
 import Postings from './Postings';
@@ -56,15 +56,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
         { label: "Postings", path: `${baseProfileUrl}/recent-content` },
         { label: "About", path: `${baseProfileUrl}/about` },
     ];
-    // You can use a prop or state to determine the active tab if needed
-    var activeTab = 0; // For now, just highlight the first tab
-//     What does activeTab mean ?
-// activeTab is a variable(or state) that determines which tab is currently selected
-//           or highlighted in your tab navigation.
-// For example, if activeTab = 0, the first tab("Profile posts") is active; if activeTab = 1, 
-//          the second tab("Latest activity") is active, and so on.
-// In a real application, you would set activeTab based on the current URL or user interaction,
-//           so the correct tab is highlighted as the user navigates.
+    // Use state for the active tab
+    const [activeTab, setActiveTab] = useState(0);
 
 const renderActiveTab = () => {
   switch (activeTab) {
@@ -125,23 +118,25 @@ const renderActiveTab = () => {
 
       </div>
           <h2 className="profile-tabs-header" role="tablist">
-          <div className="profile-content">
-            {renderActiveTab()}
-          </div>
               <span className="profile-tabs-scroll">
                   {tabs.map((tab, idx) => (
-                      <a
+                      <button
                           key={tab.label}
-                          href={tab.path}
+                          type="button"
                           className={`profile-tab${activeTab === idx ? " profile-tab--active" : ""}`}
                           role="tab"
                           aria-selected={activeTab === idx}
+                          onClick={() => setActiveTab(idx)}
+                          style={{ background: "none", border: "none", cursor: "pointer" }}
                       >
                           {tab.label}
-                      </a>
+                      </button>
                   ))}
               </span>
           </h2>
+      <div className="profile-content">
+        {renderActiveTab()}
+      </div>
       <div className="profile-actions">
         {isOwnProfile ? (
           <button className="action-button">Edit Profile</button>
