@@ -36,6 +36,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({userId}) => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [newPostContent, setNewPostContent] = useState<string>('');
     const [newCommentContent, setNewCommentContent] = useState<string>('');
+    const [newCommentContentMap, setNewCommentContentMap] = useState<{[postId: string]: string}>({})
 
     const handlePostSubmit = () => {
         if (newPostContent.trim() === '') return;
@@ -63,7 +64,8 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({userId}) => {
                 ? { ...post, comments: [...post.comments, newComment] } 
                 : post
         ));
-        setNewCommentContent('');
+        // setNewCommentContent('');
+        setNewCommentContentMap(prev => ({...prev, [postId]: ''}));
     };
 
     return (
@@ -96,10 +98,18 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({userId}) => {
                                     </div>
                                 </div>
                             ))}
-                            <div className="new-comment">
+                            {/* <div className="new-comment">
                                 <RichTextEditor
                                     value={newCommentContent}
                                     onChange={setNewCommentContent}
+                                    placeholder="Write a comment..."
+                                />
+                                <button onClick={() => handleCommentSubmit(post.id)}>Comment</button>
+                            </div> */}
+                            <div className="new-comment">
+                                <RichTextEditor
+                                    value={newCommentContentMap[post.id]}
+                                    onChange={(content) => setNewCommentContentMap(prev => ({...prev, [post.id]: content}))}
                                     placeholder="Write a comment..."
                                 />
                                 <button onClick={() => handleCommentSubmit(post.id)}>Comment</button>
