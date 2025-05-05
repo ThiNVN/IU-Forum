@@ -1,6 +1,8 @@
 const User = require('../models/userModel');
 const nodemailer = require("nodemailer");
 const path = require('path');
+const Post = require('../models/postModel');
+const Comment = require('../models/commentModel');
 require('dotenv').config({ path: path.resolve(__dirname, '../', '.env') });
 
 const registerUser = async (req, res) => {
@@ -107,7 +109,6 @@ const getUserProfile = async (req, res) => {
     try {
         // Get user profile
         const userProfile = await User.getUserByID(userId);
-        console.log(userProfile)
         // Respond with success message and user ID
         res.status(201).json({ message: 'Successful get user profile', userProfile: userProfile[0] });
     } catch (err) {
@@ -115,10 +116,78 @@ const getUserProfile = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 }
+
+const getUserProfilePost = async (req, res) => {
+    const userId = req.query.userId;
+
+    try {
+        const { posts, user } = await Post.getProfilePostByUserID(userId);
+        // console.log("Profile Post:", posts);
+        // console.log("User Info:", user);
+
+        res.status(200).json({
+            message: 'Successfully retrieved profile posts',
+            posts,
+            user
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const addNewPost = async (req, res) => {
+    const { thread_id, user_id, content, image } = req.body;
+    try {
+        // Insert the new post into the database
+        const newPost = await Post.insertNewPost(thread_id, user_id, content, image);
+
+        // Respond with success message and user ID
+        res.status(201).json({ message: 'Post added successfully', newPost });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const getAllCommentOfPost = async (req, res) => {
+    const post_id = req.query.post_id;
+
+    try {
+        const comments = await Comment.getCommentByUserID(post_id);
+        // console.log("Comments:", comments);
+        res.status(200).json({
+            message: 'Successfully retrieved all comments of post',
+            comments
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const addNewComment = async (req, res) => {
+    const { post_id, user_id, parent_cmt_id, content } = req.body;
+    try {
+        // Insert the new comment into the database
+        const newComment = await Comment.insertNewCommnent(post_id, user_id, parent_cmt_id, content);
+
+        // Respond with success message and user ID
+        res.status(201).json({ message: 'Comment added successfully', newComment });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
     verificationEmail,
     verifyCode,
-    getUserProfile
+    getUserProfile,
+    getUserProfilePost,
+    addNewPost,
+    getAllCommentOfPost,
+    addNewComment
 };

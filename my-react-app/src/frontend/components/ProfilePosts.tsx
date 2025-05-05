@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RichTextEditor from './RichTextEditor';
 
 interface ProfilePost {
@@ -7,67 +7,219 @@ interface ProfilePost {
     date: string;
     likes: number;
     comments: number;
-    author:{
+    author: {
         username: String;
         avatar: String;
     }
 }
 
-interface ProfilePostsProps{
+interface ProfilePostsProps {
     userId: string;
 }
 
 interface Post {
-  id: string;
-  content: string;
-  author: string;
-  timestamp: string;
-  comments: Comment[];
+    id: string;
+    content: string;
+    author: string;
+    timestamp: string;
+    comments: Comment[];
 }
 
 interface Comment {
-  id: string;
-  content: string;
-  author: string;
-  timestamp: string;
+    id: string;
+    content: string;
+    author: string;
+    timestamp: string;
 }
 
-const ProfilePosts: React.FC<ProfilePostsProps> = ({userId}) => {
+const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [newPostContent, setNewPostContent] = useState<string>('');
     //const [newCommentContent, setNewCommentContent] = useState<string>('');
-    const [newCommentContentMap, setNewCommentContentMap] = useState<{[postId: string]: string}>({})
+    const [newCommentContentMap, setNewCommentContentMap] = useState<{ [postId: string]: string }>({})
+    useEffect(() => {
+        const fetchUserProfilePost = async () => {
+            if (!userId) return;
+            try {
+                const response = await fetch(`http://localhost:8081/api/getUserProfilePost?userId=${userId}`);
 
-    const handlePostSubmit = () => {
+                if (response.ok) {
+                    const res = await response.json();
+                    const data = res.posts;
+                    const userdata = res.user;
+
+                    const formattedPosts: Post[] = await Promise.all(
+                        data.map(async (post: any) => {
+                            try {
+                                const response = await fetch(`http://localhost:8081/api/getAllCommentOfPost?post_id=${post.ID}`);
+                                const commentData = await response.json();
+
+                                const formattedComments: Comment[] = (commentData.comments || []).map((cmt: any) => ({
+                                    id: cmt.ID,
+                                    content: cmt.content,
+                                    author: cmt.username, // or replace with username if needed
+                                    timestamp: cmt.create_at,
+                                }));
+
+                                return {
+                                    id: post.ID,
+                                    content: post.content,
+                                    author: userdata.username, // assuming the same author for all posts
+                                    timestamp: post.create_at,
+                                    comments: formattedComments,
+                                };
+                            } catch (err) {
+                                console.error(`Failed to fetch comments for post ${post.ID}:`, err);
+                                return {
+                                    id: post.ID,
+                                    content: post.content,
+                                    author: userdata.username,
+                                    timestamp: post.create_at,
+                                    comments: [],
+                                };
+                            }
+                        })
+                    );
+
+                    setPosts(formattedPosts);
+                } else {
+                    console.error('Fetch failed:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Failed to fetch posts:', error);
+            }
+        };
+
+        fetchUserProfilePost();
+    }, [userId]);
+    const handlePostSubmit = async () => {
         if (newPostContent.trim() === '') return;
-        const newPost: Post = {
-            id: Date.now().toString(),
-            content: newPostContent,
-            author: 'User', // Replace with actual user name
-            timestamp: new Date().toISOString(),
-            comments: []
-        };
-        setPosts([...posts, newPost]);
-        setNewPostContent('');
+
+        try {
+            const response = await fetch('http://localhost:8081/api/addNewPost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: userId,             // make sure you have this available
+                    content: newPostContent,
+                    thread_id: null,      // or a real thread ID if this is not a profile post
+                    image: null
+                }),
+            });
+
+            if (response.ok) {
+                const savedPost = await response.json(); // expect backend to return the inserted post
+                const newPost: Post = {
+                    id: savedPost.ID,                     // from DB
+                    content: savedPost.content,
+                    author: savedPost.user_id,             // returned from backend or locally known
+                    timestamp: savedPost.created_at,      // returned from backend
+                    //add image if need!
+                    comments: []
+                };
+                setPosts(prev => [...prev, newPost]);
+                setNewPostContent('');
+            } else {
+                console.error('Failed to add post');
+            }
+        } catch (error) {
+            console.error('Error submitting post:', error);
+        }
     };
 
-    const handleCommentSubmit = (postId: string) => {
-        const commentContent = newCommentContentMap[postId];
-        if (commentContent.trim() === '') return;
-        const newComment: Comment = {
-            id: Date.now().toString(),
-            content: commentContent,
-            author: 'User', // Replace with actual user name
-            timestamp: new Date().toISOString()
-        };
-        setPosts(posts.map(post => 
-            post.id === postId 
-                ? { ...post, comments: [...post.comments, newComment] } 
-                : post
-        ));
-        // setNewCommentContent('');
-        setNewCommentContentMap(prev => ({...prev, [postId]: ''}));
+    // DUKE'S LOCAL FILE
+    // const handleCommentSubmit = (postId: string) => {
+    //     const commentContent = newCommentContentMap[postId];
+    //     if (commentContent.trim() === '') return;
+    //     const newComment: Comment = {
+    //         id: Date.now().toString(),
+    //         content: commentContent,
+    //         author: 'User', // Replace with actual user name
+    //         timestamp: new Date().toISOString()
+    //     };
+    //     setPosts(posts.map(post => 
+    //         post.id === postId 
+    //             ? { ...post, comments: [...post.comments, newComment] } 
+    //             : post
+    //     ));
+    //     // setNewCommentContent('');
+    //     setNewCommentContentMap(prev => ({...prev, [postId]: ''}));
+
+        //fROM github
+        const handleCommentSubmit = async (postId: string) => {
+        const content = newCommentContentMap[postId]?.trim();
+        if (!content) return;
+
+        try {
+            const response = await fetch('http://localhost:8081/api/addNewComment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    post_id: postId,
+                    user_id: userId,
+                    parent_cmt_id: null,
+                    content: content,
+                }),
+            });
+
+            if (response.ok) {
+                const savedComment = await response.json();
+
+                const newComment: Comment = {
+                    id: savedComment.newComment.ID,
+                    content: savedComment.newComment.content,
+                    author: savedComment.newComment.user_id,
+                    timestamp: savedComment.newComment.created_at,
+                };
+
+                setPosts(prevPosts =>
+                    prevPosts.map(post =>
+                        post.id === postId
+                            ? { ...post, comments: [...post.comments, newComment] }
+                            : post
+                    )
+                );
+
+                // Clear input for this post only
+                setNewCommentContentMap(prev => ({ ...prev, [postId]: '' }));
+            } else {
+                console.error('Failed to add comment');
+            }
+        } catch (error) {
+            console.error('Error submitting comment:', error);
+        }
     };
+    // const handlePostSubmit = () => {
+    //     if (newPostContent.trim() === '') return;
+    //     const newPost: Post = {
+    //         id: Date.now().toString(),
+    //         content: newPostContent,
+    //         author: 'User', // Replace with actual user name
+    //         timestamp: new Date().toISOString(),
+    //         comments: []
+    //         setPosts([...posts, newPost]);
+    //         setNewPostContent('');
+    //     };
+    // const handleCommentSubmit = (postId: string) => {
+    //     if (newCommentContent.trim() === '') return;
+    //     const newComment: Comment = {
+    //         id: Date.now().toString(),
+    //         content: newCommentContent,
+    //         author: 'User', // Replace with actual user name
+    //         timestamp: new Date().toISOString()
+    //     };
+    //     setPosts(posts.map(post =>
+    //         post.id === postId
+    //             ? { ...post, comments: [...post.comments, newComment] }
+    //             : post
+    //     ));
+    //     // setNewCommentContent('');
+    //     setNewCommentContentMap(prev => ({ ...prev, [postId]: '' }));
+    // };
 
     return (
         <div className="profile-posts">
@@ -111,7 +263,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({userId}) => {
                             <div className="new-comment">
                                 <RichTextEditor
                                     value={newCommentContentMap[post.id]}
-                                    onChange={(content) => setNewCommentContentMap(prev => ({...prev, [post.id]: content}))}
+                                    onChange={(content) => setNewCommentContentMap(prev => ({ ...prev, [post.id]: content }))}
                                     placeholder="Write a comment..."
                                     showToolbar={false}
                                 />
