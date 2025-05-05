@@ -35,7 +35,7 @@ interface Comment {
 const ProfilePosts: React.FC<ProfilePostsProps> = ({userId}) => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [newPostContent, setNewPostContent] = useState<string>('');
-    const [newCommentContent, setNewCommentContent] = useState<string>('');
+    //const [newCommentContent, setNewCommentContent] = useState<string>('');
     const [newCommentContentMap, setNewCommentContentMap] = useState<{[postId: string]: string}>({})
 
     const handlePostSubmit = () => {
@@ -52,10 +52,11 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({userId}) => {
     };
 
     const handleCommentSubmit = (postId: string) => {
-        if (newCommentContent.trim() === '') return;
+        const commentContent = newCommentContentMap[postId];
+        if (commentContent.trim() === '') return;
         const newComment: Comment = {
             id: Date.now().toString(),
-            content: newCommentContent,
+            content: commentContent,
             author: 'User', // Replace with actual user name
             timestamp: new Date().toISOString()
         };
@@ -76,6 +77,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({userId}) => {
                     value={newPostContent}
                     onChange={setNewPostContent}
                     placeholder="Write a new post..."
+                    showToolbar = {false}
                 />
                 <button onClick={handlePostSubmit}>Post</button>
             </div>
@@ -111,6 +113,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({userId}) => {
                                     value={newCommentContentMap[post.id]}
                                     onChange={(content) => setNewCommentContentMap(prev => ({...prev, [post.id]: content}))}
                                     placeholder="Write a comment..."
+                                    showToolbar={false}
                                 />
                                 <button onClick={() => handleCommentSubmit(post.id)}>Comment</button>
                             </div>

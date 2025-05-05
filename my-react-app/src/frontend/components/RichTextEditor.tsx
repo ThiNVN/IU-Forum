@@ -1,4 +1,4 @@
-import React, {useMemo, useRef, useState, useEffect} from 'react';
+import React, {useMemo, useRef, useState, useEffect, useCallback} from 'react';
 import ReactQuill, {Quill} from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import GifSearchModal from './GifSearchModal';
@@ -10,6 +10,7 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  showToolbar?: boolean;
 }
 
 // const modules = {
@@ -32,15 +33,18 @@ interface RichTextEditorProps {
 //   />
 // );
 
-const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder, className }) =>{
+const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder, className, showToolbar = false }) =>{
 
     const quillRef = useRef<ReactQuill | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const handleGifClick = () => setIsModalOpen(true);
+    const [toolbarVisible, setToobarVisible] = useState(showToolbar)
+    const handleFocus = useCallback(() => {
+        setToobarVisible(true);
+    }, []);
+//    const handleGifClick = () => setIsModalOpen(true);
     
     const modules = useMemo(() => ({
-        toolbar: {
+        toolbar: toolbarVisible ? {
           container:[
             [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
             ['bold', 'italic', 'underline', 'strike'],
@@ -51,8 +55,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
         handlers: {
             insertGif: () => setIsModalOpen(true),
         },
-      }
-    }), []);
+      } : false, // set toolbar false when showToolbar = false
+    }), [toolbarVisible]);
 
     const formats = useMemo(() => [
         'header', 'bold', 'italic', 'underline', 'strike',
@@ -78,6 +82,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                 modules={modules}
                 formats={formats}
                 placeholder={placeholder}
+                onFocus={handleFocus}
             />
             <GifSearchModal
                 isOpen={isModalOpen}

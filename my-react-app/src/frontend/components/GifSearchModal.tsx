@@ -60,7 +60,7 @@
 // export default GifSearchModal;
 
 // src/frontend/components/GiphyPicker.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 const GIPHY_API_KEY = 'pFdQhW5AGMvhpOgAf8Gi8EC4j09CAb95';
@@ -71,41 +71,76 @@ interface GifSearchModalProps {
     onSelectGif: (url: string) => void;
 }
 
-const GifSearchModal: React.FC<GifSearchModalProps> = ({ isOpen, onClose, onSelectGif }) => {
+const GifSearchModal: React.FC<GifSearchModalProps> = ({
+    isOpen,
+    onClose,
+    onSelectGif
+}) => {
     const [search, setSearch] = useState<string>('');
     const [results, setResults] = useState<any[]>([]);
 
-    const searchGiphy = async () => {
-        const res = await axios.get(
-            `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${search}&limit=10&offset=0`
-        );
-        setResults(res.data.data);
+    const fetchGifs = useCallback(
+        async (query?: string) => {
+            const base = query
+                ? 'https://api.giphy.com/v1/gifs/search'
+                : 'https://api.giphy.com/v1/gifs/trending';
+            const params = new URLSearchParams({
+                api_key: GIPHY_API_KEY,
+                limit: '10',
+                offset: '0',
+                rating: 'g'
+            });
+            if (query) params.set('q', query);
+            else params.set('bundle', 'messaging_non_clips');
+
+            const { data } = await axios.get(`${base}?${params.toString()}`);
+            setResults(data.data);
+        },
+        []
+    );
+
+    // Fetch trending on open
+    useEffect(() => {
+        if (isOpen) {
+            setSearch('');
+            fetchGifs();
+        }
+    }, [isOpen, fetchGifs]);
+
+    if (!isOpen) return null;
+
+    const handleSearch = () => {
+        if (search.trim()) fetchGifs(search.trim());
     };
 
-    if (!isOpen) {
-        return null;
-    }
-
     return (
-        <div style={{ background: '#fff', padding: 10 }}>
-            <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Search GIFs"
-            />
-            <button onClick={searchGiphy}>Search</button>
+        <div style={{ background: '#fff', padding: 16, maxWidth: 600, margin: 'auto' }}>
+            <div style={{ display: 'flex', marginBottom: 12 }}>
+                <input
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Search GIFs"
+                    style={{ flex: 1, marginRight: 8, padding: 8 }}
+                />
+                <button onClick={handleSearch}>Search</button>
+            </div>
             <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                 {results.map(gif => (
                     <img
                         key={gif.id}
                         src={gif.images.fixed_height_small.url}
                         alt={gif.title}
-                        style={{ cursor: 'pointer', margin: 5 }}
-                        onClick={() => onSelectGif(gif.images.original.url)}
+                        style={{ cursor: 'pointer', margin: 4, width: 100, height: 100, objectFit: 'cover' }}
+                        onClick={() => {
+                            onSelectGif(gif.images.original.url);
+                            onClose();
+                        }}
                     />
                 ))}
             </div>
-            <button onClick={onClose}>Close</button>
+            <div style={{ textAlign: 'right', marginTop: 12 }}>
+                <button onClick={onClose}>Close</button>
+            </div>
         </div>
     );
 };
