@@ -61,6 +61,29 @@ class Comment {
         }
     }
 
+    // Get comment by id
+    static async getCommentByID(comment_id) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            // Get posts for this user (profile posts only)
+            const comment = await dbConnection.query(
+                `SELECT *
+             FROM comment
+             WHERE comment.ID = ?`,
+                [comment_id]
+            );
+
+            await dbConnection.commit();
+            return comment[0];
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 
 module.exports = Comment;

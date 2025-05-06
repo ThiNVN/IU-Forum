@@ -160,7 +160,6 @@ class User {
         const dbConnection = await connection.getConnection();  // Get a connection for the transaction
         await dbConnection.beginTransaction();  // Start transaction
         try {
-            console.log(ID)
             // Get user credential by id
             const [Result] = await dbConnection.query(
                 'SELECT * FROM user WHERE ID = ?',

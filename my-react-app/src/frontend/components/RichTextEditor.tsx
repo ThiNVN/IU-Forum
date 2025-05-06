@@ -1,16 +1,16 @@
-import React, {useMemo, useRef, useState, useEffect, useCallback} from 'react';
-import ReactQuill, {Quill} from 'react-quill-new';
+import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react';
+import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import GifSearchModal from './GifSearchModal';
 
 const icons = Quill.import('ui/icons') as any;
 icons['insertGif'] = '<svg viewBox="0 0 18 18"><rect class="ql-stroke" height="10" width="12" x="3" y="4"></rect><circle class="ql-fill" cx="6" cy="7" r="1"></circle><path class="ql-even ql-fill" d="M9 6h2v1h-2zM11 7h1v1h-1z"></path></svg>';
 interface RichTextEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  className?: string;
-  showToolbar?: boolean;
+    value: string;
+    onChange: (value: string) => void;
+    placeholder?: string;
+    className?: string;
+    showToolbar?: boolean;
 }
 
 // const modules = {
@@ -33,7 +33,7 @@ interface RichTextEditorProps {
 //   />
 // );
 
-const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder, className, showToolbar = false }) =>{
+const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder, className, showToolbar = false }) => {
 
     const quillRef = useRef<ReactQuill | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,21 +41,23 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
     const handleFocus = useCallback(() => {
         setToobarVisible(true);
     }, []);
-//    const handleGifClick = () => setIsModalOpen(true);
-    
+    //    const handleGifClick = () => setIsModalOpen(true);
+    const handleBlur = useCallback(() => {
+        setToobarVisible(false);
+    }, []);
     const modules = useMemo(() => ({
         toolbar: toolbarVisible ? {
-          container:[
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            ['link', 'image', 'insertGif'],
-            ['clean'],
-        ],
-        handlers: {
-            insertGif: () => setIsModalOpen(true),
-        },
-      } : false, // set toolbar false when showToolbar = false
+            container: [
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ['link', 'image', 'insertGif'],
+                ['clean'],
+            ],
+            handlers: {
+                insertGif: () => setIsModalOpen(true),
+            },
+        } : false, // set toolbar false when showToolbar = false
     }), [toolbarVisible]);
 
     const formats = useMemo(() => [
@@ -75,6 +77,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
     return (
         <div className={className}>
             <ReactQuill
+                key={showToolbar ? 'with-toolbar' : 'no-toolbar'}
                 ref={quillRef}
                 theme="snow"
                 value={value}
@@ -83,6 +86,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                 formats={formats}
                 placeholder={placeholder}
                 onFocus={handleFocus}
+                onBlur={handleBlur}
             />
             <GifSearchModal
                 isOpen={isModalOpen}

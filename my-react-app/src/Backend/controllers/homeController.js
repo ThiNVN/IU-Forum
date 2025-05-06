@@ -140,10 +140,11 @@ const addNewPost = async (req, res) => {
     const { thread_id, user_id, content, image } = req.body;
     try {
         // Insert the new post into the database
-        const newPost = await Post.insertNewPost(thread_id, user_id, content, image);
-
+        const newPostResult = await Post.insertNewPost(thread_id, user_id, content, image);
+        const newPost = await Post.getPostByID(newPostResult.insertId);
+        const userData = await User.getUserByID(newPost[0].user_id);
         // Respond with success message and user ID
-        res.status(201).json({ message: 'Post added successfully', newPost });
+        res.status(201).json({ message: 'Post added successfully', newPost, userData });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
@@ -170,10 +171,11 @@ const addNewComment = async (req, res) => {
     const { post_id, user_id, parent_cmt_id, content } = req.body;
     try {
         // Insert the new comment into the database
-        const newComment = await Comment.insertNewCommnent(post_id, user_id, parent_cmt_id, content);
-
+        const CommentResult = await Comment.insertNewCommnent(post_id, user_id, parent_cmt_id, content);
+        const newComment = await Comment.getCommentByID(CommentResult.insertId);
+        const userData = await User.getUserByID(newComment[0].user_id);
         // Respond with success message and user ID
-        res.status(201).json({ message: 'Comment added successfully', newComment });
+        res.status(201).json({ message: 'Comment added successfully', newComment, userData });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });

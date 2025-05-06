@@ -37,6 +37,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
     const [newPostContent, setNewPostContent] = useState<string>('');
     //const [newCommentContent, setNewCommentContent] = useState<string>('');
     const [newCommentContentMap, setNewCommentContentMap] = useState<{ [postId: string]: string }>({})
+
     useEffect(() => {
         const fetchUserProfilePost = async () => {
             if (!userId) return;
@@ -111,11 +112,12 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
 
             if (response.ok) {
                 const savedPost = await response.json(); // expect backend to return the inserted post
+                console.log(savedPost)
                 const newPost: Post = {
-                    id: savedPost.ID,                     // from DB
-                    content: savedPost.content,
-                    author: savedPost.user_id,             // returned from backend or locally known
-                    timestamp: savedPost.created_at,      // returned from backend
+                    id: savedPost.newPost[0].ID,                     // from DB
+                    content: savedPost.newPost[0].content,
+                    author: savedPost.userData[0].username,             // returned from backend or locally known
+                    timestamp: savedPost.newPost[0].create_at,      // returned from backend
                     //add image if need!
                     comments: []
                 };
@@ -147,8 +149,8 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
     //     // setNewCommentContent('');
     //     setNewCommentContentMap(prev => ({...prev, [postId]: ''}));
 
-        //fROM github
-        const handleCommentSubmit = async (postId: string) => {
+    //fROM github
+    const handleCommentSubmit = async (postId: string) => {
         const content = newCommentContentMap[postId]?.trim();
         if (!content) return;
 
@@ -168,14 +170,14 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
 
             if (response.ok) {
                 const savedComment = await response.json();
-
                 const newComment: Comment = {
-                    id: savedComment.newComment.ID,
-                    content: savedComment.newComment.content,
-                    author: savedComment.newComment.user_id,
-                    timestamp: savedComment.newComment.created_at,
+                    id: savedComment.newComment[0].ID,
+                    content: savedComment.newComment[0].content,
+                    author: savedComment.userData[0].username,
+                    timestamp: savedComment.newComment[0].create_at,
                 };
-
+                console.log('Timestamp:', newComment.timestamp);
+                console.log('Is valid?', !isNaN(new Date(newComment.timestamp).getTime()));
                 setPosts(prevPosts =>
                     prevPosts.map(post =>
                         post.id === postId
@@ -220,7 +222,6 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
     //     // setNewCommentContent('');
     //     setNewCommentContentMap(prev => ({ ...prev, [postId]: '' }));
     // };
-
     return (
         <div className="profile-posts">
             <h2>Profile Posts</h2>
@@ -229,7 +230,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
                     value={newPostContent}
                     onChange={setNewPostContent}
                     placeholder="Write a new post..."
-                    showToolbar = {false}
+                    showToolbar={false}
                 />
                 <button onClick={handlePostSubmit}>Post</button>
             </div>
@@ -261,14 +262,21 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
                                 <button onClick={() => handleCommentSubmit(post.id)}>Comment</button>
                             </div> */}
                             <div className="new-comment">
+
                                 <RichTextEditor
-                                    value={newCommentContentMap[post.id]}
-                                    onChange={(content) => setNewCommentContentMap(prev => ({ ...prev, [post.id]: content }))}
+                                    value={newCommentContentMap[post.id] || ""}
+                                    onChange={(content) =>
+                                        setNewCommentContentMap((prev) => ({
+                                            ...prev,
+                                            [post.id]: content,
+                                        }))
+                                    }
                                     placeholder="Write a comment..."
                                     showToolbar={false}
                                 />
-                                <button onClick={() => handleCommentSubmit(post.id)}>Comment</button>
+
                             </div>
+                            <button onClick={() => handleCommentSubmit(post.id)}>Comment</button>
                         </div>
                     </div>
                 ))}

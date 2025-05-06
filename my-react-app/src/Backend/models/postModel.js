@@ -103,6 +103,30 @@ class Post {
             dbConnection.release();  // Release the connection back to the pool
         }
     }
+    // Get post by id
+    static async getPostByID(post_id) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            // Get posts for this user (profile posts only)
+            const post = await dbConnection.query(
+                `SELECT *
+         FROM post
+         WHERE ID = ?`,
+                [post_id]
+            );
+
+            await dbConnection.commit();
+            return post[0];
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
 
     // Get normal post of a category. Not yet
 
