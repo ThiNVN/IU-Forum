@@ -1,30 +1,99 @@
-.mainPage {
+.layoutGrid {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 24px;
+  padding: 24px;
+  justify-content: center; 
+}
+
+.mainColumn {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background-color: #f7f9fc; /* Light background for main content */
-}
-
-.mainContent {
-  flex: 1;
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-  background-color: white;
-  margin-top: 16px;
+  gap: 24px;
+  background-color: #f4f4f4; 
+  padding: 16px;
+  margin-left: 15%;
   border-radius: 8px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+  flex-grow: 100%;
+  max-width: 1000px;
 }
 
-.mainContent h1 {
-  font-size: 28px;
-  color: #2C2C84;
-  margin-bottom: 16px;
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 300px;
 }
 
-.mainContent p {
-  font-size: 18px;
+.sectionCard {
+  background: #ffffff; 
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.dateCard,
+.tagsCard {
+  background: #e6f7ff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 300px;
+}
+
+.dateText {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.timeText {
+  font-size: 14px;
+  color: #777;
+}
+
+.tagsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tagItem {
+  background: #2C2C84;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  display: inline-block;
+}
+
+.topicSection {
+  border-top: 1px solid #ddd;
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.topicTitle {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.topicDescription {
+  font-size: 14px;
   color: #555;
 }
-  
+
+.topicStats {
+  font-size: 12px;
+  color: #999;
+}

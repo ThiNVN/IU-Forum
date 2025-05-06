@@ -1,19 +1,19 @@
 import React from 'react';
-import '../styles/navbar.css';
+import '../../styles/navbar.css';
 
 const Navbar: React.FC = () => {
   return (
     <nav className="navbar">
-      <a href="#" className="navLink">
+      <a href="/today" className="navLink">
         Today's posts
       </a>
-      <a href="#" className="navLink">
+      <a href="/latest" className="navLink">
         Lastest posts
       </a>
-      <a href="#" className="navLink">
+      <a href="/calendar" className="navLink">
         Calendar
       </a>
-      <a href="#" className="navLink">
+      <a href="/clubs" className="navLink">
         Clubs
       </a>
     </nav>

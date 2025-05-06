@@ -1,0 +1,33 @@
+/* src/styles/footer.css */
+
+.footer {
+  background-color: #2C2C84;
+  color: white;
+  padding: 12px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  position: relative;
+  z-index: 500;
+  margin-top: auto;
+}
+
+.footer-left {
+  font-weight: 400;
+}
+
+.footer-right {
+  display: flex;
+  gap: 16px;
+}
+
+.footer-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}

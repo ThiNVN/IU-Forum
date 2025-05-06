@@ -1,0 +1,41 @@
+/* Breadcrumb Styling */
+.p-breadcrumbs {
+  display: flex;
+  gap: 2px;
+  padding: 16px 0;
+  justify-content: flex-start;
+  list-style: none;
+  margin-left: 12%;
+}
+
+.p-breadcrumbs li {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.p-breadcrumbs a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.p-breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+/* Arrow Between Breadcrumb Items */
+.p-breadcrumbs li:not(:last-child)::after {
+  content: '';
+  display: inline-block;
+  width: 10px; /* Set the size of the arrow */
+  height: 10px;
+  background-image: url('../assets/img/right-arrow.png'); /* Arrow image path */
+  background-size: cover;
+  background-position: center;
+  margin: 0 8px;
+}
+
+.p-breadcrumbs meta {
+  display: none;
+}
