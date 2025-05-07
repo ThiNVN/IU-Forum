@@ -22,7 +22,6 @@ export default function App() {
                     <Route path="/profile/:id/edit" element={<EditProfile />} />
                 </Route>
 
-                {/* <Route path="/main" element={<Main />} /> */}
                 <Route path="/" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />

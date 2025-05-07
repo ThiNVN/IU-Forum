@@ -1,8 +1,8 @@
 // src/components/Header.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import logo from '../assets/img/UIlogo.png';
-import SearchBar from '../components/Searchbar';
-import '../styles/header.css';
+import logo from '../../assets/img/UIlogo.png';
+import SearchBar from './Searchbar';
+import '../../styles/header.css';
 // import { getUser } from '../services/userService'; // your API service
 
 const Header: React.FC = () => {

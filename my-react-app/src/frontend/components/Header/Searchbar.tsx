@@ -1,7 +1,7 @@
 // src/components/SearchBar.tsx
 import React, { useState } from 'react';
-import magnifyingGlass from '../assets/img/magnifying-glass.png';
-import '../styles/header.css';
+import magnifyingGlass from '../../assets/img/magnifying-glass.png';
+import '../../styles/header.css';
 
 const SearchBar: React.FC = () => {
   const [searchText, setSearchText] = useState<string>('');

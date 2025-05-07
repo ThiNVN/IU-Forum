@@ -1,7 +1,7 @@
 import React from 'react';
-import Header from './Header';
-import Navbar from './Navbar';
-// import Footer from '../components/Footer';
+import Header from './Header/Header';
+import Navbar from './Header/Navbar';
+import Footer from './Header/Footer';
 import '../styles/main.css'; 
 import {Outlet} from 'react-router-dom';
 
@@ -13,10 +13,12 @@ const Main: React.FC = () => {
         <Navbar />
       </header>
 
-      {/* <Footer /> */}
       <main>
         <Outlet />
       </main>
+
+      <Footer />
+
 
       {/* <main className="mainContent">
         <h1>Welcome to IU Forum!</h1>
