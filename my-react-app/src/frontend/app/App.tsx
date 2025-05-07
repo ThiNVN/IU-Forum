@@ -20,7 +20,6 @@ export default function App() {
                     <Route path="/profile/:id" element={<UserProfile />} />
                 </Route>
 
-                {/* <Route path="/main" element={<Main />} /> */}
                 <Route path="/" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
