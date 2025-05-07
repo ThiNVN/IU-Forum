@@ -139,7 +139,9 @@ const renderActiveTab = () => {
       </div>
       <div className="profile-actions">
         {isOwnProfile ? (
-          <button className="action-button">Edit Profile</button>
+          <a href={`/profile/${userId}/edit`} className="action-button">
+            Edit Profile
+          </a>
         ) : (
           <>
             <button className="action-button">Send Message</button>
