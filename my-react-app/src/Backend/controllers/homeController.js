@@ -182,6 +182,20 @@ const addNewComment = async (req, res) => {
     }
 };
 
+const updateUserProfile = async (req, res) => {
+    const updatedProfile = req.body;
+
+    try {
+        // Get user profile
+        const isOk = await User.updateUser(updatedProfile.id, updatedProfile.username, updatedProfile.title, updatedProfile.location, updatedProfile.occupation, updatedProfile.website, updatedProfile.socialLinks.Twitter, updatedProfile.socialLinks.LinkedIn, updatedProfile.biography);
+        // Respond with success message and user ID
+        res.status(201).json('Successful update profile');
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+
+}
 module.exports = {
     registerUser,
     loginUser,
@@ -191,5 +205,6 @@ module.exports = {
     getUserProfilePost,
     addNewPost,
     getAllCommentOfPost,
-    addNewComment
+    addNewComment,
+    updateUserProfile
 };

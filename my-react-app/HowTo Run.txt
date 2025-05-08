@@ -1,0 +1,16 @@
+Make an .env file
+
+1. Open my sql and make schema with any name
+2. Import the Dump20250508.sql
+3. Navigate to my-react-app
+4. node src/Backend/server.js
+5. If can not connect to database remember to make a .env file (ask chatbot AI for help or chat in group)
+6. Sample format
+DB_HOST=what is your host
+DB_PORT=your connect port
+DB_USER=your user name
+DB_PASSWORD=your password
+DB_NAME=name of the schema made above
+
+Email= ask in group
+Email_Password= ask in group

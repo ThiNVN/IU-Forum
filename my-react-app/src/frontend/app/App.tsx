@@ -6,8 +6,9 @@ import LayoutComponent from "../components/layoutComponent";
 import Main from "../pages/main/main";
 import Login from "../pages/auth/login";
 import UserProfile from "../pages/profile/[id]";
+import UserProfile1 from "../pages/profile/profile";
 import Profile from "../pages/profile/profile";
-import EditProfile from "../pages/profile/EditProfile";
+import EditProfile from "../pages/profile/editProfile";
 
 //import ThreadList from "../features/threads/pages/ThreadList";
 
@@ -18,7 +19,7 @@ export default function App() {
                 <Route element={<LayoutComponent />}>
                     <Route path="/main" element={<Main />} />
                     <Route path="/profile" element={<Profile />} />
-                    <Route path="/profile/:id" element={<UserProfile />} />
+                    <Route path="/profile/:id" element={<UserProfile1 />} />
                     <Route path="/profile/:id/edit" element={<EditProfile />} />
                 </Route>
 

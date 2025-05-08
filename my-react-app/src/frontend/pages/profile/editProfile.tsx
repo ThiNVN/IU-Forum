@@ -11,8 +11,7 @@ interface EditProfileProps {
 const EditProfile: React.FC<EditProfileProps> = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
-  // Mock user data - replace this with actual API call
+
   const [user, setUser] = useState({
     id: id || '',
     username: '',
@@ -23,28 +22,64 @@ const EditProfile: React.FC<EditProfileProps> = () => {
     website: '',
     socialLinks: {
       Twitter: '',
-      LinkedIn: ''
-    }
+      LinkedIn: '',
+    },
+  });
+
+  const [formData, setFormData] = useState({
+    username: '',
+    title: '',
+    biography: '',
+    location: '',
+    occupation: '',
+    website: '',
+    twitter: '',
+    linkedin: '',
   });
 
   useEffect(() => {
-    // TODO: Replace with actual API call to get user data
     const fetchUserData = async () => {
       try {
-        // Mock data for now
-        setUser({
-          id: id || '',
-          username: 'TestUser',
-          title: 'Member',
-          biography: '',
-          location: '',
-          occupation: '',
-          website: '',
-          socialLinks: {
-            Twitter: '',
-            LinkedIn: ''
-          }
+        const response = await fetch(`http://localhost:8081/api/getUserProfile`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: id }),
         });
+
+        if (response.ok) {
+          const res = await response.json();
+          const data = res.userProfile;
+          console.log(res);
+          const userData = {
+            id: id || '',
+            username: data.username || 'TestUser',
+            title: data.title || 'Unknown',
+            biography: data.bio || '',
+            location: data.location || '',
+            occupation: data.occupation || '',
+            website: data.website || '',
+            socialLinks: {
+              Twitter: data.Twitter || '',
+              LinkedIn: data.LinkedIn || '',
+            },
+          };
+
+          setUser(userData);
+
+          // Sync form data too
+          setFormData({
+            username: userData.username,
+            title: userData.title,
+            biography: userData.biography,
+            location: userData.location,
+            occupation: userData.occupation,
+            website: userData.website,
+            twitter: userData.socialLinks.Twitter,
+            linkedin: userData.socialLinks.LinkedIn,
+          });
+        }
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -52,17 +87,6 @@ const EditProfile: React.FC<EditProfileProps> = () => {
 
     fetchUserData();
   }, [id]);
-
-  const [formData, setFormData] = useState({
-    username: user.username,
-    title: user.title || '',
-    biography: user.biography || '',
-    location: user.location || '',
-    occupation: user.occupation || '',
-    website: user.website || '',
-    twitter: user.socialLinks?.Twitter || '',
-    linkedin: user.socialLinks?.LinkedIn || '',
-  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -76,17 +100,36 @@ const EditProfile: React.FC<EditProfileProps> = () => {
     e.preventDefault();
     try {
       const updatedProfile = {
-        ...formData,
+        id, // include user ID if your backend requires it
+        username: formData.username,
+        title: formData.title,
+        biography: formData.biography,
+        location: formData.location,
+        occupation: formData.occupation,
+        website: formData.website,
         socialLinks: {
           Twitter: formData.twitter,
-          LinkedIn: formData.linkedin
-        }
+          LinkedIn: formData.linkedin,
+        },
       };
-      
-      // TODO: Add your API call here to update the profile
-      console.log('Updated profile:', updatedProfile);
-      
-      // Navigate back to profile page after successful update
+  
+      const response = await fetch('http://localhost:8081/api/updateUserProfile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedProfile),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+  
+      // Optionally confirm the server's response
+      const result = await response.json();
+      console.log('Profile updated successfully:', result);
+  
+      // Navigate after success
       navigate(`/profile/${id}`);
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -181,9 +224,9 @@ const EditProfile: React.FC<EditProfileProps> = () => {
 
         <div className="button-group">
           <SubmitButton type="submit" label="Save Changes" disabled={false} />
-          <button 
-            type="button" 
-            onClick={() => navigate(`/profile/${id}`)} 
+          <button
+            type="button"
+            onClick={() => navigate(`/profile/${id}`)}
             className="cancel-button"
           >
             Cancel

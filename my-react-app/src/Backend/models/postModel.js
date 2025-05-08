@@ -48,7 +48,6 @@ class Post {
 
             // Get user info
             const userRows = await User.getUserByID(user_id);
-            console.log(userRows)
             const user = userRows[0];  // Get the first (and only) user row
 
             await dbConnection.commit();

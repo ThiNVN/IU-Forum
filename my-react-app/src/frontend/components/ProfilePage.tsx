@@ -16,6 +16,12 @@ interface ProfilePageProps {
     title?: string;
     joined?: string;
     lastSeen?: string;
+    location?: string;
+    occupation?: string;
+    website?: string,
+    Twitter?: string,
+    bio?: string;
+    LinkedIn?: string,
     stats?: {
       messages?: number;
       reactionScore?: number;
@@ -41,48 +47,48 @@ function timeAgo(dateString: string): string {
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
   const avatar = user.avatar || '/assets/img/guest_avatar.png';
-  const title = user.title || 'Member';
+  const title = user.title || '';
   const joined = user.joined || 'Unknown';
 
   const lastSeen = user.lastSeen || 'Unknown';
   const displayTime = lastSeen ? timeAgo(lastSeen) : 'Unknown';
   const stats = user.stats || { messages: 0, reactionScore: 0, points: 0 };
 
-    const userId = user.id;
-    const baseProfileUrl = `/profile/${userId}`;
-    const tabs = [
-        { label: "Profile posts", path: baseProfileUrl },
-        { label: "Latest activity", path: `${baseProfileUrl}/latest-activity` },
-        { label: "Postings", path: `${baseProfileUrl}/recent-content` },
-        { label: "About", path: `${baseProfileUrl}/about` },
-    ];
-    // Use state for the active tab
-    const [activeTab, setActiveTab] = useState(0);
+  const userId = user.id;
+  const baseProfileUrl = `/profile/${userId}`;
+  const tabs = [
+    { label: "Profile posts", path: baseProfileUrl },
+    { label: "Latest activity", path: `${baseProfileUrl}/latest-activity` },
+    { label: "Postings", path: `${baseProfileUrl}/recent-content` },
+    { label: "About", path: `${baseProfileUrl}/about` },
+  ];
+  // Use state for the active tab
+  const [activeTab, setActiveTab] = useState(0);
 
-const renderActiveTab = () => {
-  switch (activeTab) {
-    case 0:
-      return <ProfilePosts userId={userId} />;
-    case 1:
-      return <LatestActivity userId={userId} />;
-    case 2:
-      return <Postings userId={userId} />;
-    case 3:
-      return <About userId={userId} userInfo={{
-        biography: "This is a sample biography...",
-        location: "Sample Location",
-        occupation: "Sample Occupation",
-        interests: ["Technology", "Gaming", "Reading"],
-        website: "https://example.com",
-        socialLinks: {
-          Twitter: "https://twitter.com/example",
-          LinkedIn: "https://linkedin.com/in/example"
-        }
-      }} />;
-    default:
-      return <ProfilePosts userId={userId} />;
-  }
-};
+  const renderActiveTab = () => {
+    switch (activeTab) {
+      case 0:
+        return <ProfilePosts userId={userId} />;
+      case 1:
+        return <LatestActivity userId={userId} />;
+      case 2:
+        return <Postings userId={userId} />;
+      case 3:
+        return <About userId={userId} userInfo={{
+          biography: user.bio || "This is a sample biography...",
+          location: user.location || "Sample Location",
+          occupation: user.occupation || "Sample Occupation",
+          interests: ["Technology", "Gaming", "Reading"],//Need or not
+          website: user.website || "https://example.com",
+          socialLinks: {
+            Twitter: user.Twitter || "https://twitter.com/example",
+            LinkedIn: user.LinkedIn || "https://linkedin.com/in/example"
+          }
+        }} />;
+      default:
+        return <ProfilePosts userId={userId} />;
+    }
+  };
 
 
 
@@ -117,23 +123,23 @@ const renderActiveTab = () => {
         </div>
 
       </div>
-          <h2 className="profile-tabs-header" role="tablist">
-              <span className="profile-tabs-scroll">
-                  {tabs.map((tab, idx) => (
-                      <button
-                          key={tab.label}
-                          type="button"
-                          className={`profile-tab${activeTab === idx ? " profile-tab--active" : ""}`}
-                          role="tab"
-                          aria-selected={activeTab === idx}
-                          onClick={() => setActiveTab(idx)}
-                          style={{ background: "none", border: "none", cursor: "pointer" }}
-                      >
-                          {tab.label}
-                      </button>
-                  ))}
-              </span>
-          </h2>
+      <h2 className="profile-tabs-header" role="tablist">
+        <span className="profile-tabs-scroll">
+          {tabs.map((tab, idx) => (
+            <button
+              key={tab.label}
+              type="button"
+              className={`profile-tab${activeTab === idx ? " profile-tab--active" : ""}`}
+              role="tab"
+              aria-selected={activeTab === idx}
+              onClick={() => setActiveTab(idx)}
+              style={{ background: "none", border: "none", cursor: "pointer" }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </span>
+      </h2>
       <div className="profile-content">
         {renderActiveTab()}
       </div>

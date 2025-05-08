@@ -5,13 +5,18 @@ interface UserProfile {
   id: string;
   username: string;
   fullname: string;
+  title: string;
   avatar: string;
   age: string;
   schoole: string;
   major: string;
   bio: string;
   is_admin: string;
-
+  location: string;
+  occupation: string;
+  website: string,
+  Twitter: string,
+  LinkedIn: string,
   joined: string;
   lastSeen: string;
   stats: {
@@ -45,18 +50,24 @@ const Profile: React.FC = () => {
             id: data.ID,
             username: data.username,
             fullname: data.fullname,
+            title: data.title || 'Unknow',
             avatar: data.avatar,
             age: data.age,
             schoole: data.school,
             major: data.major,
             bio: data.bio,
+            location: data.location,
+            occupation: data.occupation,
+            website: data.website,
+            Twitter: data.Twitter,
+            LinkedIn: data.LinkedIn,
             is_admin: data.is_admin,
             joined: data.created_at,
             lastSeen: data.last_login,
             stats: {
-              messages: data.messageCount,
-              reactionScore: data.reactionScore,
-              points: data.points
+              messages: data.total_message,
+              reactionScore: data.total_reaction,
+              points: data.point
             }
           });
         }
