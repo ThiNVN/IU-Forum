@@ -13,7 +13,7 @@ class Comment {
         await dbConnection.beginTransaction();  // Start transaction
 
         try {
-            // Insert into 'post' table
+            // Insert into 'comment' table
             const [commentResult] = await dbConnection.query(
                 'INSERT INTO comment (post_id, user_id, parent_cmt_id, content, create_at) VALUES (?, ?, ?, ?, NOW())',
                 [post_id, user_id, parent_cmt_id, content]

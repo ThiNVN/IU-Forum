@@ -3,7 +3,9 @@ const nodemailer = require("nodemailer");
 const path = require('path');
 const Post = require('../models/postModel');
 const Comment = require('../models/commentModel');
+const Activity = require('../models/activityModel');
 require('dotenv').config({ path: path.resolve(__dirname, '../', '.env') });
+let cookieParser = require('cookie-parser')
 
 const registerUser = async (req, res) => {
     const { username, email, displayName, password } = req.body;
@@ -34,11 +36,21 @@ const loginUser = async (req, res) => {
     }
 
     try {
-        // Insert the new user into the database
+        // Check user credentials
         const userId = await User.checkUserCredentials(userIdentifier, password);
-        User.updateUserLastLoginStatus(userId);
+        await User.updateUserLastLoginStatus(userId);
+
+        // Set cookie
+        res.cookie('user_id', userId, {
+            httpOnly: true, // Prevents client-side JavaScript access
+            secure: false, // Set to false for local development
+            sameSite: 'lax', // Allows cookies in cross-origin requests
+            path: '/', // Available for all routes
+            maxAge: 24 * 60 * 60 * 1000 // 1 day
+        });
+
         // Respond with success message and user ID
-        res.status(201).json({ message: 'Login accept', userId });
+        res.status(200).json({ message: 'Login accepted', userId });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
@@ -143,6 +155,15 @@ const addNewPost = async (req, res) => {
         const newPostResult = await Post.insertNewPost(thread_id, user_id, content, image);
         const newPost = await Post.getPostByID(newPostResult.insertId);
         const userData = await User.getUserByID(newPost[0].user_id);
+        //Make new activity record
+        const activity_type = "post";
+        var description = "";
+        if (thread_id == null) {
+            description = "User posted a new profile post";
+        } else {
+            description = "User posted a new post in thread";//add name of thread
+        }
+        await Activity.insertNewActivity(user_id, activity_type, description)
         // Respond with success message and user ID
         res.status(201).json({ message: 'Post added successfully', newPost, userData });
     } catch (err) {
@@ -174,6 +195,13 @@ const addNewComment = async (req, res) => {
         const CommentResult = await Comment.insertNewCommnent(post_id, user_id, parent_cmt_id, content);
         const newComment = await Comment.getCommentByID(CommentResult.insertId);
         const userData = await User.getUserByID(newComment[0].user_id);
+
+        const post = await Post.getPostByID(post_id);
+        //Make new activity record
+        const activity_type = "comment";
+        const description = "User made a new comment in a post";//add name of thread if need
+        await Activity.insertNewActivity(user_id, activity_type, description)
+
         // Respond with success message and user ID
         res.status(201).json({ message: 'Comment added successfully', newComment, userData });
     } catch (err) {
@@ -196,6 +224,66 @@ const updateUserProfile = async (req, res) => {
     }
 
 }
+
+const get10LastedActivity = async (req, res) => {
+    const userId = req.query.userId;
+
+    try {
+        const activities = await Activity.get10ActivityByUserID(userId);
+        // console.log("Profile Post:", posts);
+        // console.log("User Info:", user);
+
+        res.status(200).json({
+            message: 'Successfully retrieved 10 lasted activity',
+            activities
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+//Check saved cookies
+const checkUserCookie = async (req, res) => {
+    try {
+        const userId = req.cookies.user_id;
+        if (!userId) {
+            return res.status(401).json({ message: 'No user cookie found' });
+        }
+
+        // Verify user exists in the database (adjust based on your User model)
+        const user = await User.getUserByID(userId); // Replace with your method
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid user cookie' });
+        }
+
+        // Return userId if valid
+        res.status(200).json({ message: 'User cookie valid', userId });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+//Delete cookies when log out
+const logoutUser = (req, res) => {
+    try {
+        // Clear the user_id cookie
+        res.clearCookie('user_id', {
+            httpOnly: true,
+            secure: false, // Set to false for local development
+            sameSite: 'lax',
+            path: '/' // Match the path used when setting the cookie
+        });
+
+        res.status(200).json({ message: 'Logged out successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -206,5 +294,8 @@ module.exports = {
     addNewPost,
     getAllCommentOfPost,
     addNewComment,
-    updateUserProfile
+    updateUserProfile,
+    get10LastedActivity,
+    checkUserCookie,
+    logoutUser
 };

@@ -7,7 +7,7 @@ import SubmitButton from '../../components/SubmitButton';
 import LeftPanel from '../../components/LeftPanel';
 import '../../styles/register.css';
 import '../../styles/gradientbg.scss'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const InteractiveBubble: React.FC = () => {
     const bubbleRef = useRef<HTMLDivElement>(null);
@@ -53,7 +53,35 @@ const App: React.FC = () => {
         password: '',
     });
     const [identifierType, setIdentifierType] = useState<'email' | 'username' | null>(null);
+    // Check for cookie on component mount
+    const navigate = useNavigate();
+    useEffect(() => {
+        const checkCookie = async () => {
+            try {
+                const response = await fetch('http://localhost:8081/api/check-cookie', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include', // Include cookies
+                });
 
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.userId) {
+                        // Set userId in sessionStorage
+                        sessionStorage.setItem('userId', result.userId);
+                        // Redirect to main page
+                        navigate('/main');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking cookie:', error);
+            }
+        };
+
+        checkCookie();
+    }, [navigate]);
     const validateIdentifier = (value: string) => {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (emailPattern.test(value)) {
@@ -95,8 +123,10 @@ const App: React.FC = () => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    ...formData, identifierType,
+                    ...formData,
+                    identifierType,
                 }),
+                credentials: 'include' // Add this to send/receive cookies
             });
 
             if (response.ok) {
