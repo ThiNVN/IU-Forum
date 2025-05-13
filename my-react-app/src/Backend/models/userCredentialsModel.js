@@ -55,6 +55,25 @@ class userCredentials {
         }
     }
 
+    static async getUserCredentialsByUserID(user_id) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            // Get user credential by id
+            const [Result] = await dbConnection.query(
+                'SELECT * FROM user_credentials WHERE user_id = ?',
+                [user_id]
+            );
+            return Result;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
     // Update User Credentials
     static async updateUserCredentials(email, password, user_id) {
         const dbConnection = await connection.getConnection();

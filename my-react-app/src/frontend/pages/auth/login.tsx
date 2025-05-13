@@ -8,6 +8,7 @@ import LeftPanel from '../../components/LeftPanel';
 import '../../styles/register.css';
 import '../../styles/gradientbg.scss'
 import { Link, useNavigate } from 'react-router-dom';
+import EmailVerification from '../../components/EmailVerification';
 
 const InteractiveBubble: React.FC = () => {
     const bubbleRef = useRef<HTMLDivElement>(null);
@@ -53,6 +54,10 @@ const App: React.FC = () => {
         password: '',
     });
     const [identifierType, setIdentifierType] = useState<'email' | 'username' | null>(null);
+
+    const [isEmailVerificationOpen, setIsEmailVerificationOpen] = useState(false);
+    const [verificationInProgress, setVerificationInProgress] = useState(false);
+    const [UID, setUID] = useState(null);
     // Check for cookie on component mount
     const navigate = useNavigate();
     useEffect(() => {
@@ -101,23 +106,17 @@ const App: React.FC = () => {
         }
     };
 
-    // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    //     e.preventDefault();
-    //     if (!isFormValid()) {
-    //         alert('Please fill in all information correctly!');
-    //     }
-    //     console.log('Registered', formData);
-    // };
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
         if (!isFormValid()) {
             alert('Please fill in all information correctly!');
             return;
         }
 
         try {
-            // Sending data to the backend using fetch
-            const response = await fetch("http://localhost:8081/api/login", {
+
+            const loginResponse = await fetch("http://localhost:8081/api/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -126,23 +125,74 @@ const App: React.FC = () => {
                     ...formData,
                     identifierType,
                 }),
-                credentials: 'include' // Add this to send/receive cookies
+                credentials: 'include',
             });
 
-            if (response.ok) {
-                const result = await response.json();
-                alert(result.message);
-                sessionStorage.setItem('userId', result.userId);
-                setTimeout(() => {
-                    window.location.href = "/main";
-                }, 1000); // 1 second delay
-            } else {
-                const errorData = await response.json();
-                alert(errorData.message);
+            const loginResult = await loginResponse.json();
+
+            if (!loginResponse.ok) {
+                alert(loginResult.message || "Login failed");
+                return;
             }
+            setUID(loginResult.userId);
+            alert("Login information correct. Sending verification code...");
+
+            const verificationResponse = await fetch("http://localhost:8081/api/verification", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: formData.userIdentifier,
+                    username: null,
+                    identifierType,
+                }),
+            });
+
+            if (!verificationResponse.ok) {
+                const error = await verificationResponse.json();
+                alert(error.message || "Failed to send verification email.");
+                return;
+            }
+
+            setIsEmailVerificationOpen(true);
+            setVerificationInProgress(true);
+
         } catch (error) {
-            console.error("Error during form submission:", error);
+            console.error("Login or verification error:", error);
             alert("Something went wrong. Please try again.");
+        }
+    };
+    const handleVerificationComplete = async (code: string) => {
+        try {
+            const verificationResponse = await fetch("http://localhost:8081/api/verify-code", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: formData.userIdentifier,
+                    code,
+                    identifierType,
+                }),
+            });
+
+            if (verificationResponse.ok) {
+                const result = await verificationResponse.json();
+                alert("Verification successful!");
+                setVerificationInProgress(false);
+                setIsEmailVerificationOpen(false);
+                sessionStorage.setItem('userId', String(UID));
+                // Redirect now that everything is verified
+                window.location.href = "/main";
+            } else {
+                const errorData = await verificationResponse.json();
+                alert(errorData.message || "Invalid verification code. Try again!");
+            }
+
+        } catch (error) {
+            console.error("Verification error:", error);
+            alert("Something went wrong during verification.");
         }
     };
     const isFormValid = () => {
@@ -190,6 +240,15 @@ const App: React.FC = () => {
                         Don't have an account? <Link to="/register">Register</Link>
                     </div>
                 </form>
+                <EmailVerification
+                    isOpen={isEmailVerificationOpen}
+                    onClose={() => {
+                        setIsEmailVerificationOpen(false);
+                        sessionStorage.removeItem('userId');
+                    }}
+                    onVerify={handleVerificationComplete}
+                    email={formData.userIdentifier}
+                />
             </div>
 
             <div className="gradient-bg">

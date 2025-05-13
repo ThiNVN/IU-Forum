@@ -81,26 +81,6 @@ const RegisterForm: React.FC = () => {
         }
 
         try {
-            // Sending data to the backend using fetch
-            //     const response = await fetch("http://localhost:8081/api/register", {
-            //         method: "POST",
-            //         headers: {
-            //             "Content-Type": "application/json",
-            //         },
-            //         body: JSON.stringify(formData),
-            //     });
-
-            //     if (response.ok) {
-            //         const result = await response.json();
-            //         alert(result.message);
-            //     } else {
-            //         const errorData = await response.json();
-            //         alert(errorData.message);
-            //     }
-            // } catch (error) {
-            //     console.error("Error during form submission:", error);
-            //     alert("Something went wrong. Please try again.");
-            // }
             const verificationResponse = await fetch("http://localhost:8081/api/verification", {
                 method: "POST",
                 headers: {

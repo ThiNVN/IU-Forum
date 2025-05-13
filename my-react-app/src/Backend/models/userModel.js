@@ -77,14 +77,18 @@ class User {
                     const checkPasswordResult = await User.comparePassword(password, Result.password_hash);
                     if (checkPasswordResult === 1) {
                         console.log("User input correct, grant access.", Result);
-                        userId = Result.user_id;  // Assuming user_id is part of the credentials
+                        userId = Result.ID;
+                        return { status: 1, userId };
                     } else if (checkPasswordResult === 0) {
                         console.log("User input wrong, deny access.", Result);
+                        return 0;
                     } else {
                         console.log("Error occurred, deny access.", Result);
+                        return 2;
                     }
                 } else {
                     console.log("User not existed, deny access. Move to register.", Result);
+                    return 3;
                 }
             } else {
                 // Case: username
@@ -100,24 +104,24 @@ class User {
                         if (checkPasswordResult === 1) {
                             console.log("User input correct, grant access.", Result);
                             userId = Result.ID;
+                            console.log(Result.ID)
+                            return { status: 1, userId };
                         } else if (checkPasswordResult === 0) {
                             console.log("User input wrong, deny access.", Result, "Password: ", password, "hash_password: ", credentialResults[0].password_hash);
+                            return 0;
                         } else {
                             console.log("Error occurred, deny access.", Result);
+                            return 2;
                         }
                     } else {
                         console.log("User credentials not found, deny access.");
+                        return 2;
                     }
                 } else {
                     console.log("User not existed, deny access. Move to register.", Result);
+                    return 3;
                 }
             }
-
-
-            // Commit transaction (optional based on your business logic)
-            await dbConnection.commit();
-
-            return userId;  // Return the userId or any other result if needed
 
         } catch (err) {
             // Rollback the transaction in case of an error
@@ -161,11 +165,11 @@ class User {
         await dbConnection.beginTransaction();  // Start transaction
         try {
             // Get user credential by id
-            const [Result] = await dbConnection.query(
+            const Result = await dbConnection.query(
                 'SELECT * FROM user WHERE ID = ?',
                 [ID]
             );
-            return Result;
+            return Result[0];
         } catch (err) {
             // Rollback the transaction in case of an error
             await dbConnection.rollback();
@@ -177,7 +181,9 @@ class User {
     }
 
     // Get User by user name
-    static async getUserByUserName(username, dbConnection) {
+    static async getUserByUserName(username) {
+        const dbConnection = await connection.getConnection();  // Get a connection for the transaction
+        await dbConnection.beginTransaction();  // Start transaction
         try {
             // Get user credential by id
             const [Result] = await dbConnection.query(
@@ -186,8 +192,12 @@ class User {
             );
             return Result;
         } catch (err) {
+            // Rollback the transaction in case of an error
+            await dbConnection.rollback();
             console.error("Database error:", err);
-            throw err;
+            throw err;  // Re-throw the error so it can be handled elsewhere
+        } finally {
+            dbConnection.release();  // Release the connection back to the pool
         }
     }
 

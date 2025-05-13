@@ -5,7 +5,9 @@ const Post = require('../models/postModel');
 const Comment = require('../models/commentModel');
 const Activity = require('../models/activityModel');
 require('dotenv').config({ path: path.resolve(__dirname, '../', '.env') });
-let cookieParser = require('cookie-parser')
+let cookieParser = require('cookie-parser');
+const userCredentials = require('../models/userCredentialsModel');
+const { get } = require('http');
 
 const registerUser = async (req, res) => {
     const { username, email, displayName, password } = req.body;
@@ -36,23 +38,35 @@ const loginUser = async (req, res) => {
     }
 
     try {
-        // Check user credentials
-        const userId = await User.checkUserCredentials(userIdentifier, password);
-        await User.updateUserLastLoginStatus(userId);
+        const result = await User.checkUserCredentials(userIdentifier, password);
 
-        // Set cookie
-        res.cookie('user_id', userId, {
-            httpOnly: true, // Prevents client-side JavaScript access
-            secure: false, // Set to false for local development
-            sameSite: 'lax', // Allows cookies in cross-origin requests
-            path: '/', // Available for all routes
-            maxAge: 24 * 60 * 60 * 1000 // 1 day
-        });
+        if (typeof result === 'object' && result.status === 1) {
+            // Successful login
+            await User.updateUserLastLoginStatus(result.userId);
+            res.cookie('user_id', result.userId, {
+                httpOnly: true,
+                secure: false, // change to true in production
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 24 * 60 * 60 * 1000
+            });
+            return res.status(200).json({ message: 'Login accepted', userId: result.userId });
+        }
 
-        // Respond with success message and user ID
-        res.status(200).json({ message: 'Login accepted', userId });
+        // Handle specific failures
+        switch (result) {
+            case 0:
+                return res.status(401).json({ message: 'Incorrect password.' });
+            case 2:
+                return res.status(500).json({ message: 'Internal authentication error.' });
+            case 3:
+                return res.status(404).json({ message: 'User not found.' });
+            default:
+                return res.status(400).json({ message: 'Unknown authentication failure.' });
+        }
+
     } catch (err) {
-        console.error(err);
+        console.error('Login error:', err);
         res.status(500).json({ message: 'Server error' });
     }
 };
@@ -61,7 +75,17 @@ const loginUser = async (req, res) => {
 const verificationCodes = {};
 
 const verificationEmail = async (req, res) => {
-    const { email, username } = req.body;
+    var { email, username, identifierType } = req.body;
+    if (identifierType === "username") {
+        username = email;
+        const getUser = await User.getUserByUserName(email);
+        const getEmail = await userCredentials.getUserCredentialsByUserID(getUser[0].ID);
+        email = getEmail[0].email;
+    } else if (identifierType === "email") {
+        const getUser = await User.getUserByUserName(email);
+        username = getUser[0].username;
+    }
+
 
     const emailSender = process.env.Email;
     const password = process.env.Email_Password;
@@ -97,9 +121,14 @@ const verificationEmail = async (req, res) => {
 };
 
 //Verify code from user
-const verifyCode = (req, res) => {
-    const { email, code } = req.body;
-
+const verifyCode = async (req, res) => {
+    var { email, code, identifierType } = req.body;
+    if (identifierType === "username") {
+        const getUser = await User.getUserByUserName(email);
+        const getEmail = await userCredentials.getUserCredentialsByUserID(getUser[0].ID);
+        email = getEmail[0].email;
+    }
+    console.log(email)
     const storedCode = verificationCodes[email];
     console.log(storedCode, code)
     if (!storedCode) {
