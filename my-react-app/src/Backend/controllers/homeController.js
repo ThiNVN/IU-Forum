@@ -272,7 +272,6 @@ const get10LastedActivity = async (req, res) => {
     }
 };
 
-//Check saved cookies
 const checkUserCookie = async (req, res) => {
     try {
         const userId = req.cookies.user_id;
@@ -280,8 +279,8 @@ const checkUserCookie = async (req, res) => {
             return res.status(401).json({ message: 'No user cookie found' });
         }
 
-        // Verify user exists in the database (adjust based on your User model)
-        const user = await User.getUserByID(userId); // Replace with your method
+        // Verify user exists in the database
+        const user = await User.getUserByID(userId); // Ensure this method exists
         if (!user) {
             return res.status(401).json({ message: 'Invalid user cookie' });
         }

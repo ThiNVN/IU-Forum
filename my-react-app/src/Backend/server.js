@@ -8,10 +8,20 @@ const cookieParser = require('cookie-parser');
 
 console.log("Looking for web.js at:", path.resolve(__dirname, './routes/web'));
 
+// Log requests for debugging
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+});
+
+// Apply CORS middleware first
 app.use(cors({
-    origin: 'http://localhost:3000', // Frontend URL
-    credentials: true // Allow cookies
+    origin: 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'],
+    optionsSuccessStatus: 204
 }));
+
 app.use(cookieParser());
 app.use(express.json());
 
@@ -20,8 +30,14 @@ app.get('/', (req, res) => {
     res.send('Hello from backend!');
 });
 
-// Register route
+// Register routes
 app.use('/api', webRoutes);
+
+// Error handler for debugging
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: 'Unexpected server error' });
+});
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);

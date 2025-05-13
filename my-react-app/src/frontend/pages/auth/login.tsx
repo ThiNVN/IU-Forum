@@ -67,6 +67,7 @@ const App: React.FC = () => {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
+
                     },
                     credentials: 'include', // Include cookies
                 });
