@@ -25,7 +25,8 @@ class User {
 
             // Hash the password using bcrypt
             const hashedPassword = await User.hashPassword(password);
-
+            console.log(password)
+            console.log(hashedPassword)
             // Insert into 'user_credentials' table
             const result = await userCredentials.insertNewUserCredentials(email, hashedPassword, userId, dbConnection);
 
@@ -80,7 +81,7 @@ class User {
                         userId = Result.ID;
                         return { status: 1, userId };
                     } else if (checkPasswordResult === 0) {
-                        console.log("User input wrong, deny access.", Result);
+                        console.log("User input wrong, deny access.", Result, "Password: ", password, "hash_password: ", credentialResults[0].password_hash);
                         return 0;
                     } else {
                         console.log("Error occurred, deny access.", Result);
@@ -104,7 +105,7 @@ class User {
                         if (checkPasswordResult === 1) {
                             console.log("User input correct, grant access.", Result);
                             userId = Result.ID;
-                            console.log(Result.ID)
+                            console.log("Password: ", password, "hash_password: ", credentialResults[0].password_hash)
                             return { status: 1, userId };
                         } else if (checkPasswordResult === 0) {
                             console.log("User input wrong, deny access.", Result, "Password: ", password, "hash_password: ", credentialResults[0].password_hash);
@@ -267,5 +268,4 @@ class User {
     }
 
 }
-
 module.exports = User;

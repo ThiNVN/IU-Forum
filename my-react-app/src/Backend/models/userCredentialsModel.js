@@ -12,10 +12,9 @@ class userCredentials {
     static async insertNewUserCredentials(email, password, user_id, dbConnection) {
         try {
             // Insert into 'user' table
-            const password_hash = await userCredentials.hashPassword(password);
             const [userResult] = await dbConnection.query(
                 'INSERT INTO user_credentials (email, password_hash, user_id) VALUES (?, ?, ?)',
-                [email, password_hash, user_id]
+                [email, password, user_id]
             );
             // console.log("User_credential inserted:", credentialsResult);
             return 1;  // Return the userId or any other result if needed
