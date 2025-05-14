@@ -266,6 +266,34 @@ class User {
             dbConnection.release();
         }
     }
+    static async changePassword(userId, newPassword) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            // Hash the new password
+            const hashedPassword = await User.hashPassword(newPassword);
+
+            // Update password in user_credentials table
+            const [result] = await dbConnection.query(
+                'UPDATE user_credentials SET password_hash = ? WHERE user_id = ?',
+                [hashedPassword, userId]
+            );
+
+            if (result.affectedRows === 0) {
+                throw new Error('User credentials not found');
+            }
+
+            await dbConnection.commit();
+            return 1;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 
 }
 module.exports = User;
