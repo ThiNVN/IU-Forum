@@ -8,6 +8,8 @@ require('dotenv').config({ path: path.resolve(__dirname, '../', '.env') });
 let cookieParser = require('cookie-parser');
 const userCredentials = require('../models/userCredentialsModel');
 const { get } = require('http');
+const Category = require('../models/categoryModel')
+const Thread = require('../models/threadModel')
 
 const registerUser = async (req, res) => {
     const { username, email, displayName, password } = req.body;
@@ -312,6 +314,40 @@ const logoutUser = (req, res) => {
     }
 };
 
+const getAllSections = async (req, res) => {
+    try {
+        const categories = await Category.getAllCategories();
+        const result = [];
+
+        for (const c of categories) {
+            const threads = await Thread.getThreadsByCategoryID(c.ID);
+
+            const topics = await Promise.all(threads.map(async (thread) => {
+                const count = await Post.countPostByThreadID(thread.ID);
+                return {
+                    id: thread.ID,
+                    title: thread.title,
+                    description: thread.description,
+                    count: 0, //Let it be 0 at this moment
+                    posts: count
+                };
+            }));
+
+            result.push({
+                id: c.ID,
+                title: c.name,
+                topics: topics
+            });
+        }
+        res.status(200).json({
+            message: 'Successfully retrieved all sections',
+            result
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 module.exports = {
     registerUser,
     loginUser,
@@ -325,5 +361,6 @@ module.exports = {
     updateUserProfile,
     get10LastedActivity,
     checkUserCookie,
-    logoutUser
+    logoutUser,
+    getAllSections
 };

@@ -2,7 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { Card } from '../../components/UI/Card';
 import Breadcrumb from '../../components/Header/Breadcrumb';
 import '../../styles/main.css';
+interface Topic {
+  id: number;
+  title: string;
+  description: string;
+  count: number; //Set to 0 for all
+  posts: number; //number of post in each thread
+}
 
+interface Section {
+  id: number;
+  title: string;
+  topics: Topic[];
+}
 const MainPage: React.FC = () => {
   // const [breadcrumbs, setBreadcrumbs] = useState([]);
   // const [sections, setSections] = useState([]);
@@ -29,24 +41,61 @@ const MainPage: React.FC = () => {
     { name: 'Section 1', url: '/main/section1' },
     { name: 'Topic 2', url: '/main/section1/topic2' },
   ]);
-  const [sections, setSections] = useState([
-    {
-      id: 1,
-      title: 'Section 1',
-      topics: [
-        { id: 1, title: 'Topic 1', description: 'Description of Topic 1', count: 5, posts: 100 },
-        { id: 2, title: 'Topic 2', description: 'Description of Topic 2', count: 8, posts: 150 },
-      ],
-    },
-    {
-      id: 2,
-      title: 'Section 2',
-      topics: [
-        { id: 3, title: 'Topic 3', description: 'Description of Topic 3', count: 2, posts: 30 },
-        { id: 4, title: 'Topic 4', description: 'Description of Topic 4', count: 10, posts: 200 },
-      ],
-    },
-  ]);
+
+
+  // const [sections, setSections] = useState([
+  //   {
+  //     id: 1,
+  //     title: 'Section 1',
+  //     topics: [
+  //       { id: 1, title: 'Topic 1', description: 'Description of Topic 1', count: 5, posts: 100 },
+  //       { id: 2, title: 'Topic 2', description: 'Description of Topic 2', count: 8, posts: 150 },
+  //     ],
+  //   },
+  //   {
+  //     id: 2,
+  //     title: 'Section 2',
+  //     topics: [
+  //       { id: 3, title: 'Topic 3', description: 'Description of Topic 3', count: 2, posts: 30 },
+  //       { id: 4, title: 'Topic 4', description: 'Description of Topic 4', count: 10, posts: 200 },
+  //     ],
+  //   },
+  // ]);
+
+  const [sections, setSections] = useState<Section[]>([]);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const userId = sessionStorage.getItem('userId');
+
+      if (!userId) return;
+      try {
+
+        const response = await fetch(`http://localhost:8081/api/getAllSections`);
+        if (response.ok) {
+          const res = await response.json();
+          const sectionData = res.result;
+          const mappedSections = sectionData.map((section: any) => ({
+            id: section.ID,
+            title: section.title,
+            topics: section.topics.map((topic: any) => ({
+              id: topic.id,
+              title: topic.title,
+              description: topic.description,
+              count: topic.count,
+              posts: topic.posts
+            }))
+          }));
+
+          setSections(mappedSections);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
   const [tags, setTags] = useState(['Tag1', 'Tag2', 'Tag3', 'Tag4']);
   // mock data
 

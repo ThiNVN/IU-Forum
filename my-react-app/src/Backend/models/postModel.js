@@ -156,6 +156,31 @@ class Post {
             dbConnection.release();
         }
     }
+
+    //Count post by thread_id
+    static async countPostByThreadID(thread_id) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            // Get posts for this user (profile posts only)
+            const [count] = await dbConnection.query(
+                `SELECT COUNT(*)
+                AS count
+                FROM post
+                WHERE thread_id = ?;`,
+                [thread_id]
+            );
+
+            await dbConnection.commit();
+            return count[0].count;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 
 module.exports = Post;
