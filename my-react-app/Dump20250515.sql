@@ -16,6 +16,35 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `activity`
+--
+
+DROP TABLE IF EXISTS `activity`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `activity` (
+  `ID` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `activity_type` varchar(100) DEFAULT NULL,
+  `description` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ID`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `activity_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `activity`
+--
+
+LOCK TABLES `activity` WRITE;
+/*!40000 ALTER TABLE `activity` DISABLE KEYS */;
+INSERT INTO `activity` VALUES (1,1,'post','User posted a new profile post','2025-05-12 13:01:51'),(2,1,'comment','User made a new comment in a post','2025-05-12 13:02:22');
+/*!40000 ALTER TABLE `activity` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `category`
 --
 
@@ -27,7 +56,7 @@ CREATE TABLE `category` (
   `name` char(255) DEFAULT NULL,
   `description` char(255) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -36,6 +65,7 @@ CREATE TABLE `category` (
 
 LOCK TABLES `category` WRITE;
 /*!40000 ALTER TABLE `category` DISABLE KEYS */;
+INSERT INTO `category` VALUES (1,'Technology','Discussions about the latest in tech and innovation.'),(2,'Science','Explore topics in physics, biology, chemistry, and more.'),(3,'Gaming','Talk about video games, board games, and esports.'),(4,'Movies & TV','Chat about your favorite films, shows, and actors.'),(5,'Books','Share reviews, recommendations, and discussions about books.'),(6,'Health & Fitness','Topics on wellness, exercise, and nutrition.'),(7,'Education','Learning resources, study tips, and academic topics.'),(8,'Travel','Share your travel stories and get advice on destinations.');
 /*!40000 ALTER TABLE `category` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -60,7 +90,7 @@ CREATE TABLE `comment` (
   CONSTRAINT `comment_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`),
   CONSTRAINT `comment_ibfk_2` FOREIGN KEY (`post_id`) REFERENCES `post` (`ID`),
   CONSTRAINT `comment_ibfk_3` FOREIGN KEY (`parent_cmt_id`) REFERENCES `comment` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,7 +99,7 @@ CREATE TABLE `comment` (
 
 LOCK TABLES `comment` WRITE;
 /*!40000 ALTER TABLE `comment` DISABLE KEYS */;
-INSERT INTO `comment` VALUES (1,1,1,NULL,'<p>aaaaaa</p>','2025-05-05 07:21:55'),(2,1,1,NULL,'<p>Hello</p>','2025-05-05 07:37:49'),(3,2,1,NULL,'<p>Night</p>','2025-05-06 10:21:10'),(4,3,1,NULL,'<p>Nice</p>','2025-05-06 10:23:45'),(5,3,1,NULL,'<p>Test 1</p>','2025-05-06 10:26:01'),(6,4,1,NULL,'<p>A</p>','2025-05-06 11:51:34'),(7,3,1,NULL,'<p>Test 2</p>','2025-05-06 12:52:41'),(8,1,1,NULL,'<p>AAAA</p>','2025-05-06 13:06:27'),(9,1,1,NULL,'<p>BBB</p>','2025-05-06 13:14:07'),(10,1,1,NULL,'<p>CCC</p>','2025-05-06 13:14:27'),(11,1,1,NULL,'<p>DDD</p>','2025-05-06 13:15:07'),(12,1,1,NULL,'<p>EEEE</p>','2025-05-06 13:15:53'),(13,1,1,NULL,'<p>FFF</p>','2025-05-06 13:17:24'),(14,1,1,NULL,'<p>GG</p>','2025-05-06 13:23:03'),(15,2,1,NULL,'<p>AAAA</p>','2025-05-06 13:23:17'),(16,2,1,NULL,'<p>BBB</p>','2025-05-06 13:23:57'),(17,2,1,NULL,'<p>CCC</p>','2025-05-06 13:27:47'),(18,2,1,NULL,'<p>DDD</p>','2025-05-06 13:27:51'),(19,2,1,NULL,'<p>EEE</p>','2025-05-06 13:31:00'),(20,3,1,NULL,'<p>GG</p>','2025-05-06 13:31:38'),(21,1,1,NULL,'<p>FF</p>','2025-05-06 13:31:52'),(22,3,1,NULL,'<p>BB</p>','2025-05-06 13:32:37'),(23,3,1,NULL,'<p>CC</p>','2025-05-06 13:32:41'),(24,3,1,NULL,'<p>DD</p>','2025-05-06 13:32:43'),(25,7,1,NULL,'<p>FFFFF</p>','2025-05-06 13:38:07');
+INSERT INTO `comment` VALUES (1,1,1,NULL,'<p>aaaaaa</p>','2025-05-05 07:21:55'),(2,1,1,NULL,'<p>Hello</p>','2025-05-05 07:37:49'),(3,2,1,NULL,'<p>Night</p>','2025-05-06 10:21:10'),(4,3,1,NULL,'<p>Nice</p>','2025-05-06 10:23:45'),(5,3,1,NULL,'<p>Test 1</p>','2025-05-06 10:26:01'),(6,4,1,NULL,'<p>A</p>','2025-05-06 11:51:34'),(7,3,1,NULL,'<p>Test 2</p>','2025-05-06 12:52:41'),(8,1,1,NULL,'<p>AAAA</p>','2025-05-06 13:06:27'),(9,1,1,NULL,'<p>BBB</p>','2025-05-06 13:14:07'),(10,1,1,NULL,'<p>CCC</p>','2025-05-06 13:14:27'),(11,1,1,NULL,'<p>DDD</p>','2025-05-06 13:15:07'),(12,1,1,NULL,'<p>EEEE</p>','2025-05-06 13:15:53'),(13,1,1,NULL,'<p>FFF</p>','2025-05-06 13:17:24'),(14,1,1,NULL,'<p>GG</p>','2025-05-06 13:23:03'),(15,2,1,NULL,'<p>AAAA</p>','2025-05-06 13:23:17'),(16,2,1,NULL,'<p>BBB</p>','2025-05-06 13:23:57'),(17,2,1,NULL,'<p>CCC</p>','2025-05-06 13:27:47'),(18,2,1,NULL,'<p>DDD</p>','2025-05-06 13:27:51'),(19,2,1,NULL,'<p>EEE</p>','2025-05-06 13:31:00'),(20,3,1,NULL,'<p>GG</p>','2025-05-06 13:31:38'),(21,1,1,NULL,'<p>FF</p>','2025-05-06 13:31:52'),(22,3,1,NULL,'<p>BB</p>','2025-05-06 13:32:37'),(23,3,1,NULL,'<p>CC</p>','2025-05-06 13:32:41'),(24,3,1,NULL,'<p>DD</p>','2025-05-06 13:32:43'),(25,7,1,NULL,'<p>FFFFF</p>','2025-05-06 13:38:07'),(26,9,1,NULL,'<p>AAA</p>','2025-05-12 13:02:22');
 /*!40000 ALTER TABLE `comment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -198,7 +228,7 @@ CREATE TABLE `post` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `post_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`),
   CONSTRAINT `post_ibfk_2` FOREIGN KEY (`thread_id`) REFERENCES `thread` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -207,7 +237,7 @@ CREATE TABLE `post` (
 
 LOCK TABLES `post` WRITE;
 /*!40000 ALTER TABLE `post` DISABLE KEYS */;
-INSERT INTO `post` VALUES (1,NULL,1,'<p>AAAAA</p>',NULL,'2025-05-05 05:45:57'),(2,NULL,1,'<p>Hello</p>',NULL,'2025-05-06 10:20:36'),(3,NULL,1,'<p>Test Test</p>',NULL,'2025-05-06 10:22:15'),(4,NULL,1,'<p>Test 2</p><p><br></p>',NULL,'2025-05-06 10:26:10'),(5,NULL,1,'<p>FFF</p>',NULL,'2025-05-06 13:32:58'),(6,NULL,1,'<p>AAA</p>',NULL,'2025-05-06 13:33:35'),(7,NULL,1,'<p>AAAAAAA</p>',NULL,'2025-05-06 13:38:00');
+INSERT INTO `post` VALUES (1,NULL,1,'<p>AAAAA</p>',NULL,'2025-05-05 05:45:57'),(2,NULL,1,'<p>Hello</p>',NULL,'2025-05-06 10:20:36'),(3,NULL,1,'<p>Test Test</p>',NULL,'2025-05-06 10:22:15'),(4,NULL,1,'<p>Test 2</p><p><br></p>',NULL,'2025-05-06 10:26:10'),(5,NULL,1,'<p>FFF</p>',NULL,'2025-05-06 13:32:58'),(6,NULL,1,'<p>AAA</p>',NULL,'2025-05-06 13:33:35'),(7,NULL,1,'<p>AAAAAAA</p>',NULL,'2025-05-06 13:38:00'),(8,NULL,1,'<p>AA</p>',NULL,'2025-05-12 13:01:11'),(9,NULL,1,'<p>AA</p>',NULL,'2025-05-12 13:01:51'),(10,1,2,'AI is evolving so fast. GPT-4 was a game changer!',NULL,'2025-05-15 14:20:00'),(11,1,3,'What do you all think about AI safety concerns?',NULL,'2025-05-15 14:22:00'),(12,1,1,'Supervised vs unsupervised learning still confuses me.',NULL,'2025-05-15 14:25:00'),(13,2,1,'Mars is possible, but life support is the real hurdle.',NULL,'2025-05-15 14:26:00'),(14,2,3,'The launch window is tight. Tech has to catch up fast.',NULL,'2025-05-15 14:28:00'),(15,3,2,'I’m loving \"Elder Realms V\" — such deep storytelling.',NULL,'2025-05-15 14:30:00'),(16,3,1,'Hades II has an amazing combat system!',NULL,'2025-05-15 14:31:00'),(17,3,3,'Classic RPGs like Witcher 3 still hold up.',NULL,'2025-05-15 14:33:00'),(18,4,1,'Web3 is promising but needs real use-cases.',NULL,'2025-05-15 14:35:00'),(19,4,3,'Too many scams in the crypto space. Hard to trust.',NULL,'2025-05-15 14:37:00'),(20,5,2,'Quantum supremacy still years away IMO.',NULL,'2025-05-15 14:39:00'),(21,5,3,'I read Google made some big progress recently.',NULL,'2025-05-15 14:40:00'),(22,6,1,'Godot has been amazing for 2D devs lately.',NULL,'2025-05-15 14:42:00'),(23,6,3,'Unity’s pricing scared me off. Switched to Unreal.',NULL,'2025-05-15 14:43:00'),(24,7,1,'Check out HTMX and Tauri — game changers!',NULL,'2025-05-15 14:44:00'),(25,7,2,'Open source is thriving thanks to great communities.',NULL,'2025-05-15 14:45:00'),(26,8,2,'Esports events are breaking viewership records.',NULL,'2025-05-15 14:46:00'),(27,8,3,'Traditional sports are adapting with streaming too.',NULL,'2025-05-15 14:48:00');
 /*!40000 ALTER TABLE `post` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -230,7 +260,7 @@ CREATE TABLE `thread` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `thread_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`ID`),
   CONSTRAINT `thread_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -239,6 +269,7 @@ CREATE TABLE `thread` (
 
 LOCK TABLES `thread` WRITE;
 /*!40000 ALTER TABLE `thread` DISABLE KEYS */;
+INSERT INTO `thread` VALUES (1,1,1,'Latest in AI','Discussion on the most recent developments in artificial intelligence.','2025-05-15 14:14:39'),(2,2,2,'SpaceX Mars Mission','Talking about the feasibility of colonizing Mars.','2025-05-15 14:14:39'),(3,3,3,'Best RPG of 2025?','What role-playing game are you enjoying the most this year?','2025-05-15 14:14:39'),(4,1,2,'Web3 Hype or Reality?','Is Web3 going to change the internet or is it just another buzzword?','2025-05-15 14:14:39'),(5,2,1,'Quantum Computers','How close are we to having usable quantum computers?','2025-05-15 14:14:39'),(6,3,2,'Game Dev Tools','Which game engines are best for indie developers today?','2025-05-15 14:14:39'),(7,1,3,'Open Source Projects','Share your favorite open-source tools and libraries.','2025-05-15 14:14:39'),(8,3,1,'Esports Rising','Will esports surpass traditional sports in popularity?','2025-05-15 14:14:39');
 /*!40000 ALTER TABLE `thread` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -271,7 +302,7 @@ CREATE TABLE `user` (
   `LinkedIn` char(255) DEFAULT NULL,
   `website` char(255) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -280,7 +311,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'thien','pean sky',NULL,22,'IU','CS','I am Thien',0,'2025-04-25 07:23:23','2025-05-08 08:02:14',0,0,0,'Member','Street 10, Truong Tho District, Thu Duc, TPHCM','Student','https://x.com/','https://www.linkedin.com/feed/','https://rebalon.github.io/'),(2,'a','NVLThien',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,0,0,0,'Member',NULL,NULL,NULL,NULL,NULL),(3,'thien','pean sky',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,0,0,0,'Member',NULL,NULL,NULL,NULL,NULL),(5,'Kiet','pean sky',NULL,NULL,NULL,NULL,NULL,0,'2025-04-25 13:23:23',NULL,0,0,0,'Member',NULL,NULL,NULL,NULL,NULL),(6,'thien','NVLThien',NULL,NULL,NULL,NULL,NULL,0,'2025-04-26 16:42:27',NULL,0,0,0,'Member',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `user` VALUES (1,'thien','pean sky',NULL,22,'IU','CS','I am Thien',0,'2025-04-25 07:23:23','2025-05-15 21:03:06',0,0,0,'Member','Street 10, Truong Tho District, Thu Duc, TPHCM','Student','https://x.com/','https://www.linkedin.com/feed/','https://rebalon.github.io/'),(2,'a','NVLThien',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,0,0,0,'Member',NULL,NULL,NULL,NULL,NULL),(3,'thien','pean sky',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,0,0,0,'Member',NULL,NULL,NULL,NULL,NULL),(5,'Kiet','pean sky',NULL,NULL,NULL,NULL,NULL,0,'2025-04-25 13:23:23',NULL,0,0,0,'Member',NULL,NULL,NULL,NULL,NULL),(6,'thien','NVLThien',NULL,NULL,NULL,NULL,NULL,0,'2025-04-26 16:42:27',NULL,0,0,0,'Member',NULL,NULL,NULL,NULL,NULL),(7,'gggggg','NVLThien',NULL,NULL,NULL,NULL,NULL,0,'2025-05-13 08:00:51',NULL,0,0,0,'Member',NULL,NULL,NULL,NULL,NULL),(8,'aaaaaa','NVLThien',NULL,NULL,NULL,NULL,NULL,0,'2025-05-13 16:33:40',NULL,0,0,0,'Member',NULL,NULL,NULL,NULL,NULL),(9,'vvvvvv','NVLThien',NULL,NULL,NULL,NULL,NULL,0,'2025-05-13 16:47:09',NULL,0,0,0,'Member',NULL,NULL,NULL,NULL,NULL),(10,'eeeeee','NVLThien',NULL,NULL,NULL,NULL,NULL,0,'2025-05-13 16:53:14',NULL,0,0,0,'Member',NULL,NULL,NULL,NULL,NULL),(12,'hhhhhh','NVLThien',NULL,NULL,NULL,NULL,NULL,0,'2025-05-13 16:57:00','2025-05-13 23:57:24',0,0,0,'Member',NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -299,7 +330,7 @@ CREATE TABLE `user_credentials` (
   PRIMARY KEY (`ID`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `user_credentials_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -308,7 +339,7 @@ CREATE TABLE `user_credentials` (
 
 LOCK TABLES `user_credentials` WRITE;
 /*!40000 ALTER TABLE `user_credentials` DISABLE KEYS */;
-INSERT INTO `user_credentials` VALUES (1,'1@gmail.com','$2b$10$iACFVJqYEBcyfr7to5Mr6OeELzpkbhbUPQ7uZEzoXOv8dago.MITq',1),(2,'skygrep@gmail.com','$2b$10$88eSMBAKc2xhwW7xtA/WWuVJbSfy/7h8fljW8TKVseBiBZBarc3Oi',2),(3,'1@gmail.com','$2b$10$psBaPr5M9igDRg49zKoDkOCgp6SPgdZ3QVNXJlgvMLLkq8FqZvCni',3),(4,'skygrep@gmail.com','$2b$10$vIJ6Qk6I6ZXg7HrRWqb1Du/y5YlCci3Ev9glXcQQNPehDBL0kZqAm',5),(5,'ngthien0929@gmail.com','$2b$10$YnRNXJoQpnu280iu9fct1./LLTPnlZJRJOWnIdiFhS0stHUFkN6y6',6);
+INSERT INTO `user_credentials` VALUES (1,'ngthien0929@gmail.com','$2b$10$iACFVJqYEBcyfr7to5Mr6OeELzpkbhbUPQ7uZEzoXOv8dago.MITq',1),(2,'skygrep@gmail.com','$2b$10$88eSMBAKc2xhwW7xtA/WWuVJbSfy/7h8fljW8TKVseBiBZBarc3Oi',2),(3,'1@gmail.com','$2b$10$psBaPr5M9igDRg49zKoDkOCgp6SPgdZ3QVNXJlgvMLLkq8FqZvCni',3),(4,'skygrep@gmail.com','$2b$10$vIJ6Qk6I6ZXg7HrRWqb1Du/y5YlCci3Ev9glXcQQNPehDBL0kZqAm',5),(5,'ngthien0929@gmail.com','$2b$10$YnRNXJoQpnu280iu9fct1./LLTPnlZJRJOWnIdiFhS0stHUFkN6y6',6),(6,'ngthien0929@gmail.com','$2b$10$3MIm8mtcojDzCA7dlKGDBeFEml7xd.aaVYqgy1C4PzzUttqpNtmFS',7),(7,'ngthien0929@gmail.com','$2b$10$x1M3XmwKg4cM3XvGRyi2Pu6vYv7jCO/JcYFDS3/U0n0qRW.qpaRR.',8),(8,'ngthien0929@gmail.com','$2b$10$kbHEtVc3pP66dbImeIqJpuNjpzjKKHLYagafWi//VVBS4lsr0Qhgm',9),(9,'ngthien0929@gmail.com','$2b$10$GfJYMT7RWaxJI1Ef05ZbOeAAjghjOTmasRcSlSzBjI72Q..EkMsTa',10),(10,'ngthien0929@gmail.com','$2b$10$vqW/8byWX9aG1RUK/THkzeM1pXuABp50yVfrDQ5uVbC.xnRiaudAm',12);
 /*!40000 ALTER TABLE `user_credentials` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -321,4 +352,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-08  9:32:21
+-- Dump completed on 2025-05-15 23:14:12
