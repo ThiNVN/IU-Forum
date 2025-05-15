@@ -84,6 +84,35 @@ class Comment {
             dbConnection.release();
         }
     }
+
+    // Delete a comment and its replies
+    static async deleteComment(comment_id) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            // Delete all child comments
+            await dbConnection.query(
+                'DELETE FROM comment WHERE parent_cmt_id = ?',
+                [comment_id]
+            );
+
+            // Delete the comment itself
+            const [Result] = await dbConnection.query(
+                'DELETE FROM comment WHERE ID = ?',
+                [comment_id]
+            );
+
+            await dbConnection.commit();
+            return Result.affectedRows > 0;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 
 module.exports = Comment;

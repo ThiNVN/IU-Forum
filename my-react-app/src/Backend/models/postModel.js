@@ -126,9 +126,36 @@ class Post {
         }
     }
 
-
     // Get normal post of a category. Not yet
 
+    // Delete a post and its comments
+    static async deletePost(post_id) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            // Delete all comments associated with this post
+            await dbConnection.query(
+                'DELETE FROM comment WHERE post_id = ?',
+                [post_id]
+            );
+
+            // Delete the post itself
+            const [Result] = await dbConnection.query(
+                'DELETE FROM post WHERE ID = ?',
+                [post_id]
+            );
+
+            await dbConnection.commit();
+            return Result.affectedRows > 0;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 
 module.exports = Post;
