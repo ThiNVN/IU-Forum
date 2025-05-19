@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '../../components/UI/Card';
 import Breadcrumb from '../../components/Header/Breadcrumb';
+import Sidebar from '../../components/UI/Sidebar';
 import '../../styles/main.css';
+
 interface Topic {
   id: number;
   title: string;
@@ -15,6 +17,7 @@ interface Section {
   title: string;
   topics: Topic[];
 }
+
 const MainPage: React.FC = () => {
   // const [breadcrumbs, setBreadcrumbs] = useState([]);
   // const [sections, setSections] = useState([]);
@@ -102,9 +105,8 @@ const MainPage: React.FC = () => {
   return (
     <div className="mainPage">
       <Breadcrumb trail={breadcrumbs} />
-
-      <div className="layoutGrid">
-        <div className="mainColumn">
+      <div className="main-content">
+        <div className="main-column">
           {sections.map(section => (
             <Card key={section.id} className="sectionCard">
               <h2 className="sectionTitle">{section.title}</h2>
@@ -114,22 +116,7 @@ const MainPage: React.FC = () => {
             </Card>
           ))}
         </div>
-
-        <div className="sidebar">
-          <Card className="dateCard">
-            <div className="dateText">{new Date().toLocaleDateString('vi-VN')}</div>
-            <div className="timeText">{new Date().toLocaleTimeString('vi-VN')}</div>
-          </Card>
-
-          <Card className="tagsCard">
-            <h2 className="sectionTitle">Popular Tags</h2>
-            <ul className="tagsList">
-              {tags.map(tag => (
-                <li key={tag} className="tagItem">{tag}</li>
-              ))}
-            </ul>
-          </Card>
-        </div>
+        <Sidebar />
       </div>
     </div>
   );

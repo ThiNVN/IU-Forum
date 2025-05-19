@@ -1,6 +1,11 @@
-Make an .env file
+Make an .env file in my-react-app/src/backend
 
 1. Open my sql and make schema with any name
+1,5 Scripts before import
+
+create database forum_2025;
+use forum_2025;
+
 2. Import the Dump20250508.sql
 3. Navigate to my-react-app
 4. node src/Backend/server.js
@@ -12,5 +17,5 @@ DB_USER=your user name
 DB_PASSWORD=your password
 DB_NAME=name of the schema made above
 
-Email= ask in group
-Email_Password= ask in group
+Email=skygrep@gmail.com (or ask in group)
+Email_Password=zanp jzhu wtua raru (or ask in group)

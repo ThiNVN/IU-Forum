@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import logo from '../../assets/img/UIlogo.png';
 import SearchBar from './Searchbar';
+import NotificationPanel from '../UI/NotificationPanel';
 import '../../styles/header.css';
 import { useNavigate } from 'react-router-dom';
 // import { getUser } from '../services/userService'; // your API service
@@ -80,8 +81,7 @@ const Header: React.FC = () => {
         </div>
 
         <div className="actions">
-          <button className="iconButton">🔔</button>
-          <button className="iconButton">✉️</button>
+          <NotificationPanel />
           <button className="createButton">+ Create</button>
 
           {/* User Avatar with dropdown */}

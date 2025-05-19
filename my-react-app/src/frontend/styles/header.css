@@ -104,6 +104,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  position: relative;
+  cursor: pointer;
 }
 
 .avatar {
@@ -118,14 +120,6 @@
 }
 
 /* --- Dropdown Menu Styles --- */
-.userProfile {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-  cursor: pointer;
-}
-
 .dropdownMenu {
   position: absolute;
   top: 100%;
@@ -161,4 +155,24 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Notification panel specific styles in header */
+.notification-panel {
+  margin-right: 0.5rem;
+}
+
+.notification-panel .popup {
+  top: calc(100% + 0.5rem);
+  right: -1rem;
+}
+
+.notification-panel .icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.notification-panel .badge {
+  background-color: #ff4444;
 }
