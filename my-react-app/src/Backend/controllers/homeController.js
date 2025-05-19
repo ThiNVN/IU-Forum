@@ -1,7 +1,7 @@
 const User = require('../models/userModel');
 const nodemailer = require("nodemailer");
 const path = require('path');
-const Post = require('../models/postModel');
+const Thread = require('../models/threadModel');
 const Comment = require('../models/commentModel');
 const Activity = require('../models/activityModel');
 require('dotenv').config({ path: path.resolve(__dirname, '../', '.env') });
@@ -9,7 +9,7 @@ let cookieParser = require('cookie-parser');
 const userCredentials = require('../models/userCredentialsModel');
 const { get } = require('http');
 const Category = require('../models/categoryModel')
-const Thread = require('../models/threadModel')
+const Topic = require('../models/TopicModel');
 
 const registerUser = async (req, res) => {
     const { username, email, displayName, password } = req.body;
@@ -160,17 +160,17 @@ const getUserProfile = async (req, res) => {
     }
 }
 
-const getUserProfilePost = async (req, res) => {
+const getUserProfileThread = async (req, res) => {
     const userId = req.query.userId;
 
     try {
-        const { posts, user } = await Post.getProfilePostByUserID(userId);
+        const { threads, user } = await Thread.getProfileThreadByUserID(userId);
         // console.log("Profile Post:", posts);
         // console.log("User Info:", user);
 
         res.status(200).json({
             message: 'Successfully retrieved profile posts',
-            posts,
+            threads,
             user
         });
     } catch (err) {
@@ -179,38 +179,41 @@ const getUserProfilePost = async (req, res) => {
     }
 };
 
-const addNewPost = async (req, res) => {
-    const { thread_id, user_id, content, image } = req.body;
+const addNewThread = async (req, res) => {
+    const { topic_id, user_id, content, image } = req.body;
     try {
         // Insert the new post into the database
-        const newPostResult = await Post.insertNewPost(thread_id, user_id, content, image);
-        const newPost = await Post.getPostByID(newPostResult.insertId);
-        const userData = await User.getUserByID(newPost[0].user_id);
+        var main_comment_id = null;
+        const newThreadResult = await Thread.insertNewThread(topic_id, user_id, main_comment_id, content, image);
+        var parent_cmt_id = null;
+        const comment = await Comment.insertNewCommnent(newThreadResult.insertId, user_id, parent_cmt_id, content);
+        await Thread.updateThreadMainComment(newThreadResult.insertId, comment.insertId);
+        const newThread = await Thread.getThreadByID(newThreadResult.insertId);
+        const userData = await User.getUserByID(newThread[0].user_id);
         //Make new activity record
         const activity_type = "post";
         var description = "";
-        if (thread_id == null) {
+        if (topic_id == null) {
             description = "User posted a new profile post";
         } else {
             description = "User posted a new post in thread";//add name of thread
         }
         await Activity.insertNewActivity(user_id, activity_type, description)
         // Respond with success message and user ID
-        res.status(201).json({ message: 'Post added successfully', newPost, userData });
+        res.status(201).json({ message: 'Post added successfully', newThread, userData });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
 };
 
-const getAllCommentOfPost = async (req, res) => {
-    const post_id = req.query.post_id;
+const getAllCommentOfThread = async (req, res) => {
+    const thread_id = req.query.thread_id;
 
     try {
-        const comments = await Comment.getCommentByUserID(post_id);
-        // console.log("Comments:", comments);
+        const comments = await Comment.getCommentByUserID(thread_id);
         res.status(200).json({
-            message: 'Successfully retrieved all comments of post',
+            message: 'Successfully retrieved all comments of thread',
             comments
         });
     } catch (err) {
@@ -220,17 +223,18 @@ const getAllCommentOfPost = async (req, res) => {
 };
 
 const addNewComment = async (req, res) => {
-    const { post_id, user_id, parent_cmt_id, content } = req.body;
+    const { thread_id, user_id, parent_cmt_id, content } = req.body;
     try {
         // Insert the new comment into the database
-        const CommentResult = await Comment.insertNewCommnent(post_id, user_id, parent_cmt_id, content);
+        const CommentResult = await Comment.insertNewCommnent(thread_id, user_id, parent_cmt_id, content);
         const newComment = await Comment.getCommentByID(CommentResult.insertId);
         const userData = await User.getUserByID(newComment[0].user_id);
 
-        const post = await Post.getPostByID(post_id);
+        const thread = await Thread.getThreadByID(thread_id);
+        const topic = await Topic.getTopicByID(thread.ID)
         //Make new activity record
         const activity_type = "comment";
-        const description = "User made a new comment in a post";//add name of thread if need
+        const description = "User made a new comment in a thread in " + topic.title;
         await Activity.insertNewActivity(user_id, activity_type, description)
 
         // Respond with success message and user ID
@@ -320,23 +324,24 @@ const getAllSections = async (req, res) => {
         const result = [];
 
         for (const c of categories) {
-            const threads = await Thread.getThreadsByCategoryID(c.ID);
+            const topics = await Topic.getTopicsByCategoryID(c.ID);
 
-            const topics = await Promise.all(threads.map(async (thread) => {
-                const count = await Post.countPostByThreadID(thread.ID);
+            const listTopics = await Promise.all(topics.map(async (topic) => {
+                const countTopics = await Topic.countTopicByCategoryID(c.ID);
+                const countThreads = await Thread.countThreadByTopicID(topic.ID);
                 return {
-                    id: thread.ID,
-                    title: thread.title,
-                    description: thread.description,
-                    count: 0, //Let it be 0 at this moment
-                    posts: count
+                    id: topic.ID,
+                    title: topic.title,
+                    description: topic.description,
+                    count: countTopics,
+                    posts: countThreads
                 };
             }));
 
             result.push({
                 id: c.ID,
                 title: c.name,
-                topics: topics
+                topics: listTopics
             });
         }
         res.status(200).json({
@@ -354,9 +359,9 @@ module.exports = {
     verificationEmail,
     verifyCode,
     getUserProfile,
-    getUserProfilePost,
-    addNewPost,
-    getAllCommentOfPost,
+    getUserProfileThread,
+    addNewThread,
+    getAllCommentOfThread,
     addNewComment,
     updateUserProfile,
     get10LastedActivity,

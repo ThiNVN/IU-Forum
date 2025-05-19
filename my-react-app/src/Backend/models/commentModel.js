@@ -8,15 +8,15 @@ class Comment {
     }
 
     // Insert a new comment
-    static async insertNewCommnent(post_id, user_id, parent_cmt_id, content) {
+    static async insertNewCommnent(thread_id, user_id, parent_cmt_id, content) {
         const dbConnection = await connection.getConnection();  // Get a connection for the transaction
         await dbConnection.beginTransaction();  // Start transaction
 
         try {
             // Insert into 'comment' table
             const [commentResult] = await dbConnection.query(
-                'INSERT INTO comment (post_id, user_id, parent_cmt_id, content, create_at) VALUES (?, ?, ?, ?, NOW())',
-                [post_id, user_id, parent_cmt_id, content]
+                'INSERT INTO comment (thread_id, user_id, parent_cmt_id, content) VALUES (?, ?, ?, ?)',
+                [thread_id, user_id, parent_cmt_id, content]
             );
             await dbConnection.commit();
             return commentResult;  // Return the userId or any other result if needed
@@ -30,12 +30,12 @@ class Comment {
         }
     }
 
-    // Get comment by post_id
-    static async getCommentByUserID(post_id) {
+    // Get comment by thread_id
+    static async getCommentByUserID(thread_id) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
         try {
-            // Get posts for this user (profile posts only)
+            // Get threads for this user (profile threads only)
             const [comments] = await dbConnection.query(
                 `SELECT 
                     comment.ID,
@@ -46,8 +46,9 @@ class Comment {
                     user.avatar
                  FROM comment
                  LEFT JOIN user ON comment.user_id = user.ID
-                 WHERE comment.post_id = ?`,
-                [post_id]
+                 WHERE comment.thread_id = ?
+                 ORDER BY comment.create_at ASC`,
+                [thread_id]
             );
 
             await dbConnection.commit();
@@ -66,7 +67,7 @@ class Comment {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
         try {
-            // Get posts for this user (profile posts only)
+            // Get threads for this user (profile threads only)
             const comment = await dbConnection.query(
                 `SELECT *
              FROM comment

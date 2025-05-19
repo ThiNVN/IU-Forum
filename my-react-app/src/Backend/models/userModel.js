@@ -17,7 +17,7 @@ class User {
         try {
             // Insert into 'user' table
             const [userResult] = await dbConnection.query(
-                'INSERT INTO user (username, full_name, created_at) VALUES (?, ?, NOW())',
+                'INSERT INTO user (username, full_name) VALUES (?, ?)',
                 [username, displayName]
             );
 

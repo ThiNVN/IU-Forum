@@ -69,11 +69,7 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const userId = sessionStorage.getItem('userId');
-
-      if (!userId) return;
       try {
-
         const response = await fetch(`http://localhost:8081/api/getAllSections`);
         if (response.ok) {
           const res = await response.json();

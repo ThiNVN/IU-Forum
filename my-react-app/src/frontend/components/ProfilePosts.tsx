@@ -17,7 +17,7 @@ interface ProfilePostsProps {
     userId: string;
 }
 
-interface Post {
+interface Thread {
     id: string;
     content: string;
     author: string;
@@ -33,7 +33,7 @@ interface Comment {
 }
 
 const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
-    const [posts, setPosts] = useState<Post[]>([]);
+    const [posts, setPosts] = useState<Thread[]>([]);
     const [newPostContent, setNewPostContent] = useState<string>('');
     //const [newCommentContent, setNewCommentContent] = useState<string>('');
     const [newCommentContentMap, setNewCommentContentMap] = useState<{ [postId: string]: string }>({})
@@ -42,17 +42,17 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
         const fetchUserProfilePost = async () => {
             if (!userId) return;
             try {
-                const response = await fetch(`http://localhost:8081/api/getUserProfilePost?userId=${userId}`);
+                const response = await fetch(`http://localhost:8081/api/getUserProfileThread?userId=${userId}`);
 
                 if (response.ok) {
                     const res = await response.json();
-                    const data = res.posts;
+                    const data = res.threads;
                     const userdata = res.user;
-
-                    const formattedPosts: Post[] = await Promise.all(
+                    console.log(res)
+                    const formattedPosts: Thread[] = await Promise.all(
                         data.map(async (post: any) => {
                             try {
-                                const response = await fetch(`http://localhost:8081/api/getAllCommentOfPost?post_id=${post.ID}`);
+                                const response = await fetch(`http://localhost:8081/api/getAllCommentOfThread?post_id=${post.ID}`);
                                 const commentData = await response.json();
 
                                 const formattedComments: Comment[] = (commentData.comments || []).map((cmt: any) => ({
@@ -97,7 +97,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
         if (newPostContent.trim() === '') return;
 
         try {
-            const response = await fetch('http://localhost:8081/api/addNewPost', {
+            const response = await fetch('http://localhost:8081/api/addNewThread', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -111,17 +111,16 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
             });
 
             if (response.ok) {
-                const savedPost = await response.json(); // expect backend to return the inserted post
-                console.log(savedPost)
-                const newPost: Post = {
-                    id: savedPost.newPost[0].ID,                     // from DB
-                    content: savedPost.newPost[0].content,
-                    author: savedPost.userData[0].username,             // returned from backend or locally known
-                    timestamp: savedPost.newPost[0].create_at,      // returned from backend
+                const savedThread = await response.json(); // expect backend to return the inserted post
+                const newThread: Thread = {
+                    id: savedThread.newThread[0].ID,                     // from DB
+                    content: savedThread.newThread[0].content,
+                    author: savedThread.userData[0].username,             // returned from backend or locally known
+                    timestamp: savedThread.newThread[0].create_at,      // returned from backend
                     //add image if need!
                     comments: []
                 };
-                setPosts(prev => [...prev, newPost]);
+                setPosts(prev => [...prev, newThread]);
                 setNewPostContent('');
             } else {
                 console.error('Failed to add post');
@@ -161,7 +160,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    post_id: postId,
+                    thread_id: postId,
                     user_id: userId,
                     parent_cmt_id: null,
                     content: content,
@@ -253,14 +252,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
                                     </div>
                                 </div>
                             ))}
-                            {/* <div className="new-comment">
-                                <RichTextEditor
-                                    value={newCommentContent}
-                                    onChange={setNewCommentContent}
-                                    placeholder="Write a comment..."
-                                />
-                                <button onClick={() => handleCommentSubmit(post.id)}>Comment</button>
-                            </div> */}
+                            
                             <div className="new-comment">
 
                                 <RichTextEditor
