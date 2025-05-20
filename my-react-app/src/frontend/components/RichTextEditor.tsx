@@ -1,163 +1,100 @@
-import React from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
-import Image from '@tiptap/extension-image';
-import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import { lowlight } from 'lowlight/lib/core';
-import '../styles/forum.css';
+import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react';
+import ReactQuill, { Quill } from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+import GifSearchModal from './GifSearchModal';
 
-export interface RichTextEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-  isPreview?: boolean;
+const icons = Quill.import('ui/icons') as any;
+icons['insertGif'] = '<svg viewBox="0 0 18 18"><rect class="ql-stroke" height="10" width="12" x="3" y="4"></rect><circle class="ql-fill" cx="6" cy="7" r="1"></circle><path class="ql-even ql-fill" d="M9 6h2v1h-2zM11 7h1v1h-1z"></path></svg>';
+interface RichTextEditorProps {
+    value: string;
+    onChange: (value: string) => void;
+    placeholder?: string;
+    className?: string;
+    showToolbar?: boolean;
 }
 
-const RichTextEditor: React.FC<RichTextEditorProps> = ({
-  value,
-  onChange,
-  isPreview = false
-}) => {
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: 'text-blue-500 hover:text-blue-700 underline'
-        }
-      }),
-      Image.configure({
-        HTMLAttributes: {
-          class: 'max-w-full rounded-lg'
-        }
-      }),
-      CodeBlockLowlight.configure({
-        lowlight
-      })
-    ],
-    content: value,
-    editable: !isPreview,
-    onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
-    }
-  });
+// const modules = {
+//   toolbar: [
+//     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+//     ['bold', 'italic', 'underline', 'strike'],
+//     [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+//     ['link', 'image'],
+//     ['clean']
+//   ]
+// };
 
-  if (!editor) {
-    return null;
-  }
+// const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder }) => (
+//   <ReactQuill
+//     theme="snow"
+//     value={value}
+//     onChange={onChange}
+//     modules={modules}
+//     placeholder={placeholder}
+//   />
+// );
 
-  if (isPreview) {
+const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder, className, showToolbar = false }) => {
+
+    const quillRef = useRef<ReactQuill | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [toolbarVisible, setToobarVisible] = useState(showToolbar)
+    const handleFocus = useCallback(() => {
+        setToobarVisible(true);
+    }, []);
+    //    const handleGifClick = () => setIsModalOpen(true);
+    const handleBlur = useCallback(() => {
+        setToobarVisible(false);
+    }, []);
+    const modules = useMemo(() => ({
+        toolbar: toolbarVisible ? {
+            container: [
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ['link', 'image', 'insertGif'],
+                ['clean'],
+            ],
+            handlers: {
+                insertGif: () => setIsModalOpen(true),
+            },
+        } : false, // set toolbar false when showToolbar = false
+    }), [toolbarVisible]);
+
+    const formats = useMemo(() => [
+        'header', 'bold', 'italic', 'underline', 'strike',
+        'list', 'bullet', 'link', 'image', 'insertGif'
+    ], []);
+
+    const handleGifSelect = (url: string) => {
+        const editor = quillRef.current?.getEditor();
+        const range = editor?.getSelection();
+        if (range) {
+            editor?.insertEmbed(range.index, 'image', url);
+        }
+        setIsModalOpen(false);
+    };
+
     return (
-      <div className="prose max-w-none p-4 border rounded-lg bg-white">
-        <EditorContent editor={editor} />
-      </div>
+        <div className={className}>
+            <ReactQuill
+                key={showToolbar ? 'with-toolbar' : 'no-toolbar'}
+                ref={quillRef}
+                theme="snow"
+                value={value}
+                onChange={onChange}
+                modules={modules}
+                formats={formats}
+                placeholder={placeholder}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+            />
+            <GifSearchModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSelectGif={handleGifSelect}
+            />
+        </div>
     );
-  }
 
-  return (
-    <div className="border rounded-lg bg-white">
-      <div className="border-b p-2 flex flex-wrap gap-2">
-        <button
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={`p-2 rounded ${editor.isActive('bold') ? 'bg-gray-200' : ''}`}
-          title="Bold"
-        >
-          <strong>B</strong>
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={`p-2 rounded ${editor.isActive('italic') ? 'bg-gray-200' : ''}`}
-          title="Italic"
-        >
-          <em>I</em>
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleStrike().run()}
-          className={`p-2 rounded ${editor.isActive('strike') ? 'bg-gray-200' : ''}`}
-          title="Strike"
-        >
-          <s>S</s>
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleCode().run()}
-          className={`p-2 rounded ${editor.isActive('code') ? 'bg-gray-200' : ''}`}
-          title="Code"
-        >
-          <code>{'</>'}</code>
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          className={`p-2 rounded ${editor.isActive('heading', { level: 1 }) ? 'bg-gray-200' : ''}`}
-          title="Heading 1"
-        >
-          H1
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={`p-2 rounded ${editor.isActive('heading', { level: 2 }) ? 'bg-gray-200' : ''}`}
-          title="Heading 2"
-        >
-          H2
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`p-2 rounded ${editor.isActive('bulletList') ? 'bg-gray-200' : ''}`}
-          title="Bullet List"
-        >
-          • List
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={`p-2 rounded ${editor.isActive('orderedList') ? 'bg-gray-200' : ''}`}
-          title="Ordered List"
-        >
-          1. List
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={`p-2 rounded ${editor.isActive('blockquote') ? 'bg-gray-200' : ''}`}
-          title="Blockquote"
-        >
-          Quote
-        </button>
-        <button
-          onClick={() => {
-            const url = window.prompt('Enter URL');
-            if (url) {
-              editor.chain().focus().setLink({ href: url }).run();
-            }
-          }}
-          className={`p-2 rounded ${editor.isActive('link') ? 'bg-gray-200' : ''}`}
-          title="Link"
-        >
-          🔗
-        </button>
-        <button
-          onClick={() => {
-            const url = window.prompt('Enter image URL');
-            if (url) {
-              editor.chain().focus().setImage({ src: url }).run();
-            }
-          }}
-          className="p-2 rounded"
-          title="Image"
-        >
-          🖼️
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          className={`p-2 rounded ${editor.isActive('codeBlock') ? 'bg-gray-200' : ''}`}
-          title="Code Block"
-        >
-          {'</>'}
-        </button>
-      </div>
-      <div className="p-4">
-        <EditorContent editor={editor} />
-      </div>
-    </div>
-  );
-};
-
+}
 export default RichTextEditor; 
