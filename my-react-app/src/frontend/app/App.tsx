@@ -9,6 +9,9 @@ import UserProfile from "../pages/profile/[id]";
 import UserProfile1 from "../pages/profile/profile";
 import Profile from "../pages/profile/profile";
 import EditProfile from "../pages/profile/editProfile";
+import HomePage from '../pages/HomePage';
+import TopicPage from '../pages/TopicPage';
+import ThreadPage from '../pages/ThreadPage';
 
 //import ThreadList from "../features/threads/pages/ThreadList";
 
@@ -17,7 +20,7 @@ export default function App() {
         <BrowserRouter>
             <Routes>
                 <Route element={<LayoutComponent />}>
-                    <Route path="/main" element={<Main />} />
+                    <Route path="/main/*" element={<Main />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/profile/:id" element={<UserProfile1 />} />
                     <Route path="/profile/:id/edit" element={<EditProfile />} />

@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '../../components/UI/Card';
-import Breadcrumb from '../../components/Header/Breadcrumb';
 import Sidebar from '../../components/UI/Sidebar';
+import Breadcrumb from '../../components/Breadcrumb';
+import { Routes, Route } from 'react-router-dom';
+import HomePage from '../HomePage';
+import TopicPage from '../TopicPage';
+import ThreadPage from '../ThreadPage';
 import '../../styles/main.css';
 
 interface Topic {
   id: number;
   title: string;
   description: string;
-  count: number; //Set to 0 for all
-  posts: number; //number of post in each thread
+  count: number;
+  posts: number;
 }
 
 interface Section {
@@ -95,12 +99,13 @@ const MainPage: React.FC = () => {
 
     fetchUserProfile();
   }, []);
+  
   const [tags, setTags] = useState(['Tag1', 'Tag2', 'Tag3', 'Tag4']);
   // mock data
 
   return (
     <div className="mainPage">
-      <Breadcrumb trail={breadcrumbs} />
+      <Breadcrumb />
       <div className="main-content">
         <div className="main-column">
           {sections.map(section => (
@@ -111,6 +116,12 @@ const MainPage: React.FC = () => {
               ))}
             </Card>
           ))}
+
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/topic/:topicId" element={<TopicPage />} />
+            <Route path="/thread/:threadId" element={<ThreadPage />} />
+          </Routes>
         </div>
         <Sidebar />
       </div>
@@ -118,14 +129,12 @@ const MainPage: React.FC = () => {
   );
 };
 
-// mock data
 interface TopicSectionProps {
   title: string;
   description: string;
   count: number;
   posts: number;
 }
-// mock data
 
 const TopicSection: React.FC<TopicSectionProps> = ({ title, description, count, posts }) => (
   <div className="topicSection">

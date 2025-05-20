@@ -3,15 +3,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import logo from '../../assets/img/UIlogo.png';
 import SearchBar from './Searchbar';
 import NotificationPanel from '../UI/NotificationPanel';
+import UserMenu from './UserMenu';
 import '../../styles/header.css';
 import { useNavigate } from 'react-router-dom';
 // import { getUser } from '../services/userService'; // your API service
 
 const Header: React.FC = () => {
   const [username, setUsername] = useState<string>('Loading...');
+  const [avatar, setAvatar] = useState<string>('/img/avt/default.png');
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
-
-  const profileRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<'account' | 'bookmarks'>('account');
+  const userProfileRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
   //   useEffect(() => {
@@ -29,20 +31,39 @@ const Header: React.FC = () => {
   //   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
+    const fetchUserProfile = async () => {
+      const userId = sessionStorage.getItem('userId');
+      if (!userId) {
+        setUsername('Guest');
+        setAvatar('/img/avt/default.png');
+        return;
+      }
+      try {
+        const response = await fetch('http://localhost:8081/api/getUserProfile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId }),
+        });
+        if (response.ok) {
+          const res = await response.json();
+          const data = res.userProfile;
+          setUsername(data.username || 'Guest');
+          setAvatar(data.avatar ? `/img/avt/${data.avatar}` : '/img/avt/default.png');
+        } else {
+          setUsername('Guest');
+          setAvatar('/img/avt/default.png');
+        }
+      } catch (error) {
+        setUsername('Guest');
+        setAvatar('/img/avt/default.png');
       }
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    fetchUserProfile();
   }, []);
 
   const toggleDropdown = () => {
     setDropdownOpen((prev) => !prev);
+    setActiveTab('account'); // Reset to account tab when opening
   };
 
   const isGuest = username === 'Guest';
@@ -50,12 +71,9 @@ const Header: React.FC = () => {
     try {
       const response = await fetch('http://localhost:8081/api/logout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Include cookies
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
       });
-
       if (response.ok) {
         // Clear sessionStorage
         sessionStorage.removeItem('userId');
@@ -68,6 +86,23 @@ const Header: React.FC = () => {
       console.error('Error during logout:', error);
     }
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userProfileRef.current && !userProfileRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
   return (
     <header>
       <div className='header'>
@@ -85,30 +120,21 @@ const Header: React.FC = () => {
           <button className="createButton">+ Create</button>
 
           {/* User Avatar with dropdown */}
-          <div className="userProfile" onClick={toggleDropdown} ref={profileRef}>
+          <div className="userProfile" onClick={toggleDropdown} ref={userProfileRef} style={{ position: 'relative' }}>
             <img
-              src={isGuest ? '../assets/img/guest_avatar.png' : '../assets/img/avatar.png'}
+              src={avatar}
               alt="User Avatar"
               className="avatar"
             />
             <span className="userName">{username}</span>
 
             {dropdownOpen && (
-              <div className="dropdownMenu">
-                {!isGuest && <a href="/profile" className="dropdownItem">Profile</a>}
-                <a href="/settings" className="dropdownItem">Settings</a>
-                {isGuest ? (
-                  <a href="/login" className="dropdownItem">Login</a>
-                ) : (
-                  <button
-                    onClick={handleLogout}
-                    className="dropdownItem"
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
-                  >
-                    Logout
-                  </button>
-                )}
-              </div>
+              <UserMenu
+                username={username}
+                avatarUrl={avatar}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
             )}
           </div>
 

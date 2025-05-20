@@ -27,7 +27,15 @@ const DateCard: React.FC<DateCardProps> = ({ className = '', onDateSelect }) => 
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
 
-  const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const dayNames = [
+    { label: 'S', key: 'sun' },
+    { label: 'M', key: 'mon' },
+    { label: 'T', key: 'tue' },
+    { label: 'W', key: 'wed' },
+    { label: 'T', key: 'thu' },
+    { label: 'F', key: 'fri' },
+    { label: 'S', key: 'sat' }
+  ];
 
   const handlePrevMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
@@ -93,8 +101,8 @@ const DateCard: React.FC<DateCardProps> = ({ className = '', onDateSelect }) => 
       </div>
       <div className="calendar-grid">
         {dayNames.map(day => (
-          <div key={day} className="calendar-day-name">
-            {day}
+          <div key={day.key} className="calendar-day-name">
+            {day.label}
           </div>
         ))}
         {renderCalendarDays()}
