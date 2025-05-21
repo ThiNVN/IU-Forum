@@ -249,6 +249,7 @@ CREATE TABLE `thread` (
   `responses` int DEFAULT '0',
   `views` int DEFAULT '0',
   `create_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_activity` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `topic_id` (`topic_id`),
   KEY `user_id` (`user_id`),
@@ -265,7 +266,7 @@ CREATE TABLE `thread` (
 
 LOCK TABLES `thread` WRITE;
 /*!40000 ALTER TABLE `thread` DISABLE KEYS */;
-INSERT INTO `thread` VALUES (1,1,1,1,'This is a new thread discussing the benefits of learning SQL.',NULL,0,0,'2025-05-19 12:19:13'),(5,NULL,1,3,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:48:25'),(6,NULL,1,4,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:48:45'),(7,NULL,1,5,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:49:04'),(8,NULL,1,6,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:59:21');
+INSERT INTO `thread` VALUES (1,1,1,1,'This is a new thread discussing the benefits of learning SQL.',NULL,0,0,'2025-05-19 12:19:13',NULL),(5,NULL,1,3,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:48:25',NULL),(6,NULL,1,4,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:48:45',NULL),(7,NULL,1,5,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:49:04',NULL),(8,NULL,1,6,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:59:21',NULL);
 /*!40000 ALTER TABLE `thread` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -309,6 +310,7 @@ CREATE TABLE `topic` (
   `title` varchar(255) NOT NULL,
   `description` text,
   `create_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_activity` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `category_id` (`category_id`),
   KEY `user_id` (`user_id`),
@@ -323,7 +325,7 @@ CREATE TABLE `topic` (
 
 LOCK TABLES `topic` WRITE;
 /*!40000 ALTER TABLE `topic` DISABLE KEYS */;
-INSERT INTO `topic` VALUES (1,1,1,'Welcome to the forum!','Introduce yourself here.','2025-05-19 12:12:28'),(2,2,2,'Best resources to learn Go?','Share tutorials, YouTube channels, or books.','2025-05-19 12:12:28'),(3,3,1,'Tips for surviving finals','Drop your best study tips and coping mechanisms.','2025-05-19 12:12:28'),(4,4,3,'Internship openings Summer 2025','Post or ask about internship opportunities.','2025-05-19 12:12:28'),(5,5,2,'What’s your favorite movie this year?','Let’s talk about recent releases and hidden gems.','2025-05-19 12:12:28');
+INSERT INTO `topic` VALUES (1,1,1,'Welcome to the forum!','Introduce yourself here.','2025-05-19 12:12:28',NULL),(2,2,2,'Best resources to learn Go?','Share tutorials, YouTube channels, or books.','2025-05-19 12:12:28',NULL),(3,3,1,'Tips for surviving finals','Drop your best study tips and coping mechanisms.','2025-05-19 12:12:28',NULL),(4,4,3,'Internship openings Summer 2025','Post or ask about internship opportunities.','2025-05-19 12:12:28',NULL),(5,5,2,'What’s your favorite movie this year?','Let’s talk about recent releases and hidden gems.','2025-05-19 12:12:28',NULL);
 /*!40000 ALTER TABLE `topic` ENABLE KEYS */;
 UNLOCK TABLES;
 
