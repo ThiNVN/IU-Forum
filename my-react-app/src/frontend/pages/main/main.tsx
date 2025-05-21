@@ -99,7 +99,7 @@ const MainPage: React.FC = () => {
 
     fetchUserProfile();
   }, []);
-  
+
   const [tags, setTags] = useState(['Tag1', 'Tag2', 'Tag3', 'Tag4']);
   // mock data
 
@@ -108,14 +108,7 @@ const MainPage: React.FC = () => {
       <Breadcrumb />
       <div className="main-content">
         <div className="main-column">
-          {sections.map(section => (
-            <Card key={section.id} className="sectionCard">
-              <h2 className="sectionTitle">{section.title}</h2>
-              {section.topics.map(topic => (
-                <TopicSection key={topic.id} {...topic} />
-              ))}
-            </Card>
-          ))}
+
 
           <Routes>
             <Route path="/" element={<HomePage />} />
