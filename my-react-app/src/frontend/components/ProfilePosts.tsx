@@ -105,7 +105,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
                 body: JSON.stringify({
                     user_id: userId,             // make sure you have this available
                     content: newPostContent,
-                    thread_id: null,      // or a real thread ID if this is not a profile post
+                    topic_id: null,
                     image: null
                 }),
             });

@@ -107,7 +107,7 @@ const Header: React.FC = () => {
   return (
     <header>
       <div className='header'>
-        <a href='/main' className="logoTitle">
+        <a href='/' className="logoTitle">
           <img src={logo} alt="IU Logo" className="logoImage" />
           <span className="forumTitle">IU Forum</span>
         </a>

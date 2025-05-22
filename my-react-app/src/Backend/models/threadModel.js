@@ -14,15 +14,15 @@ class Thread {
     }
 
     // Insert a new thread (both normal thread and user profile thread)
-    static async insertNewThread(topic_id, user_id, main_comment_id, content, image) {
+    static async insertNewThread(topic_id, user_id, content, image) {
         const dbConnection = await connection.getConnection();  // Get a connection for the transaction
         await dbConnection.beginTransaction();  // Start transaction
 
         try {
             // Insert into 'thread' table
             const [threadResult] = await dbConnection.query(
-                'INSERT INTO thread (topic_id, user_id, main_comment_id, content, image) VALUES (?, ?, ?, ?, ?)',
-                [topic_id, user_id, main_comment_id, content, image]
+                'INSERT INTO thread (topic_id, user_id, content, image) VALUES (?, ?, ?, ?)',
+                [topic_id, user_id, content, image]
             );
             await dbConnection.commit();
             return threadResult;  // Return the userId or any other result if needed
@@ -200,32 +200,6 @@ class Thread {
                      views = ? 
                  WHERE id = ?`,
                 [topic_id, user_id, main_comment_id, content, image, responses, views, id]
-            );
-
-            await dbConnection.commit();
-            return result;  // Return the result of the update
-        } catch (err) {
-            await dbConnection.rollback();
-            console.error("Database error:", err);
-            throw err;
-        } finally {
-            dbConnection.release();
-        }
-    }
-
-    //Update thread
-    static async updateThreadMainComment(id, main_comment_id) {
-        const dbConnection = await connection.getConnection(); // Get a connection for the transaction
-        await dbConnection.beginTransaction(); // Start transaction
-
-        try {
-            // Update the existing thread
-            const [result] = await dbConnection.query(
-                `UPDATE thread 
-                 SET
-                     main_comment_id = ?
-                 WHERE id = ?`,
-                [main_comment_id, id]
             );
 
             await dbConnection.commit();

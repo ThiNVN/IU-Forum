@@ -1,12 +1,12 @@
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const PORT = 8081;
+const PORT = process.env.PORT;
 const webRoutes = require('./routes/web');
-const path = require('path');
 const cookieParser = require('cookie-parser');
-
-console.log("Looking for web.js at:", path.resolve(__dirname, './routes/web'));
 
 // Log requests for debugging
 app.use((req, res, next) => {
@@ -27,7 +27,7 @@ app.use(express.json());
 
 // Sample route
 app.get('/', (req, res) => {
-    res.send('Hello from backend!');
+    res.send('<h1>Hello from backend!</h1>');
 });
 
 // Register routes

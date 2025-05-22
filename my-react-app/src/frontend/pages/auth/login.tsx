@@ -185,7 +185,7 @@ const App: React.FC = () => {
                 setIsEmailVerificationOpen(false);
                 sessionStorage.setItem('userId', String(UID));
                 // Redirect now that everything is verified
-                window.location.href = "/main";
+                window.location.href = "/";
             } else {
                 const errorData = await verificationResponse.json();
                 alert(errorData.message || "Invalid verification code. Try again!");

@@ -55,9 +55,10 @@ class Activity {
     }
 
     // Get latest activities
-    static async getLatestActivities(limit = 10) {
+    static async getLatestActivities() {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
+        const limit = 10;
         try {
             const [activities] = await dbConnection.query(
                 `SELECT a.*, u.username, u.avatar

@@ -9,3 +9,6 @@ node src/Backend/configuration/databaseCreation
 Make an .env for yourself
 
 To send email contact Thien to get email and password or generate yourself
+
+Use nodemon for Backend
+npm run dev

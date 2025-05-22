@@ -81,7 +81,7 @@ const verificationEmail = async (req, res) => {
     if (identifierType === "username") {
         username = email;
         const getUser = await User.getUserByUserName(email);
-        const getEmail = await userCredentials.getUserCredentialsByUserID(getUser[0].ID);
+        const getEmail = await userCredentials.getUserCredentialsByID(getUser[0].ID);
         email = getEmail[0].email;
     } else if (identifierType === "email") {
         const getUser = await User.getUserByUserName(email);
@@ -127,7 +127,7 @@ const verifyCode = async (req, res) => {
     var { email, code, identifierType } = req.body;
     if (identifierType === "username") {
         const getUser = await User.getUserByUserName(email);
-        const getEmail = await userCredentials.getUserCredentialsByUserID(getUser[0].ID);
+        const getEmail = await userCredentials.getUserCredentialsByID(getUser[0].ID);
         email = getEmail[0].email;
     }
     console.log(email)
@@ -183,11 +183,7 @@ const addNewThread = async (req, res) => {
     const { topic_id, user_id, content, image } = req.body;
     try {
         // Insert the new post into the database
-        var main_comment_id = null;
-        const newThreadResult = await Thread.insertNewThread(topic_id, user_id, main_comment_id, content, image);
-        var parent_cmt_id = null;
-        const comment = await Comment.insertNewCommnent(newThreadResult.insertId, user_id, parent_cmt_id, content);
-        await Thread.updateThreadMainComment(newThreadResult.insertId, comment.insertId);
+        const newThreadResult = await Thread.insertNewThread(topic_id, user_id, content, image);
         const newThread = await Thread.getThreadByID(newThreadResult.insertId);
         const userData = await User.getUserByID(newThread[0].user_id);
         //Make new activity record
@@ -198,7 +194,7 @@ const addNewThread = async (req, res) => {
         } else {
             description = "User posted a new post in thread";//add name of thread
         }
-        await Activity.insertNewActivity(user_id, activity_type, description)
+        await Activity.insertActivity(user_id, activity_type, description)
         // Respond with success message and user ID
         res.status(201).json({ message: 'Post added successfully', newThread, userData });
     } catch (err) {
@@ -211,7 +207,7 @@ const getAllCommentOfThread = async (req, res) => {
     const thread_id = req.query.thread_id;
 
     try {
-        const comments = await Comment.getCommentByUserID(thread_id);
+        const comments = await Comment.getCommentsByThreadID(thread_id);
         res.status(200).json({
             message: 'Successfully retrieved all comments of thread',
             comments
@@ -223,10 +219,10 @@ const getAllCommentOfThread = async (req, res) => {
 };
 
 const addNewComment = async (req, res) => {
-    const { thread_id, user_id, parent_cmt_id, content } = req.body;
+    const { thread_id, user_id, content } = req.body;
     try {
         // Insert the new comment into the database
-        const CommentResult = await Comment.insertNewCommnent(thread_id, user_id, parent_cmt_id, content);
+        const CommentResult = await Comment.insertComment(thread_id, user_id, content);
         const newComment = await Comment.getCommentByID(CommentResult.insertId);
         const userData = await User.getUserByID(newComment[0].user_id);
 
@@ -264,7 +260,7 @@ const get10LastedActivity = async (req, res) => {
     const userId = req.query.userId;
 
     try {
-        const activities = await Activity.get10ActivityByUserID(userId);
+        const activities = await Activity.getLatestActivities(userId);
         // console.log("Profile Post:", posts);
         // console.log("User Info:", user);
 
@@ -404,7 +400,7 @@ const getThreadAndAllComment = async (req, res) => {
             return res.status(404).json({ message: 'Thread not found' });
         }
 
-        const comments = await Comment.getCommentByUserID(thread[0].ID);
+        const comments = await Comment.getCommentsByThreadID(thread[0].ID);
 
         const listComments = await Promise.all(comments.map(async (comment) => {
             return {
