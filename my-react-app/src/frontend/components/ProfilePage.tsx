@@ -46,7 +46,7 @@ function timeAgo(dateString: string): string {
 }
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
-  const avatar = user.avatar || '/assets/img/guest_avatar.png';
+  const avatar = user.avatar || '../../assets/img/avt/guest_avatar.png';
   const title = user.title || '';
   const joined = user.joined || 'Unknown';
 

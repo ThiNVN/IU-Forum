@@ -1,6 +1,7 @@
 // src/components/Header.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import logo from '../../assets/img/UIlogo.png';
+import defaultavt from '../../assets/img/avt/guest_avatar.png'
 import SearchBar from './Searchbar';
 import NotificationPanel from '../UI/NotificationPanel';
 import UserMenu from './UserMenu';
@@ -10,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Header: React.FC = () => {
   const [username, setUsername] = useState<string>('Loading...');
-  const [avatar, setAvatar] = useState<string>('/img/avt/default.png');
+  const [avatar, setAvatar] = useState<string>(defaultavt);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'account' | 'bookmarks'>('account');
   const userProfileRef = useRef<HTMLDivElement>(null);
@@ -35,7 +36,7 @@ const Header: React.FC = () => {
       const userId = sessionStorage.getItem('userId');
       if (!userId) {
         setUsername('Guest');
-        setAvatar('/img/avt/default.png');
+        setAvatar(defaultavt);
         return;
       }
       try {
@@ -48,14 +49,14 @@ const Header: React.FC = () => {
           const res = await response.json();
           const data = res.userProfile;
           setUsername(data.username || 'Guest');
-          setAvatar(data.avatar ? `/img/avt/${data.avatar}` : '/img/avt/default.png');
+          setAvatar(data.avatar ? `../../assets/img/avt/${data.avatar}` : defaultavt);
         } else {
           setUsername('Guest');
-          setAvatar('/img/avt/default.png');
+          setAvatar(defaultavt);
         }
       } catch (error) {
         setUsername('Guest');
-        setAvatar('/img/avt/default.png');
+        setAvatar(defaultavt);
       }
     };
     fetchUserProfile();
