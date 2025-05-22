@@ -20,13 +20,13 @@ export default function App() {
         <BrowserRouter>
             <Routes>
                 <Route element={<LayoutComponent />}>
-                    <Route path="/main/*" element={<Main />} />
+                    <Route path="/*" element={<Main />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/profile/:id" element={<UserProfile1 />} />
                     <Route path="/profile/:id/edit" element={<EditProfile />} />
                 </Route>
 
-                <Route path="/" element={<Main />} />
+
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 {/* <Route path="/threads" element={<ThreadList />} /> */}

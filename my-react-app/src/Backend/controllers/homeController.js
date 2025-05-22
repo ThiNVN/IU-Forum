@@ -318,7 +318,7 @@ const logoutUser = (req, res) => {
     }
 };
 
-const getAllSections = async (req, res) => {
+const getAllCategoryAndTopic = async (req, res) => {
     try {
         const categories = await Category.getAllCategories();
         const result = [];
@@ -327,20 +327,20 @@ const getAllSections = async (req, res) => {
             const topics = await Topic.getTopicsByCategoryID(c.ID);
 
             const listTopics = await Promise.all(topics.map(async (topic) => {
-                const countTopics = await Topic.countTopicByCategoryID(c.ID);
                 const countThreads = await Thread.countThreadByTopicID(topic.ID);
                 return {
                     id: topic.ID,
                     title: topic.title,
                     description: topic.description,
-                    count: countTopics,
-                    posts: countThreads
+                    threadCount: countThreads,
+                    lastActivity: topic.last_activity
                 };
             }));
 
             result.push({
                 id: c.ID,
                 title: c.name,
+                description: c.description,
                 topics: listTopics
             });
         }
@@ -353,6 +353,89 @@ const getAllSections = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+
+const getTopicAndAllThread = async (req, res) => {
+    try {
+        const topics = await Topic.getAll();
+
+        const result = [];
+
+        for (const t of topics) {
+            const threads = await Thread.getNormalThreadByTopicID(t.ID);
+
+            const listThreads = await Promise.all(threads.map(async (thread) => {
+                const countReply = await Comment.countCommentByThreadID(thread.ID);
+                const author = await User.getUserByID(thread.user_id);
+                return {
+                    id: thread.ID,
+                    title: thread.title,
+                    author: author[0].username,
+                    createdAt: thread.create_at,
+                    lastActivity: thread.last_activity,
+                    replyCount: countReply === 0 ? (thread.responses - 1) : (countReply - 1),
+                    description: thread.description
+                };
+            }));
+
+            result.push({
+                title: t.title,
+                description: t.description,
+                threads: listThreads
+            });
+        }
+        res.status(200).json({
+            message: 'Successfully retrieved all sections',
+            result
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const getThreadAndAllComment = async (req, res) => {
+    const thread_id = req.query.threadId;
+    try {
+        const thread = await Thread.getThreadByID(thread_id);
+        const threadAuthor = await User.getUserByID(thread[0].user_id);
+
+        if (!thread || thread.length === 0) {
+            return res.status(404).json({ message: 'Thread not found' });
+        }
+
+        const comments = await Comment.getCommentByUserID(thread[0].ID);
+
+        const listComments = await Promise.all(comments.map(async (comment) => {
+            return {
+                id: comment.ID,
+                author: comment.username,
+                content: comment.content,
+                createdAt: comment.create_at,
+                avatar: comment.avatar
+            };
+        }));
+
+        const result = {
+            id: thread[0].ID,
+            content: thread[0].content,
+            author: threadAuthor[0].username,
+            createdAt: thread[0].create_at,
+            title: thread[0].title,
+            comments: listComments
+        };
+
+        res.status(200).json({
+            message: 'Successfully retrieved thread and comments',
+            result
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
 module.exports = {
     registerUser,
     loginUser,
@@ -367,5 +450,7 @@ module.exports = {
     get10LastedActivity,
     checkUserCookie,
     logoutUser,
-    getAllSections
+    getAllCategoryAndTopic,
+    getTopicAndAllThread,
+    getThreadAndAllComment
 };

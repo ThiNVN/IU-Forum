@@ -1,60 +1,84 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Category from '../components/Category';
 import '../styles/forum.css';
 
-// Mock data - replace with actual API calls later
-const mockCategories = [
-  {
-    id: '1',
-    title: 'General Discussion',
-    description: 'General topics and discussions about IU',
-    topics: [
-      {
-        id: '1',
-        title: 'Welcome to IU Forum',
-        description: 'Introduce yourself and get to know other members',
-        threadCount: 15,
-        lastActivity: '2 hours ago'
-      },
-      {
-        id: '2',
-        title: 'Campus Life',
-        description: 'Discuss campus events, activities, and student life',
-        threadCount: 23,
-        lastActivity: '1 day ago'
-      }
-    ]
-  },
-  {
-    id: '2',
-    title: 'Academic',
-    description: 'Academic discussions and course-related topics',
-    topics: [
-      {
-        id: '3',
-        title: 'Course Registration',
-        description: 'Questions and discussions about course registration',
-        threadCount: 45,
-        lastActivity: '3 hours ago'
-      },
-      {
-        id: '4',
-        title: 'Study Groups',
-        description: 'Find study partners and form study groups',
-        threadCount: 12,
-        lastActivity: '5 hours ago'
-      }
-    ]
-  }
-];
+
+interface Topic {
+  id: string;
+  title: string;
+  description: string;
+  threadCount: number;
+  lastActivity: string;
+}
+
+interface Section {
+  id: string;
+  title: string;
+  description: string;
+  topics: Topic[];
+}
+
+//Calculate last activate time
+function timeAgo(dateString: string): string {
+  const now = new Date();
+  const then = new Date(dateString);
+  const diffInSeconds = Math.floor((now.getTime() - then.getTime()) / 1000);
+
+  const minutes = Math.floor(diffInSeconds / 60);
+  const hours = Math.floor(diffInSeconds / 3600);
+  const days = Math.floor(diffInSeconds / 86400);
+
+  if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+  if (minutes < 60) return `${minutes} minutes ago`;
+  if (hours < 24) return `${hours} hours ago`;
+  return `${days} days ago`;
+}
 
 const HomePage: React.FC = () => {
+
+
+
+  const [sections, setSections] = useState<Section[]>([]);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch(`http://localhost:8081/api/getAllCategoryAndTopic`);
+        if (response.ok) {
+          const res = await response.json();
+          const sectionData = res.result;
+          const mappedSections = sectionData.map((section: any) => ({
+            id: section.ID,
+            title: section.title,
+            description: section.description,
+            topics: section.topics.map((topic: any) => ({
+              id: topic.id,
+              title: topic.title,
+              description: topic.description,
+              threadCount: topic.count,
+              lastActivity: topic.lastActivity ? timeAgo(topic.lastActivity) : 'Unknown'
+            }))
+          }));
+
+          setSections(mappedSections);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+
+
+
   return (
     <div className="forum-container">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">IU Forum</h1>
-      
+
       <div className="categories-container">
-        {mockCategories.map((category) => (
+        {sections.map((category) => (
           <Category
             key={category.id}
             id={category.id}
