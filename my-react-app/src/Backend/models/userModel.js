@@ -5,8 +5,194 @@ const userCredentials = require('../models/userCredentialsModel');
 class User {
     // Get all users from the database
     static async getAll() {
-        const [rows] = await connection.query('SELECT * FROM users');
+        const [rows] = await connection.query('SELECT * FROM user');
         return rows;
+    }
+
+    // Get user by ID
+    static async getByID(ID) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [users] = await dbConnection.query(
+                'SELECT * FROM user WHERE ID = ?',
+                [ID]
+            );
+
+            await dbConnection.commit();
+            return users[0];
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    // Get user by username
+    static async getByUsername(username) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [users] = await dbConnection.query(
+                'SELECT * FROM user WHERE username = ?',
+                [username]
+            );
+
+            await dbConnection.commit();
+            return users[0];
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    // Insert new user
+    static async insertUser(username, full_name, avatar = null, age = null, school = null, 
+                          major = null, bio = null, location = null, occupation = null, 
+                          Twitter = null, LinkedIn = null, website = null) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            const [userResult] = await dbConnection.query(
+                `INSERT INTO user (
+                    username, full_name, avatar, age, school, major, bio,
+                    is_admin, created_at, total_message, total_reaction, point,
+                    title, location, occupation, Twitter, LinkedIn, website
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, 0, NOW(), 0, 0, 0, 'Member', ?, ?, ?, ?, ?)`,
+                [username, full_name, avatar, age, school, major, bio,
+                 location, occupation, Twitter, LinkedIn, website]
+            );
+
+            await dbConnection.commit();
+            return userResult;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    // Update user profile
+    static async updateProfile(ID, full_name, avatar, age, school, major, bio,
+                             location, occupation, Twitter, LinkedIn, website) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            const [Result] = await dbConnection.query(
+                `UPDATE user SET 
+                    full_name = ?, avatar = ?, age = ?, school = ?, major = ?,
+                    bio = ?, location = ?, occupation = ?, Twitter = ?,
+                    LinkedIn = ?, website = ?
+                WHERE ID = ?`,
+                [full_name, avatar, age, school, major, bio,
+                 location, occupation, Twitter, LinkedIn, website, ID]
+            );
+
+            await dbConnection.commit();
+            return Result.affectedRows > 0;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    // Update user stats
+    static async updateStats(ID, total_message = null, total_reaction = null, point = null) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            let updateFields = [];
+            let values = [];
+
+            if (total_message !== null) {
+                updateFields.push('total_message = ?');
+                values.push(total_message);
+            }
+            if (total_reaction !== null) {
+                updateFields.push('total_reaction = ?');
+                values.push(total_reaction);
+            }
+            if (point !== null) {
+                updateFields.push('point = ?');
+                values.push(point);
+            }
+
+            if (updateFields.length === 0) {
+                return false;
+            }
+
+            values.push(ID);
+            const [Result] = await dbConnection.query(
+                `UPDATE user SET ${updateFields.join(', ')} WHERE ID = ?`,
+                values
+            );
+
+            await dbConnection.commit();
+            return Result.affectedRows > 0;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    // Update last login
+    static async updateLastLogin(ID) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            const [Result] = await dbConnection.query(
+                'UPDATE user SET last_login = NOW() WHERE ID = ?',
+                [ID]
+            );
+
+            await dbConnection.commit();
+            return Result.affectedRows > 0;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    // Delete user
+    static async deleteUser(ID) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            const [Result] = await dbConnection.query(
+                'DELETE FROM user WHERE ID = ?',
+                [ID]
+            );
+
+            await dbConnection.commit();
+            return Result.affectedRows > 0;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
     }
 
     // Insert a new user and credentials (username, email, displayName, password)

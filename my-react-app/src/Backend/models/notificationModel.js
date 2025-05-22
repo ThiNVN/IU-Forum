@@ -8,8 +8,8 @@ class Notification {
     }
 
     // Insert a new notification
-    static async insertNotification(post_id, user_id, from_user_id, comment_id, like_id, message, is_read, 
-                                    new_post, new_follower, new_comment, new_reply, new_like) {
+    static async insertNotification(thread_id, user_id, from_user_id, comment_id, like_id, message, is_read, 
+                                    new_thread, new_follower, new_comment, new_reply, new_like) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
 
@@ -17,13 +17,13 @@ class Notification {
             // Insert into Notification table
             const [notificationResult] = await dbConnection.query(
                 `INSERT INTO notification (
-                    post_id, user_id, from_user_id, comment_id, like_id,
-                    message, is_read, create_at, new_post, new_follower,
+                    thread_id, user_id, from_user_id, comment_id, like_id,
+                    message, is_read, create_at, new_thread, new_follower,
                     new_comment, new_reply, new_like
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)`,
                 [
-                    post_id, user_id, from_user_id, comment_id, like_id,
-                    message, is_read, new_post, new_follower,
+                    thread_id, user_id, from_user_id, comment_id, like_id,
+                    message, is_read, new_thread, new_follower,
                     new_comment, new_reply, new_like
                 ]
             );

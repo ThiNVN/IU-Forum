@@ -7,36 +7,19 @@ class Follow {
         return rows;
     }
 
-    // Follow a user
-    static async followUser(follower_id, following_id) {
+    // Insert a new follow relationship
+    static async insertFollow(follower_id, following_id) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
 
         try {
-            // Check if follow already exists
-            const [existingFollow] = await dbConnection.query(
-                'SELECT * FROM follow WHERE follower_id = ? AND following_id = ?',
-                [follower_id, following_id]
-            );
-
-            if (existingFollow.length > 0) {
-                // Follow already exists, remove it (unfollow)
-                const [Result] = await dbConnection.query(
-                    'DELETE FROM follow WHERE follower_id = ? AND following_id = ?',
-                    [follower_id, following_id]
-                );
-                await dbConnection.commit();
-                return { success: true, action: 'unfollowed' };
-            }
-
-            // Insert new follow
             const [followResult] = await dbConnection.query(
                 'INSERT INTO follow (follower_id, following_id, create_at) VALUES (?, ?, NOW())',
                 [follower_id, following_id]
             );
 
             await dbConnection.commit();
-            return { success: true, action: 'followed', followId: followResult.insertId };
+            return followResult;
         } catch (err) {
             await dbConnection.rollback();
             console.error("Database error:", err);
@@ -46,13 +29,13 @@ class Follow {
         }
     }
 
-    // Get all followers of a user
+    // Get followers of a user
     static async getFollowers(user_id) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
         try {
             const [followers] = await dbConnection.query(
-                `SELECT f.*, u.username, u.avatar
+                `SELECT f.*, u.username, u.avatar, u.full_name
                 FROM follow f
                 LEFT JOIN user u ON f.follower_id = u.ID
                 WHERE f.following_id = ?
@@ -71,13 +54,13 @@ class Follow {
         }
     }
 
-    // Get all users that a user is following
+    // Get users being followed by a user
     static async getFollowing(user_id) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
         try {
             const [following] = await dbConnection.query(
-                `SELECT f.*, u.username, u.avatar
+                `SELECT f.*, u.username, u.avatar, u.full_name
                 FROM follow f
                 LEFT JOIN user u ON f.following_id = u.ID
                 WHERE f.follower_id = ?
@@ -96,18 +79,40 @@ class Follow {
         }
     }
 
-    // Check if one user is following another
+    // Check if a user is following another user
     static async isFollowing(follower_id, following_id) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
         try {
-            const [Result] = await dbConnection.query(
+            const [follows] = await dbConnection.query(
                 'SELECT * FROM follow WHERE follower_id = ? AND following_id = ?',
                 [follower_id, following_id]
             );
 
             await dbConnection.commit();
-            return Result.length > 0;
+            return follows.length > 0;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    // Delete a follow relationship
+    static async deleteFollow(follower_id, following_id) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            const [Result] = await dbConnection.query(
+                'DELETE FROM follow WHERE follower_id = ? AND following_id = ?',
+                [follower_id, following_id]
+            );
+
+            await dbConnection.commit();
+            return Result.affectedRows > 0;
         } catch (err) {
             await dbConnection.rollback();
             console.error("Database error:", err);
@@ -122,13 +127,13 @@ class Follow {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
         try {
-            const [Result] = await dbConnection.query(
+            const [result] = await dbConnection.query(
                 'SELECT COUNT(*) as count FROM follow WHERE following_id = ?',
                 [user_id]
             );
 
             await dbConnection.commit();
-            return Result[0].count;
+            return result[0].count;
         } catch (err) {
             await dbConnection.rollback();
             console.error("Database error:", err);
@@ -143,35 +148,13 @@ class Follow {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
         try {
-            const [Result] = await dbConnection.query(
+            const [result] = await dbConnection.query(
                 'SELECT COUNT(*) as count FROM follow WHERE follower_id = ?',
                 [user_id]
             );
 
             await dbConnection.commit();
-            return Result[0].count;
-        } catch (err) {
-            await dbConnection.rollback();
-            console.error("Database error:", err);
-            throw err;
-        } finally {
-            dbConnection.release();
-        }
-    }
-
-    // Unfollow a user
-    static async unfollowUser(follower_id, following_id) {
-        const dbConnection = await connection.getConnection();
-        await dbConnection.beginTransaction();
-
-        try {
-            const [Result] = await dbConnection.query(
-                'DELETE FROM follow WHERE follower_id = ? AND following_id = ?',
-                [follower_id, following_id]
-            );
-
-            await dbConnection.commit();
-            return Result.affectedRows > 0;
+            return result[0].count;
         } catch (err) {
             await dbConnection.rollback();
             console.error("Database error:", err);

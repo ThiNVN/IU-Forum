@@ -1,93 +1,136 @@
 const connection = require('../configuration/database');
 const bcrypt = require('bcrypt');
-class userCredentials {
-    // Get all users from the database
-    static async getAllUserCredentials() {
+
+class UserCredentials {
+    // Get all user credentials
+    static async getAll() {
         const [rows] = await connection.query('SELECT * FROM user_credentials');
         return rows;
     }
 
-    //Insert new user_credential
+    // Insert new user credentials
+    static async insertNewUserCredentials(email, password_hash, user_id, dbConnection = null) {
+        const shouldReleaseConnection = !dbConnection;
+        if (!dbConnection) {
+            dbConnection = await connection.getConnection();
+            await dbConnection.beginTransaction();
+        }
 
-    static async insertNewUserCredentials(email, password, user_id, dbConnection) {
         try {
-            // Insert into 'user' table
-            const [userResult] = await dbConnection.query(
+            const [credentialsResult] = await dbConnection.query(
                 'INSERT INTO user_credentials (email, password_hash, user_id) VALUES (?, ?, ?)',
-                [email, password, user_id]
-            );
-            // console.log("User_credential inserted:", credentialsResult);
-            return 1;  // Return the userId or any other result if needed
-        } catch (err) {
-            console.error("Database error:", err);
-            throw err;  // Re-throw the error so it can be handled elsewhere
-        }
-    }
-
-    // Get User Credentials by user id
-    static async getUserCredentialsByID(user_id, dbConnection) {
-        try {
-            // Get user credential by id
-            const [Result] = await dbConnection.query(
-                'SELECT * FROM user_credentials WHERE user_id = ?',
-                [user_id]
-            );
-            return Result;
-        } catch (err) {
-            console.error("Database error:", err);
-            throw err;
-        }
-    }
-
-    // Get User Credentials by email
-    static async getUserCredentialsByEmail(email, dbConnection) {
-        try {
-            // Get user credential by id
-            const [Result] = await dbConnection.query(
-                'SELECT * FROM user_credentials WHERE email = ?',
-                [email]
-            );
-            return Result;
-        } catch (err) {
-            console.error("Database error:", err);
-            throw err;
-        }
-    }
-
-    static async getUserCredentialsByUserID(user_id) {
-        const dbConnection = await connection.getConnection();
-        await dbConnection.beginTransaction();
-        try {
-            // Get user credential by id
-            const [Result] = await dbConnection.query(
-                'SELECT * FROM user_credentials WHERE user_id = ?',
-                [user_id]
-            );
-            return Result;
-        } catch (err) {
-            await dbConnection.rollback();
-            console.error("Database error:", err);
-            throw err;
-        } finally {
-            dbConnection.release();
-        }
-    }
-
-    // Update User Credentials
-    static async updateUserCredentials(email, password, user_id) {
-        const dbConnection = await connection.getConnection();
-        await dbConnection.beginTransaction();
-
-        try {
-            // Get user credential by user id
-            const password_hash = await userCredentials.hashPassword(password);
-            const [Result] = await dbConnection.query(
-                'UPDATE user_credentials SET email = ?, password_hash = ? WHERE user_id =  ?',
                 [email, password_hash, user_id]
             );
 
+            if (shouldReleaseConnection) {
+                await dbConnection.commit();
+            }
+            return credentialsResult;
+        } catch (err) {
+            if (shouldReleaseConnection) {
+                await dbConnection.rollback();
+            }
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            if (shouldReleaseConnection) {
+                dbConnection.release();
+            }
+        }
+    }
+
+    // Get user credentials by email
+    static async getUserCredentialsByEmail(email, dbConnection = null) {
+        const shouldReleaseConnection = !dbConnection;
+        if (!dbConnection) {
+            dbConnection = await connection.getConnection();
+            await dbConnection.beginTransaction();
+        }
+
+        try {
+            const [credentials] = await dbConnection.query(
+                'SELECT * FROM user_credentials WHERE email = ?',
+                [email]
+            );
+
+            if (shouldReleaseConnection) {
+                await dbConnection.commit();
+            }
+            return credentials;
+        } catch (err) {
+            if (shouldReleaseConnection) {
+                await dbConnection.rollback();
+            }
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            if (shouldReleaseConnection) {
+                dbConnection.release();
+            }
+        }
+    }
+
+    // Get user credentials by user ID
+    static async getUserCredentialsByID(user_id, dbConnection = null) {
+        const shouldReleaseConnection = !dbConnection;
+        if (!dbConnection) {
+            dbConnection = await connection.getConnection();
+            await dbConnection.beginTransaction();
+        }
+
+        try {
+            const [credentials] = await dbConnection.query(
+                'SELECT * FROM user_credentials WHERE user_id = ?',
+                [user_id]
+            );
+
+            if (shouldReleaseConnection) {
+                await dbConnection.commit();
+            }
+            return credentials;
+        } catch (err) {
+            if (shouldReleaseConnection) {
+                await dbConnection.rollback();
+            }
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            if (shouldReleaseConnection) {
+                dbConnection.release();
+            }
+        }
+    }
+
+    // Update user credentials
+    static async updateUserCredentials(user_id, email = null, password_hash = null) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            let updateFields = [];
+            let values = [];
+
+            if (email !== null) {
+                updateFields.push('email = ?');
+                values.push(email);
+            }
+            if (password_hash !== null) {
+                updateFields.push('password_hash = ?');
+                values.push(password_hash);
+            }
+
+            if (updateFields.length === 0) {
+                return false;
+            }
+
+            values.push(user_id);
+            const [Result] = await dbConnection.query(
+                `UPDATE user_credentials SET ${updateFields.join(', ')} WHERE user_id = ?`,
+                values
+            );
+
             await dbConnection.commit();
-            return 1;
+            return Result.affectedRows > 0;
         } catch (err) {
             await dbConnection.rollback();
             console.error("Database error:", err);
@@ -97,20 +140,19 @@ class userCredentials {
         }
     }
 
-    //Delete User Credentials
+    // Delete user credentials
     static async deleteUserCredentials(user_id) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
 
         try {
-            // Delete user credential by user id
             const [Result] = await dbConnection.query(
-                'DELETE FROM user_credentials WHERE user_id = ?;',
+                'DELETE FROM user_credentials WHERE user_id = ?',
                 [user_id]
             );
 
             await dbConnection.commit();
-            return 1;
+            return Result.affectedRows > 0;
         } catch (err) {
             await dbConnection.rollback();
             console.error("Database error:", err);
@@ -133,4 +175,4 @@ class userCredentials {
     }
 }
 
-module.exports = userCredentials;
+module.exports = UserCredentials;

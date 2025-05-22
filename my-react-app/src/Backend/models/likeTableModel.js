@@ -8,30 +8,30 @@ class LikeTable {
     }
 
     // Insert a new like
-    static async insertLike(post_id, user_id, comment_id = null) {
+    static async insertLike(thread_id, user_id, comment_id = null) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
 
         try {
             // Check if like already exists
             const [existingLike] = await dbConnection.query(
-                'SELECT * FROM like_table WHERE post_id = ? AND user_id = ? AND comment_id = ?',
-                [post_id, user_id, comment_id]
+                'SELECT * FROM like_table WHERE thread_id = ? AND user_id = ? AND comment_id = ?',
+                [thread_id, user_id, comment_id]
             );
 
             if (existingLike.length > 0) {
-                // Like already exists, remove it
+                // Like already exists, remove it (toggle off)
                 const [Result] = await dbConnection.query(
-                    'DELETE FROM like_table WHERE post_id = ? AND user_id = ? AND comment_id = ?',
-                    [post_id, user_id, comment_id]
+                    'DELETE FROM like_table WHERE thread_id = ? AND user_id = ? AND comment_id = ?',
+                    [thread_id, user_id, comment_id]
                 );
                 await dbConnection.commit();
                 return { success: true, action: 'unliked' };
             }
-
+            
             const [likeResult] = await dbConnection.query(
-                'INSERT INTO like_table (post_id, user_id, comment_id, create_at) VALUES (?, ?, ?, NOW())',
-                [post_id, user_id, comment_id]
+                'INSERT INTO like_table (thread_id, user_id, comment_id, create_at) VALUES (?, ?, ?, NOW())',
+                [thread_id, user_id, comment_id]
             );
 
             await dbConnection.commit();
@@ -45,8 +45,8 @@ class LikeTable {
         }
     }
 
-    // Get likes for a post
-    static async getLikesByPostID(post_id) {
+    // Get likes for a thread
+    static async getLikesByThreadID(thread_id) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
         try {
@@ -54,8 +54,8 @@ class LikeTable {
                 `SELECT l.*, u.username, u.avatar
                 FROM like_table l
                 LEFT JOIN user u ON l.user_id = u.ID
-                WHERE l.post_id = ? AND l.comment_id IS NULL`,
-                [post_id]
+                WHERE l.thread_id = ? AND l.comment_id IS NULL`,
+                [thread_id]
             );
 
             await dbConnection.commit();
@@ -93,14 +93,14 @@ class LikeTable {
         }
     }
 
-    // Check if user has liked a post
-    static async checkUserLikedPost(post_id, user_id) {
+    // Check if user has liked a thread
+    static async hasUserLikedThread(thread_id, user_id) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
         try {
             const [Result] = await dbConnection.query(
-                'SELECT * FROM like_table WHERE post_id = ? AND user_id = ? AND comment_id IS NULL',
-                [post_id, user_id]
+                'SELECT * FROM like_table WHERE thread_id = ? AND user_id = ? AND comment_id IS NULL',
+                [thread_id, user_id]
             );
 
             await dbConnection.commit();
@@ -115,7 +115,7 @@ class LikeTable {
     }
 
     // Check if user has liked a comment
-    static async checkUserLikedComment(comment_id, user_id) {
+    static async hasUserLikedComment(comment_id, user_id) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
         try {
@@ -135,14 +135,14 @@ class LikeTable {
         }
     }
 
-    // Get like count for a post
-    static async getPostLikeCount(post_id) {
+    // Get like count for a thread
+    static async getThreadLikeCount(thread_id) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
         try {
             const [Result] = await dbConnection.query(
-                'SELECT COUNT(*) as count FROM like_table WHERE post_id = ? AND comment_id IS NULL',
-                [post_id]
+                'SELECT COUNT(*) as count FROM like_table WHERE thread_id = ? AND comment_id IS NULL',
+                [thread_id]
             );
 
             await dbConnection.commit();
@@ -168,29 +168,6 @@ class LikeTable {
 
             await dbConnection.commit();
             return Result[0].count;
-        } catch (err) {
-            await dbConnection.rollback();
-            console.error("Database error:", err);
-            throw err;
-        } finally {
-            dbConnection.release();
-        }
-    }
-
-    // Delete a like (unlike)
-    static async deleteLike(post_id, user_id, comment_id = null) {
-        const dbConnection = await connection.getConnection();
-        await dbConnection.beginTransaction();
-
-        try {
-            // Delete the like
-            const [Result] = await dbConnection.query(
-                'DELETE FROM like_table WHERE post_id = ? AND user_id = ? AND comment_id = ?',
-                [post_id, user_id, comment_id]
-            );
-
-            await dbConnection.commit();
-            return Result.affectedRows > 0;
         } catch (err) {
             await dbConnection.rollback();
             console.error("Database error:", err);
