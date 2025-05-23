@@ -4,6 +4,7 @@ const path = require('path');
 const Thread = require('../models/threadModel');
 const Comment = require('../models/commentModel');
 const Activity = require('../models/activityModel');
+const Notification = require('../models/notificationModel');
 require('dotenv').config({ path: path.resolve(__dirname, '../', '.env') });
 let cookieParser = require('cookie-parser');
 const userCredentials = require('../models/userCredentialsModel');
@@ -431,6 +432,68 @@ const getThreadAndAllComment = async (req, res) => {
     }
 };
 
+const getNotifications = async (req, res) => {
+    const { userId } = req.body;
+
+    try {
+        const notifications = await Notification.getNotificationsByUserID(userId);
+        
+        // Format notifications for frontend
+        const formattedNotifications = notifications.map(notification => ({
+            id: notification.ID,
+            type: notification.new_message ? 'message' : 'notification',
+            content: notification.message,
+            timestamp: notification.create_at,
+            read: notification.is_read === 1,
+            fromUser: {
+                username: notification.from_username,
+                avatar: notification.from_avatar
+            },
+            threadId: notification.thread_id,
+            commentId: notification.comment_id
+        }));
+
+        res.status(200).json({ 
+            message: 'Successfully retrieved notifications',
+            notifications: formattedNotifications 
+        });
+    } catch (err) {
+        console.error('Error getting notifications:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const markNotificationAsRead = async (req, res) => {
+    const { notificationId } = req.body;
+
+    try {
+        const success = await Notification.markAsRead(notificationId);
+        if (success) {
+            res.status(200).json({ message: 'Notification marked as read' });
+        } else {
+            res.status(404).json({ message: 'Notification not found' });
+        }
+    } catch (err) {
+        console.error('Error marking notification as read:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const markAllNotificationsAsRead = async (req, res) => {
+    const { userId } = req.body;
+
+    try {
+        const success = await Notification.markAllAsRead(userId);
+        if (success) {
+            res.status(200).json({ message: 'All notifications marked as read' });
+        } else {
+            res.status(404).json({ message: 'No notifications found' });
+        }
+    } catch (err) {
+        console.error('Error marking all notifications as read:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 
 module.exports = {
     registerUser,
@@ -448,5 +511,8 @@ module.exports = {
     logoutUser,
     getAllCategoryAndTopic,
     getTopicAndAllThread,
-    getThreadAndAllComment
+    getThreadAndAllComment,
+    getNotifications,
+    markNotificationAsRead,
+    markAllNotificationsAsRead
 };

@@ -11,6 +11,12 @@ interface Notification {
   content: string;
   timestamp: string;
   read: boolean;
+  fromUser?: {
+    username: string;
+    avatar: string;
+  };
+  threadId?: number;
+  commentId?: number;
 }
 
 const NotificationPanel: React.FC = () => {
@@ -20,35 +26,37 @@ const NotificationPanel: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState({ notifications: 0, messages: 0 });
   const panelRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // Fetch notifications and messages from the backend
-    const fetchData = async () => {
-      const userId = sessionStorage.getItem('userId');
-      if (!userId) return;
+  const fetchNotifications = async () => {
+    const userId = sessionStorage.getItem('userId');
+    if (!userId) return;
 
-      try {
-        const response = await fetch(`http://localhost:8081/api/getNotifications`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userId }),
-        });
+    try {
+      const response = await fetch(`http://localhost:8081/api/getNotifications`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
 
-        if (response.ok) {
-          const data = await response.json();
-          setNotifications(data.notifications || []);
-          // Update unread counts
-          const unreadNotifs = data.notifications?.filter((n: Notification) => !n.read && n.type === 'notification').length || 0;
-          const unreadMsgs = data.notifications?.filter((n: Notification) => !n.read && n.type === 'message').length || 0;
-          setUnreadCount({ notifications: unreadNotifs, messages: unreadMsgs });
-        }
-      } catch (error) {
-        console.error('Failed to fetch notifications:', error);
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data.notifications || []);
+        // Update unread counts
+        const unreadNotifs = data.notifications?.filter((n: Notification) => !n.read && n.type === 'notification').length || 0;
+        const unreadMsgs = data.notifications?.filter((n: Notification) => !n.read && n.type === 'message').length || 0;
+        setUnreadCount({ notifications: unreadNotifs, messages: unreadMsgs });
       }
-    };
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    }
+  };
 
-    fetchData();
+  useEffect(() => {
+    fetchNotifications();
+    // Set up polling for new notifications every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -103,6 +111,36 @@ const NotificationPanel: React.FC = () => {
     }
   };
 
+  const markAllAsRead = async (type: 'notification' | 'message') => {
+    const userId = sessionStorage.getItem('userId');
+    if (!userId) return;
+
+    try {
+      const response = await fetch('http://localhost:8081/api/markAllNotificationsAsRead', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (response.ok) {
+        setNotifications(prev =>
+          prev.map(notification =>
+            notification.type === type ? { ...notification, read: true } : notification
+          )
+        );
+        // Update unread counts
+        setUnreadCount(prev => ({
+          ...prev,
+          [type === 'notification' ? 'notifications' : 'messages']: 0
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+    }
+  };
+
   const renderNotificationList = (type: 'notification' | 'message') => {
     const filteredNotifications = notifications.filter(n => n.type === type);
     
@@ -112,14 +150,36 @@ const NotificationPanel: React.FC = () => {
 
     return (
       <div className="notification-list">
+        <div className="notification-header">
+          <h3>{type === 'notification' ? 'Notifications' : 'Messages'}</h3>
+          {filteredNotifications.some(n => !n.read) && (
+            <button 
+              className="mark-all-read"
+              onClick={() => markAllAsRead(type)}
+            >
+              Mark all as read
+            </button>
+          )}
+        </div>
         {filteredNotifications.map(notification => (
           <div
             key={notification.id}
             className={`notification-item ${notification.read ? 'read' : 'unread'}`}
             onClick={() => markAsRead(notification.id)}
           >
-            <div className="notification-content">{notification.content}</div>
-            <div className="notification-timestamp">{notification.timestamp}</div>
+            {notification.fromUser && (
+              <img 
+                src={notification.fromUser.avatar} 
+                alt={notification.fromUser.username}
+                className="notification-avatar"
+              />
+            )}
+            <div className="notification-content">
+              <div className="notification-text">{notification.content}</div>
+              <div className="notification-timestamp">
+                {new Date(notification.timestamp).toLocaleString()}
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -145,14 +205,12 @@ const NotificationPanel: React.FC = () => {
 
       {showNotifications && (
         <div className="popup notifications-popup">
-          <h3>Notifications</h3>
           {renderNotificationList('notification')}
         </div>
       )}
 
       {showMessages && (
         <div className="popup messages-popup">
-          <h3>Messages</h3>
           {renderNotificationList('message')}
         </div>
       )}
