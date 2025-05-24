@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/notification.css';
 
 // Import icon images
@@ -20,11 +21,18 @@ interface Notification {
 }
 
 const NotificationPanel: React.FC = () => {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   const [unreadCount, setUnreadCount] = useState({ notifications: 0, messages: 0 });
   const panelRef = useRef<HTMLDivElement>(null);
+
+  const handleGuestClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate('/login');
+  };
 
   const fetchNotifications = async () => {
     const userId = sessionStorage.getItem('userId');
@@ -53,10 +61,13 @@ const NotificationPanel: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchNotifications();
-    // Set up polling for new notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    const userId = sessionStorage.getItem('userId');
+    if (userId) {
+      fetchNotifications();
+      // Set up polling for new notifications every 30 seconds
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
   }, []);
 
   useEffect(() => {
@@ -75,17 +86,33 @@ const NotificationPanel: React.FC = () => {
 
   const toggleNotifications = (e: React.MouseEvent) => {
     e.stopPropagation();
+    const userId = sessionStorage.getItem('userId');
+    if (!userId) {
+      handleGuestClick(e);
+      return;
+    }
     setShowNotifications(!showNotifications);
     setShowMessages(false);
   };
 
   const toggleMessages = (e: React.MouseEvent) => {
     e.stopPropagation();
+    const userId = sessionStorage.getItem('userId');
+    if (!userId) {
+      handleGuestClick(e);
+      return;
+    }
     setShowMessages(!showMessages);
     setShowNotifications(false);
   };
 
   const markAsRead = async (id: number) => {
+    const userId = sessionStorage.getItem('userId');
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost:8081/api/markNotificationAsRead', {
         method: 'POST',
@@ -113,7 +140,10 @@ const NotificationPanel: React.FC = () => {
 
   const markAllAsRead = async (type: 'notification' | 'message') => {
     const userId = sessionStorage.getItem('userId');
-    if (!userId) return;
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
 
     try {
       const response = await fetch('http://localhost:8081/api/markAllNotificationsAsRead', {
@@ -191,13 +221,13 @@ const NotificationPanel: React.FC = () => {
       <div className="notification-icons">
         <div className="icon-container" onClick={toggleNotifications}>
           <img src={bellIcon} alt="Notifications" className="icon" />
-          {unreadCount.notifications > 0 && (
+          {sessionStorage.getItem('userId') && unreadCount.notifications > 0 && (
             <span className="badge">{unreadCount.notifications}</span>
           )}
         </div>
         <div className="icon-container" onClick={toggleMessages}>
           <img src={envelopeIcon} alt="Messages" className="icon" />
-          {unreadCount.messages > 0 && (
+          {sessionStorage.getItem('userId') && unreadCount.messages > 0 && (
             <span className="badge">{unreadCount.messages}</span>
           )}
         </div>

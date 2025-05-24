@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/userMenu.css';
 
 interface UserMenuProps {
@@ -9,23 +10,34 @@ interface UserMenuProps {
 }
 
 const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl, activeTab, setActiveTab }) => {
-  const handleMenuClick = (e: React.MouseEvent) => {
+  const navigate = useNavigate();
+  const isGuest = username === 'Guest';
+
+  const handleMenuClick = (e: React.MouseEvent, path?: string) => {
     e.stopPropagation();
+    if (isGuest) {
+      e.preventDefault();
+      navigate('/login');
+      return;
+    }
+    if (path) {
+      navigate(path);
+    }
   };
 
   return (
-    <div className="user-menu-dropdown" onClick={handleMenuClick}>
+    <div className="user-menu-dropdown" onClick={e => e.stopPropagation()}>
       <div className="user-menu-tabs">
         <span
           className={activeTab === 'account' ? 'active' : ''}
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             setActiveTab('account');
           }}
         >Your account</span>
         <span
           className={activeTab === 'bookmarks' ? 'active' : ''}
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             setActiveTab('bookmarks');
           }}
@@ -47,37 +59,37 @@ const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl, activeTab, set
           </div>
           <div className="user-menu-links">
             <div>
-              <a href="#" onClick={(e) => e.stopPropagation()}>News feed</a>
-              <a href="#" onClick={(e) => e.stopPropagation()}>Your content</a>
-              <a href="/Profile" onClick={(e) => e.stopPropagation()}>Account details</a>
-              <a href="#" onClick={(e) => e.stopPropagation()}>Password and security</a>
-              <a href="#" onClick={(e) => e.stopPropagation()}>Privacy</a>
-              <a href="#" onClick={(e) => e.stopPropagation()}>Preferences</a>
-              <a href="#" onClick={(e) => e.stopPropagation()}>Signature</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/news-feed')}>News feed</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/your-content')}>Your content</a>
+              <a href="/Profile" onClick={e => handleMenuClick(e, '/Profile')}>Account details</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/password-security')}>Password and security</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/privacy')}>Privacy</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/preferences')}>Preferences</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/signature')}>Signature</a>
             </div>
             <div>
-              <a href="#" onClick={(e) => e.stopPropagation()}>Reactions received</a>
-              <a href="#" onClick={(e) => e.stopPropagation()}>Alerts</a>
-              <a href="#" onClick={(e) => e.stopPropagation()}>Account upgrades</a>
-              <a href="#" onClick={(e) => e.stopPropagation()}>Connected accounts</a>
-              <a href="#" onClick={(e) => e.stopPropagation()}>Following</a>
-              <a href="#" onClick={(e) => e.stopPropagation()}>Ignoring</a>
-              <a href="#" onClick={(e) => e.stopPropagation()}>Ads Manager</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/reactions-received')}>Reactions received</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/alerts')}>Alerts</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/account-upgrades')}>Account upgrades</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/connected-accounts')}>Connected accounts</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/following')}>Following</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/ignoring')}>Ignoring</a>
+              <a href="#" onClick={e => handleMenuClick(e, '/ads-manager')}>Ads Manager</a>
             </div>
           </div>
           <div className="user-menu-logout">
-            <a href="#" onClick={(e) => e.stopPropagation()}>Log out</a>
+            <a href="#" onClick={e => handleMenuClick(e, '/logout')}>Log out</a>
           </div>
           <div className="user-menu-status-box">
-            <input type="text" placeholder="Update your status..." onClick={(e) => e.stopPropagation()} />
-            <button onClick={(e) => e.stopPropagation()}>Post</button>
+            <input type="text" placeholder="Update your status..." onClick={e => handleMenuClick(e)} readOnly={isGuest} />
+            <button onClick={e => handleMenuClick(e)}>Post</button>
           </div>
         </>
       ) : (
         <div className="user-menu-bookmarks">
           <input className="user-menu-bookmarks-filter" type="text" placeholder="Filter by label..." disabled />
           <div className="user-menu-bookmarks-empty">You have not added any bookmarks yet.</div>
-          <a href="#" className="user-menu-bookmarks-showall">Show all...</a>
+          <a href="#" className="user-menu-bookmarks-showall" onClick={e => handleMenuClick(e, '/bookmarks')}>Show all...</a>
         </div>
       )}
     </div>
