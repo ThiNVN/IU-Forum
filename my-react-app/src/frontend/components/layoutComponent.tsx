@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header/Header';
 import Navbar from './Header/Navbar';
 import Footer from './Header/Footer';
@@ -6,10 +6,16 @@ import '../styles/main.css';
 import {Outlet} from 'react-router-dom';
 
 const Main: React.FC = () => {
+  const [headerFooterColor, setHeaderFooterColor] = useState<string>(() => localStorage.getItem('headerFooterColor') || '#2c2172');
+
+  useEffect(() => {
+    localStorage.setItem('headerFooterColor', headerFooterColor);
+  }, [headerFooterColor]);
+
   return (
     <div className="mainPage">
       <header>
-        <Header />
+        <Header headerFooterColor={headerFooterColor} setHeaderFooterColor={setHeaderFooterColor} />
         <Navbar />
       </header>
 
@@ -17,7 +23,7 @@ const Main: React.FC = () => {
         <Outlet />
       </main>
 
-      <Footer />
+      <Footer headerFooterColor={headerFooterColor} />
 
 
       {/* <main className="mainContent">

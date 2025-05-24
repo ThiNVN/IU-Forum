@@ -9,12 +9,18 @@ import '../../styles/header.css';
 import { useNavigate } from 'react-router-dom';
 // import { getUser } from '../services/userService'; // your API service
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  headerFooterColor: string;
+  setHeaderFooterColor: (color: string) => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor }) => {
   const [username, setUsername] = useState<string>('Loading...');
   const [avatar, setAvatar] = useState<string>(defaultavt);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'account' | 'bookmarks'>('account');
   const userProfileRef = useRef<HTMLDivElement>(null);
+  const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
 
   const navigate = useNavigate();
   //   useEffect(() => {
@@ -88,6 +94,22 @@ const Header: React.FC = () => {
     }
   };
 
+  // Color picker handler
+  const handleColorButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isGuest) {
+      navigate('/login');
+      return;
+    }
+    setShowColorPicker((prev) => !prev);
+  };
+
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const color = e.target.value;
+    setShowColorPicker(false);
+    setHeaderFooterColor(color);
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userProfileRef.current && !userProfileRef.current.contains(event.target as Node)) {
@@ -106,7 +128,7 @@ const Header: React.FC = () => {
 
   return (
     <header>
-      <div className='header'>
+      <div className='header' style={{ backgroundColor: headerFooterColor }}>
         <a href='/' className="logoTitle">
           <img src={logo} alt="IU Logo" className="logoImage" />
           <span className="forumTitle">IU Forum</span>
@@ -139,7 +161,19 @@ const Header: React.FC = () => {
             )}
           </div>
 
-          <button className="iconButton">🎨</button>
+          <button className="iconButton" onClick={handleColorButtonClick}>🎨</button>
+          {showColorPicker && (
+            <div className="color-picker-panel" style={{ position: 'absolute', top: '60px', right: '60px', background: '#fff', border: '1px solid #ccc', borderRadius: '8px', padding: '1rem', zIndex: 2000 }}>
+              <label htmlFor="header-footer-color" style={{ color: 'black' }}>Pick header/footer color:</label>
+              <input
+                id="header-footer-color"
+                type="color"
+                value={headerFooterColor}
+                onChange={handleColorChange}
+                style={{ marginLeft: '1rem', width: '40px', height: '40px', border: 'none', background: 'none' }}
+              />
+            </div>
+          )}
           <button className="iconButton">🌙</button>
         </div>
       </div>

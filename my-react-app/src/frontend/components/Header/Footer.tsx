@@ -1,9 +1,13 @@
 import React from 'react';
 import '../../styles/footer.css';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  headerFooterColor: string;
+}
+
+const Footer: React.FC<FooterProps> = ({ headerFooterColor }) => {
   return (
-    <footer className="footer">
+    <footer className="footer" style={{ backgroundColor: headerFooterColor }}>
       <div className="footer-left">
         <span>© 2024 IU Forum</span>
       </div>
