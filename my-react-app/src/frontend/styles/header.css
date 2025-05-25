@@ -38,13 +38,13 @@
   height: 40px;
   margin: 0 16px;
   width: 1000px;
-  max-width: 100%; 
-  min-width: 80px; 
+  max-width: 100%;
+  min-width: 80px;
 }
 
 .searchInput {
-  flex: 1 1 auto; 
-  min-width: 0; 
+  flex: 1 1 auto;
+  min-width: 0;
   border: none;
   padding: 8px;
   outline: none;
@@ -128,9 +128,9 @@
   border: 1px solid #ddd;
   margin-top: 8px;
   border-radius: 6px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 100;
-  animation: dropdownFade 0.3s ease; 
+  animation: dropdownFade 0.3s ease;
 }
 
 .dropdownItem {
@@ -151,6 +151,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -175,4 +176,24 @@
 
 .notification-panel .badge {
   background-color: #ff4444;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.searchDropdown {
+  padding: 6px;
+  font-size: 14px;
+}
+
+.searchInput {
+  padding: 6px;
+  font-size: 14px;
+}
+
+.additionalInput {
+  border: 1px solid #ccc;
 }

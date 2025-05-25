@@ -27,6 +27,8 @@ export default function App() {
             <Routes>
                 <Route element={<LayoutComponent />}>
                     <Route path="/*" element={<Main />} />
+                    <Route path="/home" element={<HomePage />} />
+                    <Route path="/topic" element={<TopicPage />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/profile/:id" element={<UserProfile1 />} />
                     <Route path="/profile/:id/edit" element={<EditProfile />} />

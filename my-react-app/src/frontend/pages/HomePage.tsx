@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Category from '../components/Category';
 import '../styles/forum.css';
-
 
 interface Topic {
   id: string;
@@ -18,7 +18,6 @@ interface Section {
   topics: Topic[];
 }
 
-//Calculate last activate time
 function timeAgo(dateString: string): string {
   const now = new Date();
   const then = new Date(dateString);
@@ -35,48 +34,59 @@ function timeAgo(dateString: string): string {
 }
 
 const HomePage: React.FC = () => {
-
-
-
+  const location = useLocation();
   const [sections, setSections] = useState<Section[]>([]);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await fetch(`http://localhost:8081/api/getAllCategoryAndTopic`);
-        if (response.ok) {
-          const res = await response.json();
-          const sectionData = res.result;
-          const mappedSections = sectionData.map((section: any) => ({
-            id: section.ID,
-            title: section.title,
-            description: section.description,
-            topics: section.topics.map((topic: any) => ({
-              id: topic.id,
-              title: topic.title,
-              description: topic.description,
-              threadCount: topic.count,
-              lastActivity: topic.lastActivity ? timeAgo(topic.lastActivity) : 'Unknown'
-            }))
-          }));
+    if (location.state?.searchResults) {
+      const mappedSections = location.state.searchResults.map((section: any) => ({
+        id: section.id,
+        title: section.title,
+        description: section.description,
+        topics: section.topics.map((topic: any) => ({
+          id: topic.id,
+          title: topic.title,
+          description: topic.description,
+          threadCount: topic.threadCount,
+          lastActivity: topic.lastActivity ? timeAgo(topic.lastActivity) : 'Unknown',
+        })),
+      }));
 
-          setSections(mappedSections);
+      setSections(mappedSections);
+    } else {
+      // fallback to loading all categories and topics
+      const fetchDefaultData = async () => {
+        try {
+          const response = await fetch(`http://localhost:8081/api/getAllCategoryAndTopic`);
+          if (response.ok) {
+            const res = await response.json();
+            const sectionData = res.result;
+            const mappedSections = sectionData.map((section: any) => ({
+              id: section.ID,
+              title: section.title,
+              description: section.description,
+              topics: section.topics.map((topic: any) => ({
+                id: topic.id,
+                title: topic.title,
+                description: topic.description,
+                threadCount: topic.count,
+                lastActivity: topic.lastActivity ? timeAgo(topic.lastActivity) : 'Unknown',
+              })),
+            }));
+            setSections(mappedSections);
+          }
+        } catch (error) {
+          console.error('Failed to fetch user:', error);
         }
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-      }
-    };
+      };
 
-    fetchUserProfile();
-  }, []);
-
-
-
+      fetchDefaultData();
+    }
+  }, [location.state]);
 
   return (
     <div className="forum-container">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">IU Forum</h1>
-
       <div className="categories-container">
         {sections.map((category) => (
           <Category
@@ -92,4 +102,4 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage; 
+export default HomePage;

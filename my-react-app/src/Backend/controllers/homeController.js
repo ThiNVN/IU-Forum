@@ -12,6 +12,7 @@ const { get } = require('http');
 const Category = require('../models/categoryModel')
 const Topic = require('../models/TopicModel');
 const UserCredentials = require('../models/userCredentialsModel');
+const Search = require('../models/searchModel');
 
 const registerUser = async (req, res) => {
     const { username, email, displayName, password } = req.body;
@@ -450,7 +451,7 @@ const getNotifications = async (req, res) => {
 
     try {
         const notifications = await Notification.getNotificationsByUserID(userId);
-        
+
         // Format notifications for frontend
         const formattedNotifications = notifications.map(notification => ({
             id: notification.ID,
@@ -466,9 +467,9 @@ const getNotifications = async (req, res) => {
             commentId: notification.comment_id
         }));
 
-        res.status(200).json({ 
+        res.status(200).json({
             message: 'Successfully retrieved notifications',
-            notifications: formattedNotifications 
+            notifications: formattedNotifications
         });
     } catch (err) {
         console.error('Error getting notifications:', err);
@@ -623,6 +624,49 @@ const getHelpPage = (req, res) => {
     });
 };
 
+const search = async (req, res) => {
+    const { searchText, searchType, username } = req.query;
+    console.log("Received search request:", searchText, searchType, username);
+
+    try {
+        let result;
+
+        switch (searchType) {
+            case 'category':
+                result = await Search.searchByCategory(searchText);
+                break;
+
+            case 'topic':
+                result = await Search.searchByTopic(searchText);
+                break;
+
+            case 'tag':
+                result = await Search.searchByTag(searchText);
+                break;
+
+            case 'thread title':
+                result = await Search.searchByThreadTitle_User(searchText, username || '');
+                break;
+
+            case 'user':
+                result = await Search.searchByUser(searchText);
+                break;
+
+            default:
+                return res.status(400).json({ message: 'Invalid search type' });
+        }
+
+        return res.status(200).json({
+            message: 'Successfully retrieved results',
+            result
+        });
+
+    } catch (err) {
+        console.error("Search error:", err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -647,5 +691,7 @@ module.exports = {
     getAboutPage,
     getPrivacyPage,
     getTermsPage,
-    getHelpPage
+    getHelpPage,
+    search,
+    search
 };
