@@ -173,6 +173,37 @@ class UserCredentials {
             throw err;
         }
     }
+
+    // Change password for a user
+    static async changePassword(userId, newPassword) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            // Hash the new password
+            const bcrypt = require('bcrypt');
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+            // Update password in user_credentials table
+            const [result] = await dbConnection.query(
+                'UPDATE user_credentials SET password_hash = ? WHERE user_id = ?',
+                [hashedPassword, userId]
+            );
+
+            if (result.affectedRows === 0) {
+                throw new Error('User credentials not found');
+            }
+
+            await dbConnection.commit();
+            return true;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error('Error changing password:', err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 
 module.exports = UserCredentials;

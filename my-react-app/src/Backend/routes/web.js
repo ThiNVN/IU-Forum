@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, verificationEmail, verifyCode, getUserProfile, getUserProfileThread, addNewThread, getAllCommentOfThread, addNewComment, updateUserProfile, get10LastedActivity, checkUserCookie, logoutUser, getAllCategoryAndTopic, getTopicAndAllThread, getThreadAndAllComment, getNotifications, markNotificationAsRead, markAllNotificationsAsRead } = require('../controllers/homeController');
+const { registerUser, loginUser, verificationEmail, verifyCode, getUserProfile, getUserProfileThread, addNewThread, getAllCommentOfThread, addNewComment, updateUserProfile, get10LastedActivity, checkUserCookie, logoutUser, getAllCategoryAndTopic, getTopicAndAllThread, getThreadAndAllComment, getNotifications, markNotificationAsRead, markAllNotificationsAsRead, changePassword } = require('../controllers/homeController');
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
@@ -21,4 +21,5 @@ router.get('/getThreadAndAllComment', getThreadAndAllComment);
 router.post('/getNotifications', getNotifications);
 router.post('/markNotificationAsRead', markNotificationAsRead);
 router.post('/markAllNotificationsAsRead', markAllNotificationsAsRead);
+router.post('/changePassword', changePassword);
 module.exports = router;

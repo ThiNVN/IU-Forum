@@ -11,6 +11,7 @@ const userCredentials = require('../models/userCredentialsModel');
 const { get } = require('http');
 const Category = require('../models/categoryModel')
 const Topic = require('../models/TopicModel');
+const UserCredentials = require('../models/userCredentialsModel');
 
 const registerUser = async (req, res) => {
     const { username, email, displayName, password } = req.body;
@@ -153,8 +154,12 @@ const getUserProfile = async (req, res) => {
     try {
         // Get user profile
         const userProfile = await User.getUserByID(userId);
-        // Respond with success message and user ID
-        res.status(201).json({ message: 'Successful get user profile', userProfile: userProfile[0] });
+        if (!userProfile || userProfile.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const user = userProfile[0];
+        user.displayName = user.full_name; // Add displayName for frontend compatibility
+        res.status(201).json({ message: 'Successful get user profile', userProfile: user });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
@@ -246,15 +251,23 @@ const updateUserProfile = async (req, res) => {
     const updatedProfile = req.body;
 
     try {
-        // Get user profile
-        const isOk = await User.updateUser(updatedProfile.id, updatedProfile.username, updatedProfile.title, updatedProfile.location, updatedProfile.occupation, updatedProfile.website, updatedProfile.socialLinks.Twitter, updatedProfile.socialLinks.LinkedIn, updatedProfile.biography);
-        // Respond with success message and user ID
+        // Only allow updating displayName (full_name) and other editable fields, not username
+        const isOk = await User.updateDisplayNameAndProfile(
+            updatedProfile.id,
+            updatedProfile.displayName,
+            updatedProfile.title,
+            updatedProfile.location,
+            updatedProfile.occupation,
+            updatedProfile.website,
+            updatedProfile.socialLinks?.Twitter,
+            updatedProfile.socialLinks?.LinkedIn,
+            updatedProfile.biography
+        );
         res.status(201).json('Successful update profile');
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
-
 }
 
 const get10LastedActivity = async (req, res) => {
@@ -495,6 +508,30 @@ const markAllNotificationsAsRead = async (req, res) => {
     }
 };
 
+const changePassword = async (req, res) => {
+    const { userId, currentPassword, newPassword } = req.body;
+    try {
+        // Get current user credentials
+        const credentialsArr = await UserCredentials.getUserCredentialsByID(userId);
+        if (!credentialsArr || credentialsArr.length === 0) {
+            return res.status(404).json({ message: 'User credentials not found' });
+        }
+        const credentials = credentialsArr[0];
+        // Verify current password
+        const bcrypt = require('bcrypt');
+        const isMatch = await bcrypt.compare(currentPassword, credentials.password_hash);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Current password is incorrect' });
+        }
+        // Update to new password
+        await UserCredentials.changePassword(userId, newPassword);
+        res.status(200).json({ message: 'Password changed successfully' });
+    } catch (err) {
+        console.error('Error changing password:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -514,5 +551,6 @@ module.exports = {
     getThreadAndAllComment,
     getNotifications,
     markNotificationAsRead,
-    markAllNotificationsAsRead
+    markAllNotificationsAsRead,
+    changePassword
 };

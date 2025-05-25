@@ -481,5 +481,26 @@ class User {
         }
     }
 
+    // Update display name and profile (not username)
+    static async updateDisplayNameAndProfile(ID, full_name, title, location, occupation, website, Twitter, LinkedIn, bio) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            const [Result] = await dbConnection.query(
+                'UPDATE user SET full_name = ?, title = ?, location = ?, occupation = ?, website = ?, Twitter = ?, LinkedIn = ?, bio = ? WHERE ID = ?',
+                [full_name, title, location, occupation, website, Twitter, LinkedIn, bio, ID]
+            );
+            await dbConnection.commit();
+            return Result.affectedRows > 0;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
 }
 module.exports = User;

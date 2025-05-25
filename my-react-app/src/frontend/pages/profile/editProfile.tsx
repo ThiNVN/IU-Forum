@@ -15,6 +15,7 @@ const EditProfile: React.FC<EditProfileProps> = () => {
   const [user, setUser] = useState({
     id: id || '',
     username: '',
+    displayName: '',
     title: '',
     biography: '',
     location: '',
@@ -28,6 +29,7 @@ const EditProfile: React.FC<EditProfileProps> = () => {
 
   const [formData, setFormData] = useState({
     username: '',
+    displayName: '',
     title: '',
     biography: '',
     location: '',
@@ -51,10 +53,10 @@ const EditProfile: React.FC<EditProfileProps> = () => {
         if (response.ok) {
           const res = await response.json();
           const data = res.userProfile;
-          console.log(res);
           const userData = {
             id: id || '',
             username: data.username || 'TestUser',
+            displayName: data.displayName || data.fullname || '',
             title: data.title || 'Unknown',
             biography: data.bio || '',
             location: data.location || '',
@@ -71,6 +73,7 @@ const EditProfile: React.FC<EditProfileProps> = () => {
           // Sync form data too
           setFormData({
             username: userData.username,
+            displayName: userData.displayName,
             title: userData.title,
             biography: userData.biography,
             location: userData.location,
@@ -101,7 +104,7 @@ const EditProfile: React.FC<EditProfileProps> = () => {
     try {
       const updatedProfile = {
         id, // include user ID if your backend requires it
-        username: formData.username,
+        displayName: formData.displayName,
         title: formData.title,
         biography: formData.biography,
         location: formData.location,
@@ -148,9 +151,19 @@ const EditProfile: React.FC<EditProfileProps> = () => {
             value={formData.username}
             onChange={handleChange}
             required
+            readOnly
           />
         </div>
-
+        <div className="form-group">
+          <InputField
+            label="Display Name"
+            type="text"
+            name="displayName"
+            value={formData.displayName}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <div className="form-group">
           <InputField
             label="Title"
@@ -160,7 +173,6 @@ const EditProfile: React.FC<EditProfileProps> = () => {
             onChange={handleChange}
           />
         </div>
-
         <div className="form-group">
           <label htmlFor="biography">Biography</label>
           <textarea
@@ -171,7 +183,6 @@ const EditProfile: React.FC<EditProfileProps> = () => {
             rows={4}
           />
         </div>
-
         <div className="form-group">
           <InputField
             label="Location"
@@ -181,7 +192,6 @@ const EditProfile: React.FC<EditProfileProps> = () => {
             onChange={handleChange}
           />
         </div>
-
         <div className="form-group">
           <InputField
             label="Occupation"
@@ -191,7 +201,6 @@ const EditProfile: React.FC<EditProfileProps> = () => {
             onChange={handleChange}
           />
         </div>
-
         <div className="form-group">
           <InputField
             label="Website"
@@ -201,7 +210,6 @@ const EditProfile: React.FC<EditProfileProps> = () => {
             onChange={handleChange}
           />
         </div>
-
         <div className="form-group">
           <InputField
             label="Twitter"
@@ -211,7 +219,6 @@ const EditProfile: React.FC<EditProfileProps> = () => {
             onChange={handleChange}
           />
         </div>
-
         <div className="form-group">
           <InputField
             label="LinkedIn"
@@ -221,7 +228,6 @@ const EditProfile: React.FC<EditProfileProps> = () => {
             onChange={handleChange}
           />
         </div>
-
         <div className="button-group">
           <SubmitButton type="submit" label="Save Changes" disabled={false} />
           <button

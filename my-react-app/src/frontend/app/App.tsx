@@ -12,6 +12,7 @@ import EditProfile from "../pages/profile/editProfile";
 import HomePage from '../pages/HomePage';
 import TopicPage from '../pages/TopicPage';
 import ThreadPage from '../pages/ThreadPage';
+import ChangePassword from '../pages/profile/changePassword';
 
 //import ThreadList from "../features/threads/pages/ThreadList";
 
@@ -24,6 +25,7 @@ export default function App() {
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/profile/:id" element={<UserProfile1 />} />
                     <Route path="/profile/:id/edit" element={<EditProfile />} />
+                    <Route path="/changePassword" element={<ChangePassword />} />
                 </Route>
 
 
