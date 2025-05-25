@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import ProfilePosts from './ProfilePosts';
 import LatestActivity from './LatestActivity';
 import Postings from './Postings';
 import About from './About';
 import '../styles/ProfilePage.css';
 import '../styles/ProfileTabs.css';
+import defaultAvatar from '../assets/img/avt/guest_avatar.png';
 
 
 interface ProfilePageProps {
@@ -46,7 +47,9 @@ function timeAgo(dateString: string): string {
 }
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
-  const avatar = user.avatar || '../../assets/img/avt/guest_avatar.png';
+  const [avatarError, setAvatarError] = useState(false);
+  const [avatar, setAvatar] = useState(!avatarError && user.avatar ? user.avatar : defaultAvatar);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const title = user.title || '';
   const joined = user.joined || 'Unknown';
 
@@ -64,6 +67,50 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
   ];
   // Use state for the active tab
   const [activeTab, setActiveTab] = useState(0);
+
+  const handleAvatarError = () => {
+    setAvatarError(true);
+    setAvatar(defaultAvatar);
+  };
+
+  const handleAvatarClick = () => {
+    if (isOwnProfile && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      alert('Please upload a valid image file (JPEG, PNG, WebP, HEIC, or GIF)');
+      return;
+    }
+
+    try {
+      // Create a unique filename using username
+      const fileExtension = file.name.split('.').pop();
+      const newFileName = `${user.username}_avatar.${fileExtension}`;
+      
+      // Here you would typically upload the file to your server
+      // For now, we'll create a local URL
+      const imageUrl = URL.createObjectURL(file);
+      setAvatar(imageUrl);
+      setAvatarError(false);
+
+      // TODO: Implement actual file upload to server
+      // The server should:
+      // 1. Save the file to assets/img/avt/
+      // 2. Delete the old avatar if it exists
+      // 3. Update the user's avatar URL in the database
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      alert('Failed to upload avatar. Please try again.');
+    }
+  };
 
   const renderActiveTab = () => {
     switch (activeTab) {
@@ -95,9 +142,24 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
   return (
     <div className="profile-page">
       <div className="profile-header">
-        <div className="profile-avatar">
-          <img src={avatar} alt={user.username} />
-          {isOwnProfile && <button className="edit-avatar">Edit</button>}
+        <div className="profile-avatar" onClick={handleAvatarClick}>
+          <img 
+            src={avatar} 
+            alt={user.username} 
+            onError={handleAvatarError}
+          />
+          {isOwnProfile && (
+            <>
+              <button className="edit-avatar">Edit</button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/gif"
+                style={{ display: 'none' }}
+              />
+            </>
+          )}
         </div>
         <div className="profile-info">
           <h1>{user.username}</h1>
