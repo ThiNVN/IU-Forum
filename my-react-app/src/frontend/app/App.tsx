@@ -18,31 +18,34 @@ import Privacy from '../pages/Privacy';
 import Terms from '../pages/Terms';
 import Help from '../pages/Help';
 import RecentActivity from '../pages/RecentActivity';
+import { ThemeProvider } from '../context/ThemeContext';
+import '../styles/darkMode.css';
 
 //import ThreadList from "../features/threads/pages/ThreadList";
 
 export default function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route element={<LayoutComponent />}>
-                    <Route path="/*" element={<Main />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/profile/:id" element={<UserProfile1 />} />
-                    <Route path="/profile/:id/edit" element={<EditProfile />} />
-                    <Route path="/changePassword" element={<ChangePassword />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/terms" element={<Terms />} />
-                    <Route path="/help" element={<Help />} />
-                    <Route path="/recent" element={<RecentActivity />} />
-                </Route>
+        <ThemeProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route element={<LayoutComponent />}>
+                        <Route path="/*" element={<Main />} />
+                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/profile/:id" element={<UserProfile1 />} />
+                        <Route path="/profile/:id/edit" element={<EditProfile />} />
+                        <Route path="/changePassword" element={<ChangePassword />} />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/privacy" element={<Privacy />} />
+                        <Route path="/terms" element={<Terms />} />
+                        <Route path="/help" element={<Help />} />
+                        <Route path="/recent" element={<RecentActivity />} />
+                    </Route>
 
-
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                {/* <Route path="/threads" element={<ThreadList />} /> */}
-            </Routes>
-        </BrowserRouter>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    {/* <Route path="/threads" element={<ThreadList />} /> */}
+                </Routes>
+            </BrowserRouter>
+        </ThemeProvider>
     );
 }
