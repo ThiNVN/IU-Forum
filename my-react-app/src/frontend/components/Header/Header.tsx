@@ -7,6 +7,7 @@ import NotificationPanel from '../UI/NotificationPanel';
 import UserMenu from './UserMenu';
 import '../../styles/header.css';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 // import { getUser } from '../services/userService'; // your API service
 
 interface HeaderProps {
@@ -15,6 +16,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor }) => {
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [username, setUsername] = useState<string>('Loading...');
   const [avatar, setAvatar] = useState<string>(defaultavt);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
@@ -174,7 +176,13 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
               />
             </div>
           )}
-          <button className="iconButton">🌙</button>
+          <button 
+            className="iconButton theme-toggle" 
+            onClick={toggleDarkMode}
+            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {isDarkMode ? '☀️' : '🌙'}
+          </button>
         </div>
       </div>
     </header>

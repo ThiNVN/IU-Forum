@@ -1,0 +1,87 @@
+/* Dark mode styles */
+.dark-mode {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --border-color: #404040;
+  --header-bg: #2d2d2d;
+  --card-bg: #2d2d2d;
+  --input-bg: #404040;
+  --hover-bg: #404040;
+}
+
+.dark-mode body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.dark-mode .header {
+  background-color: var(--header-bg) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dark-mode .user-menu-dropdown {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.dark-mode .user-menu-tabs {
+  background-color: var(--bg-primary);
+  border-bottom-color: var(--border-color);
+}
+
+.dark-mode .user-menu-tabs span {
+  color: var(--text-primary);
+}
+
+.dark-mode .user-menu-tabs .active {
+  background-color: var(--bg-secondary);
+}
+
+.dark-mode .user-menu-links a {
+  color: var(--text-primary);
+}
+
+.dark-mode .user-menu-links a:hover {
+  color: var(--text-secondary);
+}
+
+.dark-mode .user-menu-status-box input {
+  background-color: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-mode .user-menu-bookmarks-filter {
+  background-color: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-mode .user-menu-bookmarks-empty {
+  color: var(--text-secondary);
+}
+
+.dark-mode .theme-toggle {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.dark-mode .theme-toggle:hover {
+  background-color: var(--hover-bg);
+}
+
+/* Override any light mode specific styles */
+.dark-mode .color-picker-panel {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark-mode .color-picker-panel label {
+  color: var(--text-primary) !important;
+} 
