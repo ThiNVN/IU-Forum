@@ -8,6 +8,7 @@ import UserMenu from './UserMenu';
 import '../../styles/header.css';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
+import CreateThreadModal from '../CreateThreadModal';
 // import { getUser } from '../services/userService'; // your API service
 
 interface HeaderProps {
@@ -23,6 +24,7 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
   const [activeTab, setActiveTab] = useState<'account' | 'bookmarks'>('account');
   const userProfileRef = useRef<HTMLDivElement>(null);
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const navigate = useNavigate();
   //   useEffect(() => {
@@ -128,6 +130,15 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
     };
   }, [dropdownOpen]);
 
+  const handleCreateClick = () => {
+    const userId = sessionStorage.getItem('userId');
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
+    setIsCreateModalOpen(true);
+  };
+
   return (
     <header>
       <div className='header' style={{ backgroundColor: headerFooterColor }}>
@@ -142,7 +153,7 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
 
         <div className="actions">
           <NotificationPanel />
-          <button className="createButton">+ Create</button>
+          <button className="createButton" onClick={handleCreateClick}>+ Create</button>
 
           {/* User Avatar with dropdown */}
           <div className="userProfile" onClick={toggleDropdown} ref={userProfileRef} style={{ position: 'relative' }}>
@@ -185,6 +196,10 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
           </button>
         </div>
       </div>
+      <CreateThreadModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </header>
   );
 };
