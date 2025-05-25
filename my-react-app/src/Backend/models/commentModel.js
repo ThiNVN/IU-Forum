@@ -54,6 +54,31 @@ class Comment {
         }
     }
 
+    //Get comments by ID
+    static async getCommentByID(comment_id) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [comments] = await dbConnection.query(
+                `SELECT c.*, u.username, u.avatar
+                FROM comment c
+                LEFT JOIN user u ON c.user_id = u.ID
+                WHERE c.ID = ?
+                ORDER BY c.create_at ASC`,
+                [comment_id]
+            );
+
+            await dbConnection.commit();
+            return comments;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
     // Get comments by user ID
     static async getCommentsByUserID(user_id) {
         const dbConnection = await connection.getConnection();

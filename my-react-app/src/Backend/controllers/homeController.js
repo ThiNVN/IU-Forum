@@ -238,7 +238,7 @@ const addNewComment = async (req, res) => {
         //Make new activity record
         const activity_type = "comment";
         const description = "User made a new comment in a thread in " + topic.title;
-        await Activity.insertNewActivity(user_id, activity_type, description)
+        await Activity.insertActivity(user_id, activity_type, description)
 
         // Respond with success message and user ID
         res.status(201).json({ message: 'Comment added successfully', newComment, userData });

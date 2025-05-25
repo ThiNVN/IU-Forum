@@ -48,13 +48,11 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
                     const res = await response.json();
                     const data = res.threads;
                     const userdata = res.user;
-                    console.log(res)
                     const formattedPosts: Thread[] = await Promise.all(
                         data.map(async (post: any) => {
                             try {
                                 const response = await fetch(`http://localhost:8081/api/getAllCommentOfThread?thread_id=${post.ID}`);
                                 const commentData = await response.json();
-                                console.log(commentData);
                                 const formattedComments: Comment[] = (commentData.comments || []).map((cmt: any) => ({
                                     id: cmt.ID,
                                     content: cmt.content,
