@@ -532,6 +532,97 @@ const changePassword = async (req, res) => {
     }
 };
 
+const getAboutPage = (req, res) => {
+    res.status(200).json({
+        title: 'About IU Forum',
+        content: {
+            mission: 'Our mission is to create a safe, engaging, and informative space where the IU community can connect, share knowledge, and discuss topics relevant to campus life and beyond.',
+            features: [
+                'Discussion forums for various academic departments',
+                'Student life and campus events',
+                'Academic support and resources',
+                'Career development and networking',
+                'Community engagement opportunities'
+            ],
+            contact: 'support@iuforum.edu'
+        }
+    });
+};
+
+const getPrivacyPage = (req, res) => {
+    res.status(200).json({
+        title: 'Privacy Policy',
+        lastUpdated: new Date().toISOString(),
+        content: {
+            informationCollected: [
+                'Account information (username, email, password)',
+                'Profile information (display name, avatar)',
+                'Content you post on the forum',
+                'Communication preferences'
+            ],
+            informationUsage: [
+                'Provide and maintain our services',
+                'Process your transactions',
+                'Send you technical notices and support messages',
+                'Communicate with you about products, services, and events',
+                'Monitor and analyze trends and usage'
+            ],
+            contact: 'privacy@iuforum.edu'
+        }
+    });
+};
+
+const getTermsPage = (req, res) => {
+    res.status(200).json({
+        title: 'Terms of Service',
+        lastUpdated: new Date().toISOString(),
+        content: {
+            userConduct: [
+                'Provide accurate and complete information',
+                'Maintain the security of your account',
+                'Not engage in any illegal or harmful activities',
+                'Respect other users and their rights',
+                'Not post spam or malicious content'
+            ],
+            contentGuidelines: [
+                'Is illegal, harmful, or threatening',
+                'Infringes on intellectual property rights',
+                'Contains hate speech or discrimination',
+                'Is spam or commercial solicitation',
+                'Contains personal information of others'
+            ],
+            contact: 'terms@iuforum.edu'
+        }
+    });
+};
+
+const getHelpPage = (req, res) => {
+    res.status(200).json({
+        title: 'Help Center',
+        content: {
+            gettingStarted: {
+                title: 'Creating an Account',
+                steps: [
+                    'Click the "Register" button in the top right corner',
+                    'Fill in your email, username, and password',
+                    'Verify your email address',
+                    'Complete your profile'
+                ]
+            },
+            commonIssues: {
+                forgotPassword: 'Click "Forgot Password" on the login page and follow the instructions sent to your email.',
+                accountLocked: 'If your account is locked, contact support with your username and email address.',
+                technicalProblems: 'Try clearing your browser cache and cookies, or try a different browser.'
+            },
+            contact: {
+                email: 'support@iuforum.edu',
+                hours: 'Monday-Friday, 9 AM - 5 PM EST',
+                responseTime: 'Within 24 hours'
+            }
+        }
+    });
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -552,5 +643,9 @@ module.exports = {
     getNotifications,
     markNotificationAsRead,
     markAllNotificationsAsRead,
-    changePassword
+    changePassword,
+    getAboutPage,
+    getPrivacyPage,
+    getTermsPage,
+    getHelpPage
 };

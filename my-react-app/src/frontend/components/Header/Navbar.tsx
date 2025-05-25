@@ -10,9 +10,6 @@ const Navbar: React.FC = () => {
       <a href="/latest" className="navLink">
         Lastest posts
       </a>
-      <a href="/calendar" className="navLink">
-        Calendar
-      </a>
       <a href="/clubs" className="navLink">
         Clubs
       </a>

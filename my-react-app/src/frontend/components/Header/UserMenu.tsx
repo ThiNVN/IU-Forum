@@ -25,6 +25,23 @@ const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl, activeTab, set
     }
   };
 
+  function deleteAllCookies() {
+    document.cookie.split(';').forEach(cookie => {
+      const eqPos = cookie.indexOf('=');
+      const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+      document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+      document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    });
+  }
+
+  const handleLogout = async () => {
+    sessionStorage.clear();
+    await fetch('http://localhost:8081/api/logout', { method: 'POST', credentials: 'include' });
+    deleteAllCookies();
+    console.log('Session storage and cookies cleared, redirecting to login page.');
+    navigate('/login');
+  };
+
   return (
     <div className="user-menu-dropdown" onClick={e => e.stopPropagation()}>
       <div className="user-menu-tabs">
@@ -78,7 +95,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl, activeTab, set
             </div>
           </div>
           <div className="user-menu-logout">
-            <a href="#" onClick={e => handleMenuClick(e, '/logout')}>Log out</a>
+            <a href="#" onClick={e => { e.preventDefault(); handleLogout(); }}>Log out</a>
           </div>
           <div className="user-menu-status-box">
             <input type="text" placeholder="Update your status..." onClick={e => handleMenuClick(e)} readOnly={isGuest} />
