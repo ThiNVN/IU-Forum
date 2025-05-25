@@ -1,0 +1,84 @@
+.recent-activity {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.recent-threads,
+.recent-topics {
+  margin-bottom: 40px;
+}
+
+.recent-threads h2,
+.recent-topics h2 {
+  color: #2c2172;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.thread-card,
+.topic-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.thread-card:hover,
+.topic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.thread-card h3,
+.topic-card h3 {
+  color: #2c2172;
+  margin: 0 0 10px 0;
+  font-size: 18px;
+}
+
+.thread-meta,
+.topic-meta {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.thread-meta span,
+.topic-meta span {
+  margin: 0 5px;
+}
+
+.thread-description,
+.topic-description {
+  color: #444;
+  margin: 10px 0;
+  line-height: 1.5;
+}
+
+.thread-footer {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.last-activity {
+  color: #666;
+  font-size: 14px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+}
+
+.error {
+  text-align: center;
+  padding: 40px;
+  color: #dc3545;
+  font-size: 18px;
+} 

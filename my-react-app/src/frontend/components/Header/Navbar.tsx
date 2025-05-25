@@ -4,11 +4,8 @@ import '../../styles/navbar.css';
 const Navbar: React.FC = () => {
   return (
     <nav className="navbar">
-      <a href="/today" className="navLink">
-        Today's posts
-      </a>
-      <a href="/latest" className="navLink">
-        Lastest posts
+      <a href="/recent" className="navLink">
+        Recent activity
       </a>
       <a href="/clubs" className="navLink">
         Clubs
