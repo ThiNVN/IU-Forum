@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, verificationEmail, verifyCode, getUserProfile, getUserProfileThread, addNewThread, getAllCommentOfThread, addNewComment, updateUserProfile, get10LastedActivity, checkUserCookie, logoutUser, getAllCategoryAndTopic, getTopicAndAllThread, getThreadAndAllComment, getNotifications, markNotificationAsRead, markAllNotificationsAsRead, changePassword, getAboutPage, getPrivacyPage, getTermsPage, getHelpPage, search } = require('../controllers/homeController');
+const { registerUser, loginUser, verificationEmail, verifyCode, getUserProfile, getUserProfileThread, addNewThread, getAllCommentOfThread, addNewComment, updateUserProfile, get10LastedActivity, checkUserCookie, logoutUser, getAllCategoryAndTopic, getTopicAndAllThread, getThreadAndAllComment, getNotifications, markNotificationAsRead, markAllNotificationsAsRead, changePassword, getAboutPage, getPrivacyPage, getTermsPage, getHelpPage, search, uploadAvatar, uploadMiddleware } = require('../controllers/homeController');
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
@@ -27,4 +27,5 @@ router.get('/privacy', getPrivacyPage);
 router.get('/terms', getTermsPage);
 router.get('/help', getHelpPage);
 router.get('/search', search);
+router.post("/uploadAvatar", uploadMiddleware, uploadAvatar);
 module.exports = router;

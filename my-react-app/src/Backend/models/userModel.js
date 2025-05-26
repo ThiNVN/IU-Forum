@@ -52,9 +52,9 @@ class User {
     }
 
     // Insert new user
-    static async insertUser(username, full_name, avatar = null, age = null, school = null, 
-                          major = null, bio = null, location = null, occupation = null, 
-                          Twitter = null, LinkedIn = null, website = null) {
+    static async insertUser(username, full_name, avatar = null, age = null, school = null,
+        major = null, bio = null, location = null, occupation = null,
+        Twitter = null, LinkedIn = null, website = null) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
 
@@ -66,7 +66,7 @@ class User {
                     title, location, occupation, Twitter, LinkedIn, website
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, 0, NOW(), 0, 0, 0, 'Member', ?, ?, ?, ?, ?)`,
                 [username, full_name, avatar, age, school, major, bio,
-                 location, occupation, Twitter, LinkedIn, website]
+                    location, occupation, Twitter, LinkedIn, website]
             );
 
             await dbConnection.commit();
@@ -82,7 +82,7 @@ class User {
 
     // Update user profile
     static async updateProfile(ID, full_name, avatar, age, school, major, bio,
-                             location, occupation, Twitter, LinkedIn, website) {
+        location, occupation, Twitter, LinkedIn, website) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
 
@@ -94,7 +94,7 @@ class User {
                     LinkedIn = ?, website = ?
                 WHERE ID = ?`,
                 [full_name, avatar, age, school, major, bio,
-                 location, occupation, Twitter, LinkedIn, website, ID]
+                    location, occupation, Twitter, LinkedIn, website, ID]
             );
 
             await dbConnection.commit();
@@ -502,5 +502,44 @@ class User {
         }
     }
 
+    static async getAvatar(ID) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [avatar] = await dbConnection.query(
+                'SELECT avatar FROM user WHERE ID = ?',
+                [ID]
+            );
+
+            await dbConnection.commit();
+            return avatar[0];
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    static async updateAvatar(avatar_path, ID) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [result] = await dbConnection.query(
+                'UPDATE user SET avatar = ? WHERE ID = ?',
+                [avatar_path, ID]
+            );
+
+            await dbConnection.commit();
+            return result;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 module.exports = User;

@@ -13,6 +13,8 @@ const Category = require('../models/categoryModel')
 const Topic = require('../models/TopicModel');
 const UserCredentials = require('../models/userCredentialsModel');
 const Search = require('../models/searchModel');
+const multer = require("multer");
+const fs = require("fs");
 
 const registerUser = async (req, res) => {
     const { username, email, displayName, password } = req.body;
@@ -46,15 +48,6 @@ const loginUser = async (req, res) => {
         const result = await User.checkUserCredentials(userIdentifier, password);
 
         if (typeof result === 'object' && result.status === 1) {
-            // Successful login
-            await User.updateUserLastLoginStatus(result.userId);
-            res.cookie('user_id', result.userId, {
-                httpOnly: true,
-                secure: false, // change to true in production
-                sameSite: 'lax',
-                path: '/',
-                maxAge: 24 * 60 * 60 * 1000
-            });
             return res.status(200).json({ message: 'Login accepted', userId: result.userId });
         }
 
@@ -118,7 +111,7 @@ const verificationEmail = async (req, res) => {
     try {
         await transporter.sendMail(mailOptions);
         verificationCodes[email] = verificationCode;
-        res.status(200).json({ message: 'Verification email sent', code: verificationCode });
+        res.status(200).json({ message: 'Verification email sent' });
     } catch (error) {
         console.error("Error sending email:", error);
         res.status(500).json({ message: 'Failed to send verification email' });
@@ -127,15 +120,15 @@ const verificationEmail = async (req, res) => {
 
 //Verify code from user
 const verifyCode = async (req, res) => {
-    var { email, code, identifierType } = req.body;
+    var { email, code, identifierType, UID } = req.body;
     if (identifierType === "username") {
         const getUser = await User.getUserByUserName(email);
         const getEmail = await userCredentials.getUserCredentialsByID(getUser[0].ID);
         email = getEmail[0].email;
     }
-    console.log(email)
+    console.log(email);
     const storedCode = verificationCodes[email];
-    console.log(storedCode, code)
+    console.log(storedCode, code);
     if (!storedCode) {
         return res.status(400).json({ message: 'No verification code found for this email.' });
     }
@@ -143,6 +136,15 @@ const verifyCode = async (req, res) => {
     if (parseInt(code) === storedCode) {
         // Optionally delete the code after successful verification
         delete verificationCodes[email];
+        // Successful login
+        await User.updateUserLastLoginStatus(UID);
+        res.cookie('user_id', UID, {
+            httpOnly: true,
+            secure: false, // change to true in production
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 24 * 60 * 60 * 1000
+        });
         return res.status(200).json({ message: 'Code verified successfully!' });
     } else {
         return res.status(401).json({ message: 'Invalid verification code.' });
@@ -667,6 +669,57 @@ const search = async (req, res) => {
     }
 };
 
+const uploadDir = path.join(__dirname, "../../../public/img/avt");
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadDir); // Save directly to your frontend public img/avt folder
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        const ext = path.extname(file.originalname);
+        cb(null, "avatar-" + uniqueSuffix + ext);
+    },
+});
+
+const upload = multer({ storage });
+
+const uploadAvatar = async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded." });
+    }
+    const userId = req.body.userId;
+    const fullPath = req.file.path;
+    const filename = "/img/avt/" + path.basename(fullPath);
+
+    try {
+        const result = await User.getAvatar(userId); // Should return { avatar: "avatar-name.png" }
+        const oldAvatar = result.avatar;
+
+        if (oldAvatar && oldAvatar !== "/img/avt/guest_avatar.png") {
+            const oldAvatarPath = path.join(__dirname, "../../../public", oldAvatar);
+            // Check if file exists then delete
+            if (fs.existsSync(oldAvatarPath)) {
+                fs.unlinkSync(oldAvatarPath);
+                console.log(`Deleted old avatar: ${oldAvatar}`);
+            }
+        }
+
+        const updateResult = await User.updateAvatar(filename, userId);
+
+        res.status(200).json({
+            message: "Upload successful",
+            filePath: `/img/avt/${filename}`,
+            filename,
+            updateResult
+        });
+
+    } catch (error) {
+        console.error("Error uploading avatar:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -693,5 +746,6 @@ module.exports = {
     getTermsPage,
     getHelpPage,
     search,
-    search
+    uploadAvatar,
+    uploadMiddleware: upload.single("image"),
 };

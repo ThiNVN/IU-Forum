@@ -155,7 +155,7 @@ const App: React.FC = () => {
                 alert(error.message || "Failed to send verification email.");
                 return;
             }
-
+            console.log(await verificationResponse.json());
             setIsEmailVerificationOpen(true);
             setVerificationInProgress(true);
 
@@ -175,6 +175,7 @@ const App: React.FC = () => {
                     email: formData.userIdentifier,
                     code,
                     identifierType,
+                    UID
                 }),
             });
 
