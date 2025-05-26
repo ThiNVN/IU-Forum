@@ -1,0 +1,114 @@
+/*
+ * threadleftsidebar.css
+ *
+ * Stylesheet tailored for the ThreadUserSidebar component.
+ * Applies consistent padding, backgrounds, borders, and sticky behavior
+ * aligning perfectly with the main layout.
+ */
+
+/* Root container for the ThreadUserSidebar */
+.thread-user-sidebar {
+    box-sizing: border-box;
+    /* display: flex; */
+    /* flex-direction: column; */
+    gap: 1rem;
+    /* Vertical spacing between child elements */
+    width: 280px;
+    /* Fixed width matching design specs */
+    padding: 1.5rem;
+    /* Uniform internal padding */
+    background-color: #FFFFFF;
+    /* White background for clarity */
+    border-left: 1px solid #E0E0E0;
+    /* Separator from main content */
+    border-radius: 0.5rem;
+    /* Soft rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    /* Light elevation shadow */
+    position: sticky;
+    /* Keeps sidebar in view on scroll */
+    top: 2rem;
+    /* Offset to align under header */
+    font-family: inherit;
+    /* Inherit from global theme */
+    font-size: 0.9rem;
+    /* Secondary information sizing */
+    color: #333333;
+    /* Dark gray text for readability */
+}
+
+/* Author information section */
+.thread-user-sidebar .author {
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.thread-user-sidebar .author .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    /* Circular avatars */
+    object-fit: cover;
+}
+
+.thread-user-sidebar .author .info {
+    display: flex;
+    flex-direction: column;
+}
+
+.thread-user-sidebar .name {
+    font-size: 20px;
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+}
+
+.thread-user-sidebar .date {
+    font-size: 0.8rem;
+    color: #777777;
+}
+
+.thread-user-sidebar .role {
+    font-size: 14px;
+    color: #777777;
+}
+
+
+/* Commenters list section */
+.thread-user-sidebar .commenters {
+    margin-top: 1rem;
+}
+
+.thread-user-sidebar .commenters .title {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.thread-user-sidebar .commenters ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.thread-user-sidebar .commenters li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.thread-user-sidebar .commenters li:last-child {
+    border-bottom: none;
+}
+
+.thread-user-sidebar .commenters .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.thread-user-sidebar .commenters .user-name {
+    font-size: 0.85rem;
+    color: #555555;
+}

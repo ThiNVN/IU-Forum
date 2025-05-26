@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-interface Comment {
+export interface Comment {
   id: string;
   author: string;
   content: string;
@@ -9,7 +9,7 @@ interface Comment {
   avatar?: string;
 }
 
-interface ThreadProps {
+export interface ThreadProps {
   id: string;
   title: string;
   content: string;
