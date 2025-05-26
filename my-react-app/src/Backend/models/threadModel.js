@@ -14,15 +14,15 @@ class Thread {
     }
 
     // Insert a new thread (both normal thread and user profile thread)
-    static async insertNewThread(topic_id, user_id, content, image) {
+    static async insertNewThread(topic_id, user_id, title, description, content) {
         const dbConnection = await connection.getConnection();  // Get a connection for the transaction
         await dbConnection.beginTransaction();  // Start transaction
 
         try {
             // Insert into 'thread' table
             const [threadResult] = await dbConnection.query(
-                'INSERT INTO thread (topic_id, user_id, content, image) VALUES (?, ?, ?, ?)',
-                [topic_id, user_id, content, image]
+                'INSERT INTO thread (topic_id, user_id, title, description, content) VALUES (?, ?, ?, ?, ?)',
+                [topic_id, user_id, title, description, content]
             );
             await dbConnection.commit();
             return threadResult;  // Return the userId or any other result if needed

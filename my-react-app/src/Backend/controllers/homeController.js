@@ -13,6 +13,10 @@ const Category = require('../models/categoryModel')
 const Topic = require('../models/TopicModel');
 const UserCredentials = require('../models/userCredentialsModel');
 const Search = require('../models/searchModel');
+const Tag = require('../models/tagModel');
+const ThreadTag = require('../models/thread_tagModel');
+const FollowTopic = require('../models/followTopicModel');
+const File = require('../models/fileModel');
 const multer = require("multer");
 const fs = require("fs");
 
@@ -393,7 +397,7 @@ const getTopicAndAllThread = async (req, res) => {
                     author: author[0].username,
                     createdAt: thread.create_at,
                     lastActivity: thread.last_activity,
-                    replyCount: countReply === 0 ? (thread.responses - 1) : (countReply - 1),
+                    replyCount: countReply === 0 ? (thread.responses) : (countReply - 1),
                     description: thread.description
                 };
             }));
@@ -680,7 +684,7 @@ const uploadDir = path.join(__dirname, "../../../public/img/avt");
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, uploadDir); // Save directly to your frontend public img/avt folder
+        cb(null, uploadDir); // Save in folder public
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -727,6 +731,122 @@ const uploadAvatar = async (req, res) => {
     }
 };
 
+const getAllTopics = async (req, res) => {
+    try {
+        const topics = await Topic.getAll();
+
+        // Filter only the needed fields
+        const filteredTopics = topics.map(topic => ({
+            id: topic.ID,
+            title: topic.title,
+            category_id: topic.category_id
+        }));
+
+        res.status(200).json({
+            message: 'Successfully retrieved topics',
+            topics: filteredTopics
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const getAllTags = async (req, res) => {
+    try {
+        const tags = await Tag.getAll();
+        // Filter only the needed fields
+        const filteredTags = tags.map(tag => ({
+            id: tag.ID,
+            name: tag.name,
+        }));
+        res.status(200).json({
+            message: 'Successfully retrieved topics',
+            tags: filteredTags
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const storageFile = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../../../public/uploads'));
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + '-' + file.originalname);
+    }
+});
+
+const uploadFile = multer({ storage: storageFile });
+
+const makeNewThread = async (req, res) => {
+    try {
+        const {
+            topic_id,
+            user_id,
+            title,
+            description,
+            content,
+            tags,
+            follow
+        } = req.body;
+
+        // Files uploaded
+        const uploadedFiles = req.files.map(file => ({
+            filename: file.filename,
+            path: `/uploads/${file.filename}`,
+            originalName: file.originalname,
+        }));
+
+        // Log everything for debug
+        console.log('Thread details:', {
+            topic_id,
+            user_id,
+            title,
+            description,
+            content,
+            tags: JSON.parse(tags),
+            follow: follow === 'true',
+            files: uploadedFiles
+        });
+        //Save thread
+        const threadResult = await Thread.insertNewThread(topic_id, user_id, content, title, description, content);
+        //insert new rows in thread_tag table (one thread and many tags)
+        console.log(tags);
+        for (const tagId of JSON.parse(tags)) {
+            await ThreadTag.insertThreadTag(threadResult.insertId, tagId);
+        }
+        //insert follow topic
+        if (follow) {
+            await FollowTopic.insertFollowTopic(threadResult.insertId, user_id);
+        }
+        //insert to file table
+        for (const file of uploadedFiles) {
+            await File.insertFile(user_id, file.path);
+        }
+        //Check if tag existed(Now only existed tag will be add)
+        // const existedTags = await Tag.getAll();
+        // const existingTagIds = existedTags.map(tag => tag.ID);
+        // const submittedTags = JSON.parse(tags); // assuming it's an array of tag objects with `.name`
+        // const existingTags = submittedTags.filter(tagId => existingTagIds.includes(tagId));
+        // const newTags = submittedTags.filter(tagId => !existingTagIds.includes(tagId));
+        // console.log('New tags to create:', newTags);
+        // console.log('Existing tags:', existingTags);
+        // TODO: Save the thread, tags, follow status, and file metadata in the DB
+
+        res.status(201).json({
+            message: 'Thread created successfully',
+            threadId: threadResult.insertId
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -755,4 +875,8 @@ module.exports = {
     search,
     uploadAvatar,
     uploadMiddleware: upload.single("image"),
+    getAllTopics,
+    getAllTags,
+    makeNewThread,
+    uploadFile: uploadFile.array('files')
 };

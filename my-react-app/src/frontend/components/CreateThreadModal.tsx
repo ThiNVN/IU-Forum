@@ -27,6 +27,7 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
     const [tags, setTags] = useState<Tag[]>([]);
     const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
     const [tagInput, setTagInput] = useState('');
+    const [description, setDescription] = useState('');
     const [suggestedTags, setSuggestedTags] = useState<Tag[]>([]);
     const [isFollowing, setIsFollowing] = useState(false);
     const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
@@ -43,8 +44,10 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
     const fetchTopics = async () => {
         try {
             const response = await fetch('https://localhost:8081/api/topics');
-            const data = await response.json();
-            setTopics(data);
+            if (response.ok) {
+                const data = await response.json();
+                setTopics(data.topics);
+            }
         } catch (error) {
             console.error('Error fetching topics:', error);
         }
@@ -53,8 +56,10 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
     const fetchTags = async () => {
         try {
             const response = await fetch('https://localhost:8081/api/tags');
-            const data = await response.json();
-            setTags(data);
+            if (response.ok) {
+                const data = await response.json();
+                setTags(data.tags);
+            }
         } catch (error) {
             console.error('Error fetching tags:', error);
         }
@@ -64,7 +69,7 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
         const value = e.target.value;
         setTagInput(value);
         if (value.trim()) {
-            const filtered = tags.filter(tag => 
+            const filtered = tags.filter(tag =>
                 tag.name.toLowerCase().includes(value.toLowerCase()) &&
                 !selectedTags.some(selected => selected.id === tag.id)
             );
@@ -104,6 +109,7 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
         formData.append('topic_id', selectedTopic);
         formData.append('user_id', userId);
         formData.append('title', title);
+        formData.append('description', description);
         formData.append('content', content);
         formData.append('tags', JSON.stringify(selectedTags.map(tag => tag.id)));
         formData.append('follow', isFollowing.toString());
@@ -140,7 +146,7 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
                     <button className={activeTab === 'poll' ? 'active' : ''} onClick={() => setActiveTab('poll')}>Poll</button>
                 </div>
                 <div className="modal-header">
-                    <h2>Create New Topic</h2>
+                    <h2>Create New Thread</h2>
                     <button onClick={onClose} className="close-button">&times;</button>
                 </div>
                 {activeTab === 'content' && (
@@ -162,9 +168,14 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
                                 onChange={(e) => setSelectedTopic(e.target.value)}
                                 className="topic-select"
                             >
-                                <option value="">Topic...</option>
-                                {topics.map(topic => (
-                                    <option key={topic.id} value={topic.id}>{topic.title}</option>
+                                <option value="">
+                                    {topics.length === 0 ? 'No topics available' : 'Select a topic...'}
+                                </option>
+
+                                {topics.map((topic) => (
+                                    <option key={topic.id} value={topic.id}>
+                                        {topic.title}
+                                    </option>
                                 ))}
                             </select>
                         </div>
@@ -199,6 +210,15 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
                             </div>
                         </div>
                         <div className="form-group">
+                            <label>Description <span className="required">REQUIRED</span></label>
+                            <RichTextEditor
+                                value={description}
+                                onChange={setDescription}
+                                placeholder="Write your thread description here..."
+                                showToolbar={true}
+                            />
+                        </div>
+                        <div className="form-group">
                             <label>Content <span className="required">REQUIRED</span></label>
                             <RichTextEditor
                                 value={content}
@@ -231,7 +251,7 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
                                     checked={isFollowing}
                                     onChange={(e) => setIsFollowing(e.target.checked)}
                                 />
-                                Follow topic
+                                Follow thread
                             </label>
                         </div>
                         <div className="form-actions">
@@ -251,7 +271,7 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
                                 onClick={handleSubmit}
                                 disabled={!title || !content || !selectedTopic}
                             >
-                                Submit Topic
+                                Submit Thread
                             </button>
                         </div>
                     </div>
