@@ -24,7 +24,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
     };
 
     return (
-        <>
+        <div className="email-verification-modal">
             <div className="overlay" onClick={onClose}></div>
             <div className="popup">
                 <h2 className="title">Email Verification</h2>
@@ -56,7 +56,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
                     </div>
                 </form>
             </div>
-        </>
+        </div>
     );
 };
 
