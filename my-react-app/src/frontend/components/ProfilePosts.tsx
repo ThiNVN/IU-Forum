@@ -160,7 +160,6 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
                 body: JSON.stringify({
                     thread_id: postId,
                     user_id: userId,
-                    parent_cmt_id: null,
                     content: content,
                 }),
             });
@@ -245,7 +244,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
                                 <div key={comment.id} className="comment">
                                     <div className="comment-content" dangerouslySetInnerHTML={{ __html: comment.content }} />
                                     <div className="comment-meta">
-                                        <span>By {comment.author}</span>
+                                        <span>By {comment.author} </span>
                                         <span>{new Date(comment.timestamp).toLocaleString()}</span>
                                     </div>
                                 </div>

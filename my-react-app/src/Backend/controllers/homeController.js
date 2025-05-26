@@ -199,9 +199,10 @@ const addNewThread = async (req, res) => {
         const activity_type = "post";
         var description = "";
         if (topic_id == null) {
-            description = "User posted a new profile post";
+            description = "User posted a new profile thread";
         } else {
-            description = "User posted a new post in thread";//add name of thread
+            const result = Topic.getTopicByID(topic_id);
+            description = "User posted a new thread in topic " + result[0].title;
         }
         await Activity.insertActivity(user_id, activity_type, description)
         // Respond with success message and user ID
@@ -236,10 +237,16 @@ const addNewComment = async (req, res) => {
         const userData = await User.getUserByID(newComment[0].user_id);
 
         const thread = await Thread.getThreadByID(thread_id);
-        const topic = await Topic.getTopicByID(thread.ID)
+        const topic = await Topic.getTopicByID(thread.ID);
         //Make new activity record
+        var description = "";
+        if (!topic || topic.length === 0) {
+            description = "User made a new comment in a profile thread";
+        } else {
+            description = "User made a new comment in a thread '" + thread.title + "' in topic '" + topic[0].title + "'";
+        }
         const activity_type = "comment";
-        const description = "User made a new comment in a thread in " + topic.title;
+
         await Activity.insertActivity(user_id, activity_type, description)
 
         // Respond with success message and user ID

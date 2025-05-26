@@ -50,8 +50,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
   const [avatar, setAvatar] = useState(!avatarError && user.avatar ? user.avatar : defaultAvatar);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const title = user.title || '';
-  const joined = user.joined || 'Unknown';
-
+  var joined = user.joined || 'Unknown';
+  if (joined !== 'Unknown') {
+    const date = new Date(joined);
+    const formatted = `${date.toLocaleDateString('en-CA')} at ${date.toLocaleTimeString('en-US')}`;
+    joined = formatted;
+  }
   const lastSeen = user.lastSeen || 'Unknown';
   const displayTime = lastSeen ? timeAgo(lastSeen) : 'Unknown';
   const stats = user.stats || { messages: 0, reactionScore: 0, points: 0 };
