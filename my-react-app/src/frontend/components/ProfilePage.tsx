@@ -7,7 +7,6 @@ import '../styles/ProfilePage.css';
 import '../styles/ProfileTabs.css';
 import defaultAvatar from '../assets/img/avt/guest_avatar.png';
 
-
 interface ProfilePageProps {
   isOwnProfile: boolean;
   user: {
@@ -72,7 +71,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
     setAvatarError(true);
     setAvatar(defaultAvatar);
   };
-
   const handleAvatarClick = () => {
     if (isOwnProfile && fileInputRef.current) {
       fileInputRef.current.click();
@@ -94,18 +92,24 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
       // Create a unique filename using username
       const fileExtension = file.name.split('.').pop();
       const newFileName = `${user.username}_avatar.${fileExtension}`;
-      
+
       // Here you would typically upload the file to your server
       // For now, we'll create a local URL
       const imageUrl = URL.createObjectURL(file);
       setAvatar(imageUrl);
       setAvatarError(false);
-
-      // TODO: Implement actual file upload to server
-      // The server should:
-      // 1. Save the file to assets/img/avt/
-      // 2. Delete the old avatar if it exists
-      // 3. Update the user's avatar URL in the database
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const formData = new FormData();
+      formData.append("image", blob, "image.png");
+      formData.append("userId", userId);
+      const uploadresponse = await fetch("http://localhost:8081/api/uploadAvatar", {
+        method: "POST",
+        body: formData,
+      });
+      if (uploadresponse.ok) {
+        alert('Successful update avatar');
+      }
     } catch (error) {
       console.error('Error uploading avatar:', error);
       alert('Failed to upload avatar. Please try again.');
@@ -143,9 +147,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
     <div className="profile-page">
       <div className="profile-header">
         <div className="profile-avatar" onClick={handleAvatarClick}>
-          <img 
-            src={avatar} 
-            alt={user.username} 
+          <img
+            src={avatar}
+            alt={user.username}
             onError={handleAvatarError}
           />
           {isOwnProfile && (

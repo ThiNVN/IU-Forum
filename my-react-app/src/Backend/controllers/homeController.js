@@ -13,6 +13,8 @@ const Category = require('../models/categoryModel')
 const Topic = require('../models/TopicModel');
 const UserCredentials = require('../models/userCredentialsModel');
 const Search = require('../models/searchModel');
+const multer = require("multer");
+const fs = require("fs");
 
 const registerUser = async (req, res) => {
     const { username, email, displayName, password } = req.body;
@@ -667,6 +669,57 @@ const search = async (req, res) => {
     }
 };
 
+const uploadDir = path.join(__dirname, "../../../public/img/avt");
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadDir); // Save directly to your frontend public img/avt folder
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        const ext = path.extname(file.originalname);
+        cb(null, "avatar-" + uniqueSuffix + ext);
+    },
+});
+
+const upload = multer({ storage });
+
+const uploadAvatar = async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded." });
+    }
+    const userId = req.body.userId;
+    const fullPath = req.file.path;
+    const filename = "/img/avt/" + path.basename(fullPath);
+
+    try {
+        const result = await User.getAvatar(userId); // Should return { avatar: "avatar-name.png" }
+        const oldAvatar = result.avatar;
+
+        if (oldAvatar && oldAvatar !== "/img/avt/guest_avatar.png") {
+            const oldAvatarPath = path.join(__dirname, "../../../public", oldAvatar);
+            // Check if file exists then delete
+            if (fs.existsSync(oldAvatarPath)) {
+                fs.unlinkSync(oldAvatarPath);
+                console.log(`Deleted old avatar: ${oldAvatar}`);
+            }
+        }
+
+        const updateResult = await User.updateAvatar(filename, userId);
+
+        res.status(200).json({
+            message: "Upload successful",
+            filePath: `/img/avt/${filename}`,
+            filename,
+            updateResult
+        });
+
+    } catch (error) {
+        console.error("Error uploading avatar:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -693,5 +746,6 @@ module.exports = {
     getTermsPage,
     getHelpPage,
     search,
-    search
+    uploadAvatar,
+    uploadMiddleware: upload.single("image"),
 };

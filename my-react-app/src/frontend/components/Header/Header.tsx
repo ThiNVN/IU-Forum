@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
           const res = await response.json();
           const data = res.userProfile;
           setUsername(data.username || 'Guest');
-          setAvatar(data.avatar ? `../../assets/img/avt/${data.avatar}` : defaultavt);
+          setAvatar(data.avatar ? `${data.avatar}` : defaultavt);
         } else {
           setUsername('Guest');
           setAvatar(defaultavt);
@@ -187,8 +187,8 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
               />
             </div>
           )}
-          <button 
-            className="iconButton theme-toggle" 
+          <button
+            className="iconButton theme-toggle"
             onClick={toggleDarkMode}
             title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
