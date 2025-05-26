@@ -35,7 +35,7 @@ const Profile: React.FC = () => {
 
       if (!userId) return;
       try {
-        const response = await fetch(`http://localhost:8081/api/getUserProfile`, {
+        const response = await fetch(`https://localhost:8081/api/getUserProfile`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

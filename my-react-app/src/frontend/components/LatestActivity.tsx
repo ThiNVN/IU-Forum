@@ -19,7 +19,7 @@ const LatestActivity: React.FC<LatestActivityProps> = ({ userId }) => {
     const fetch10LatestActivity = async () => {
       if (!userId) return;
       try {
-        const response = await fetch(`http://localhost:8081/api/get10LastedActivity?userId=${userId}`);
+        const response = await fetch(`https://localhost:8081/api/get10LastedActivity?userId=${userId}`);
 
         if (response.ok) {
           const res = await response.json();

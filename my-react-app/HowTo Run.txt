@@ -11,11 +11,32 @@ use forum_2025;
 4. node src/Backend/server.js
 5. If can not connect to database remember to make a .env file (ask chatbot AI for help or chat in group)
 6. Sample format
-DB_HOST=what is your host
-DB_PORT=your connect port
-DB_USER=your user name
-DB_PASSWORD=your password
-DB_NAME=name of the schema made above
+DB_HOST=what is your host (localhost by default)
+DB_PORT=your connect port (3006 by default)
+DB_USER=your MySQL user name
+DB_PASSWORD=your MySQL password
+DB_NAME=name of the schema made above (forum_2025 by default)
+PORT = port number of your backend (8081 by default)
 
 Email=skygrep@gmail.com (or ask in group)
 Email_Password=zanp jzhu wtua raru (or ask in group)
+
+# Enable HTTPS for React development server
+HTTPS=true
+
+# Spotify API Configuration
+REACT_APP_SPOTIFY_REDIRECT_URI=https://localhost:3000
+
+7. Download OpenSSL: https://slproweb.com/download/Win64OpenSSL_Light-3_5_0.exe
+8. Add environment path both user and system
+9. npm run generate-ssl
+if failed
+# Install mkcert if you haven't already
+choco install mkcert
+
+# Install the local CA
+mkcert -install
+
+# Generate certificates
+mkdir -p src/Backend/ssl
+mkcert -key-file src/Backend/ssl/key.pem -cert-file src/Backend/ssl/cert.pem localhost 127.0.0.1

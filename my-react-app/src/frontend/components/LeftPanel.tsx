@@ -1,6 +1,7 @@
 // src/components/auth/LeftPanel.tsx
 import React from 'react';
 import logo from '../assets/img/UIlogo.png';
+// import SpotifyPlayer from './SpotifyPlayer';
 import '../styles/register.css';
 
 interface LeftPanelProps {
@@ -31,6 +32,10 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
         {showBreakingNews && (
           <div className="breakingNews">Breaking News Placeholder</div>
         )}
+        
+        {/* Spotify Player Integration */}
+        {/* <SpotifyPlayer /> */}
+        
         <div className="footerLinks">
           <a href="#" className="link">Privacy Policy</a>
           <span>&nbsp;|&nbsp;</span>

@@ -27,7 +27,7 @@ const ThreadPage: React.FC = () => {
   useEffect(() => {
     const fetchThreadAndAllComment = async () => {
       try {
-        const response = await fetch(`http://localhost:8081/api/getThreadAndAllComment?threadId=${threadId}`);
+        const response = await fetch(`https://localhost:8081/api/getThreadAndAllComment?threadId=${threadId}`);
         if (response.ok) {
           const res = await response.json();
           const threadData = res.result; // Assuming it's a single object, not an array

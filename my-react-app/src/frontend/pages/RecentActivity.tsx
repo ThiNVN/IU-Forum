@@ -29,7 +29,7 @@ const RecentActivity: React.FC = () => {
     const fetchRecentActivity = async () => {
       try {
         // Fetch recent threads
-        const threadsResponse = await fetch('http://localhost:8081/api/getTopicAndAllThread');
+        const threadsResponse = await fetch('https://localhost:8081/api/getTopicAndAllThread');
         if (!threadsResponse.ok) {
           throw new Error('Failed to fetch threads');
         }
@@ -48,7 +48,7 @@ const RecentActivity: React.FC = () => {
         setThreads(allThreads.slice(0, 10)); // Get top 10 most recent threads
 
         // Fetch recent topics
-        const topicsResponse = await fetch('http://localhost:8081/api/getAllCategoryAndTopic');
+        const topicsResponse = await fetch('https://localhost:8081/api/getAllCategoryAndTopic');
         if (!topicsResponse.ok) {
           throw new Error('Failed to fetch topics');
         }

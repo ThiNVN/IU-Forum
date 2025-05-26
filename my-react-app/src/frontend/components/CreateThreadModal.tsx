@@ -42,7 +42,7 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
 
     const fetchTopics = async () => {
         try {
-            const response = await fetch('http://localhost:8081/api/topics');
+            const response = await fetch('https://localhost:8081/api/topics');
             const data = await response.json();
             setTopics(data);
         } catch (error) {
@@ -52,7 +52,7 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
 
     const fetchTags = async () => {
         try {
-            const response = await fetch('http://localhost:8081/api/tags');
+            const response = await fetch('https://localhost:8081/api/tags');
             const data = await response.json();
             setTags(data);
         } catch (error) {
@@ -111,7 +111,7 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
             formData.append('files', file);
         });
         try {
-            const response = await fetch('http://localhost:8081/api/threads', {
+            const response = await fetch('https://localhost:8081/api/threads', {
                 method: 'POST',
                 body: formData,
             });

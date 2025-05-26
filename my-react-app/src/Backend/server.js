@@ -3,6 +3,9 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const express = require('express');
 const cors = require('cors');
+const https = require('https');
+const fs = require('fs');
+const WebSocket = require('ws');
 const app = express();
 const PORT = process.env.PORT;
 const webRoutes = require('./routes/web');
@@ -16,7 +19,7 @@ app.use((req, res, next) => {
 
 // Apply CORS middleware first
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: ['https://localhost:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'],
     optionsSuccessStatus: 204
@@ -39,6 +42,48 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Unexpected server error' });
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+// Check if SSL certificates exist for HTTPS
+const sslKeyPath = path.join(__dirname, 'ssl', 'key.pem');
+const sslCertPath = path.join(__dirname, 'ssl', 'cert.pem');
+
+let server;
+
+if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
+    // HTTPS server
+    const sslOptions = {
+        key: fs.readFileSync(sslKeyPath),
+        cert: fs.readFileSync(sslCertPath)
+    };
+    
+    server = https.createServer(sslOptions, app);
+    server.listen(PORT, () => {
+        console.log(`🚀 HTTPS Server running on https://localhost:${PORT}`);
+        console.log(`💡 To enable HTTPS, create SSL certificates in ./ssl/ directory`);
+    });
+} else {
+    // Fallback to HTTP if no SSL certificates
+    server = app.listen(PORT, () => {
+        console.log(`🚀 HTTP Server running on http://localhost:${PORT}`);
+        console.log(`💡 To enable HTTPS, create SSL certificates in ./ssl/ directory`);
+    });
+}
+
+// WebSocket server setup
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+
+    ws.on('message', (message) => {
+        console.log('Received:', message.toString());
+        // Echo the message back to the client
+        ws.send(message.toString());
+    });
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+
+    // Send a welcome message
+    ws.send(JSON.stringify({ type: 'welcome', message: 'Connected to WebSocket server' }));
 });

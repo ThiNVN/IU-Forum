@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
         return;
       }
       try {
-        const response = await fetch('http://localhost:8081/api/getUserProfile', {
+        const response = await fetch('https://localhost:8081/api/getUserProfile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId }),
@@ -80,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
   const isGuest = username === 'Guest';
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:8081/api/logout', {
+      const response = await fetch('https://localhost:8081/api/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -142,7 +142,7 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
   return (
     <header>
       <div className='header' style={{ backgroundColor: headerFooterColor }}>
-        <a href='/' className="logoTitle">
+        <a href='/' className="logoTitle" style={{ textDecoration: 'none' }}>
           <img src={logo} alt="IU Logo" className="logoImage" />
           <span className="forumTitle">IU Forum</span>
         </a>

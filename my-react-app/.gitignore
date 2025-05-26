@@ -24,3 +24,9 @@ yarn-error.log*
 **/.env
 **/node_modules
 SecretNote.txt
+
+# SSL certificates for local development
+src/Backend/ssl/
+*.pem
+*.key
+*.crt

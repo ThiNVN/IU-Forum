@@ -62,7 +62,7 @@ const TopicPage: React.FC = () => {
     } else {
       const fetchTopicAndAllThread = async () => {
         try {
-          const response = await fetch(`http://localhost:8081/api/getTopicAndAllThread`);
+          const response = await fetch(`https://localhost:8081/api/getTopicAndAllThread`);
           if (response.ok) {
             const res = await response.json();
             const topicsData = res.result;

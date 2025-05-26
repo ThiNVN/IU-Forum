@@ -1,6 +1,7 @@
 import React from 'react';
 import DateCard from './DateCard';
 import DigitalClock from './DigitalClock';
+import SpotifyPlayer from '../SpotifyPlayer';
 import '../../styles/sidebar.css';
 
 interface SidebarProps {
@@ -10,6 +11,9 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
   return (
     <aside className={`sidebar ${className}`}>
+      {/* Spotify Player */}
+      <SpotifyPlayer />
+      
       <div className="sidebar-section">
         <h3>Calendar</h3>
         <DigitalClock />

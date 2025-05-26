@@ -31,7 +31,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl, activeTab, set
 
   const handleLogout = async () => {
     sessionStorage.clear();
-    await fetch('http://localhost:8081/api/logout', { method: 'POST', credentials: 'include' });
+    await fetch('https://localhost:8081/api/logout', { method: 'POST', credentials: 'include' });
     deleteAllCookies();
     console.log('Session storage and cookies cleared, redirecting to login page.');
     navigate('/login');

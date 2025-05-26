@@ -63,7 +63,7 @@ const App: React.FC = () => {
     useEffect(() => {
         const checkCookie = async () => {
             try {
-                const response = await fetch('http://localhost:8081/api/check-cookie', {
+                const response = await fetch('https://localhost:8081/api/check-cookie', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ const App: React.FC = () => {
 
         try {
 
-            const loginResponse = await fetch("http://localhost:8081/api/login", {
+            const loginResponse = await fetch("https://localhost:8081/api/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -138,7 +138,7 @@ const App: React.FC = () => {
             setUID(loginResult.userId);
             alert("Login information correct. Sending verification code...");
 
-            const verificationResponse = await fetch("http://localhost:8081/api/verification", {
+            const verificationResponse = await fetch("https://localhost:8081/api/verification", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -166,7 +166,7 @@ const App: React.FC = () => {
     };
     const handleVerificationComplete = async (code: string) => {
         try {
-            const verificationResponse = await fetch("http://localhost:8081/api/verify-code", {
+            const verificationResponse = await fetch("https://localhost:8081/api/verify-code", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -255,7 +255,7 @@ const App: React.FC = () => {
             <div className="gradient-bg">
 
                 {/* mix color */}
-                <svg xmlns="http://www.w3.org/2000/svg">
+                <svg xmlns="https://www.w3.org/2000/svg">
                     <defs>
                         <filter id="goo">
                             <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />

@@ -39,7 +39,7 @@ const NotificationPanel: React.FC = () => {
     if (!userId) return;
 
     try {
-      const response = await fetch(`http://localhost:8081/api/getNotifications`, {
+      const response = await fetch(`https://localhost:8081/api/getNotifications`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ const NotificationPanel: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8081/api/markNotificationAsRead', {
+      const response = await fetch('https://localhost:8081/api/markNotificationAsRead', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ const NotificationPanel: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8081/api/markAllNotificationsAsRead', {
+      const response = await fetch('https://localhost:8081/api/markAllNotificationsAsRead', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

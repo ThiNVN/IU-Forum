@@ -42,7 +42,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
         const fetchUserProfilePost = async () => {
             if (!userId) return;
             try {
-                const response = await fetch(`http://localhost:8081/api/getUserProfileThread?userId=${userId}`);
+                const response = await fetch(`https://localhost:8081/api/getUserProfileThread?userId=${userId}`);
 
                 if (response.ok) {
                     const res = await response.json();
@@ -51,7 +51,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
                     const formattedPosts: Thread[] = await Promise.all(
                         data.map(async (post: any) => {
                             try {
-                                const response = await fetch(`http://localhost:8081/api/getAllCommentOfThread?thread_id=${post.ID}`);
+                                const response = await fetch(`https://localhost:8081/api/getAllCommentOfThread?thread_id=${post.ID}`);
                                 const commentData = await response.json();
                                 const formattedComments: Comment[] = (commentData.comments || []).map((cmt: any) => ({
                                     id: cmt.ID,
@@ -95,7 +95,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
         if (newPostContent.trim() === '') return;
 
         try {
-            const response = await fetch('http://localhost:8081/api/addNewThread', {
+            const response = await fetch('https://localhost:8081/api/addNewThread', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
         if (!content) return;
 
         try {
-            const response = await fetch('http://localhost:8081/api/addNewComment', {
+            const response = await fetch('https://localhost:8081/api/addNewComment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

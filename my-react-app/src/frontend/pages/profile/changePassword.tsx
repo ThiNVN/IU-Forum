@@ -30,7 +30,7 @@ const ChangePassword: React.FC = () => {
         setLoading(false);
         return;
       }
-      const response = await fetch('http://localhost:8081/api/changePassword', {
+      const response = await fetch('https://localhost:8081/api/changePassword', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, currentPassword, newPassword }),
