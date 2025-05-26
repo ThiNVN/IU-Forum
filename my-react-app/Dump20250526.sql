@@ -31,7 +31,7 @@ CREATE TABLE `activity` (
   PRIMARY KEY (`ID`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `activity_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `activity` (
 
 LOCK TABLES `activity` WRITE;
 /*!40000 ALTER TABLE `activity` DISABLE KEYS */;
-INSERT INTO `activity` VALUES (1,1,'post','User posted a new profile post','2025-05-19 12:48:25'),(2,1,'post','User posted a new profile post','2025-05-19 12:48:45'),(3,1,'post','User posted a new profile post','2025-05-19 12:49:04'),(4,1,'post','User posted a new profile post','2025-05-19 12:59:21'),(5,1,'comment','User made a new comment in a thread in undefined','2025-05-19 13:02:14'),(6,1,'comment','User made a new comment in a thread in undefined','2025-05-19 16:07:27');
+INSERT INTO `activity` VALUES (1,1,'post','User posted a new profile post','2025-05-19 12:48:25'),(2,1,'post','User posted a new profile post','2025-05-19 12:48:45'),(3,1,'post','User posted a new profile post','2025-05-19 12:49:04'),(4,1,'post','User posted a new profile post','2025-05-19 12:59:21'),(5,1,'comment','User made a new comment in a thread in undefined','2025-05-19 13:02:14'),(6,1,'comment','User made a new comment in a thread in undefined','2025-05-19 16:07:27'),(7,1,'post','User posted a new profile post','2025-05-22 12:47:00'),(8,1,'comment','User made a new comment in a thread in undefined','2025-05-25 15:42:37'),(9,1,'comment','User made a new comment in a thread in undefined','2025-05-25 15:42:46'),(10,1,'post','User posted a new profile thread','2025-05-26 12:19:11'),(11,1,'comment','User made a new comment in a profile thread','2025-05-26 12:28:48'),(12,1,'post','User posted a new profile thread','2025-05-26 12:29:08'),(13,1,'comment','User made a new comment in a profile thread','2025-05-26 12:29:18');
 /*!40000 ALTER TABLE `activity` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -56,7 +56,7 @@ CREATE TABLE `category` (
   `name` varchar(255) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -65,8 +65,35 @@ CREATE TABLE `category` (
 
 LOCK TABLES `category` WRITE;
 /*!40000 ALTER TABLE `category` DISABLE KEYS */;
-INSERT INTO `category` VALUES (1,'General Discussion','Talk about anything here'),(2,'Programming','All things coding and development'),(3,'University Life','Discuss classes, exams, and campus life'),(4,'Career & Jobs','Share job opportunities and advice'),(5,'Entertainment','Movies, music, games and more'),(6,'General Discussion','General topics and discussions about IU'),(7,'Academic','Academic discussions and course-related topics');
+INSERT INTO `category` VALUES (1,'General Discussion','Talk about anything here'),(2,'Programming','All things coding and development'),(3,'University Life','Discuss classes, exams, and campus life'),(4,'Career & Jobs','Share job opportunities and advice'),(5,'Entertainment','Movies, music, games and more'),(6,'General Discussion','General topics and discussions about IU'),(7,'Academic','Academic discussions and course-related topics'),(8,'Frontend Development','Topics related to HTML, CSS, and client-side JavaScript'),(9,'Backend Development','Server-side topics including Node.js, databases, and APIs'),(10,'Web Security','Security best practices, vulnerabilities, and mitigation'),(11,'Performance Optimization','Improving speed and efficiency of web applications');
 /*!40000 ALTER TABLE `category` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `category_tag`
+--
+
+DROP TABLE IF EXISTS `category_tag`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `category_tag` (
+  `category_id` int NOT NULL,
+  `tag_id` int NOT NULL,
+  PRIMARY KEY (`category_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `category_tag_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`ID`) ON DELETE CASCADE,
+  CONSTRAINT `category_tag_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `category_tag`
+--
+
+LOCK TABLES `category_tag` WRITE;
+/*!40000 ALTER TABLE `category_tag` DISABLE KEYS */;
+INSERT INTO `category_tag` VALUES (8,1),(9,1),(9,2),(8,3),(8,4),(9,5),(10,6),(11,7);
+/*!40000 ALTER TABLE `category_tag` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -87,7 +114,7 @@ CREATE TABLE `comment` (
   KEY `comment_ibfk_2` (`thread_id`),
   CONSTRAINT `comment_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`),
   CONSTRAINT `comment_ibfk_2` FOREIGN KEY (`thread_id`) REFERENCES `thread` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,8 +123,35 @@ CREATE TABLE `comment` (
 
 LOCK TABLES `comment` WRITE;
 /*!40000 ALTER TABLE `comment` DISABLE KEYS */;
-INSERT INTO `comment` VALUES (1,1,1,'First comment to kick off the thread.','2025-05-19 12:19:36'),(2,1,1,'Totally agree! SQL is super useful in data analysis.','2025-05-19 12:19:57'),(3,5,1,'<p>AAA</p>','2025-05-19 12:48:25'),(4,6,1,'<p>AAA</p>','2025-05-19 12:48:45'),(5,7,1,'<p>AAA</p>','2025-05-19 12:49:04'),(6,8,1,'<p>AAA</p>','2025-05-19 12:59:21'),(8,5,1,'<p>BBB</p>','2025-05-19 16:07:26'),(9,13,1,'I find that creating a study schedule and breaking down topics into smaller chunks works really well. Also, practice tests are super helpful!','2024-03-14 17:00:00'),(10,13,1,'Don\'t forget to take breaks! The Pomodoro technique (25 minutes study, 5 minutes break) has been a game-changer for me.','2024-03-14 17:00:00');
+INSERT INTO `comment` VALUES (1,1,1,'First comment to kick off the thread.','2025-05-19 12:19:36'),(2,1,1,'Totally agree! SQL is super useful in data analysis.','2025-05-19 12:19:57'),(3,5,1,'<p>AAA</p>','2025-05-19 12:48:25'),(4,6,1,'<p>AAA</p>','2025-05-19 12:48:45'),(5,7,1,'<p>AAA</p>','2025-05-19 12:49:04'),(6,8,1,'<p>AAA</p>','2025-05-19 12:59:21'),(8,5,1,'<p>BBB</p>','2025-05-19 16:07:26'),(9,13,1,'I find that creating a study schedule and breaking down topics into smaller chunks works really well. Also, practice tests are super helpful!','2024-03-14 17:00:00'),(10,13,1,'Don\'t forget to take breaks! The Pomodoro technique (25 minutes study, 5 minutes break) has been a game-changer for me.','2024-03-14 17:00:00'),(11,20,1,'<p>BBBB</p>','2025-05-22 12:45:16'),(12,22,1,'<p>A</p>','2025-05-25 15:40:45'),(13,22,1,'<p>A</p>','2025-05-25 15:42:23'),(14,22,1,'<p>A</p>','2025-05-25 15:42:37'),(15,22,1,'<p>VVVV</p>','2025-05-25 15:42:46'),(16,5,1,'<p>C</p>','2025-05-26 12:20:31'),(17,5,1,'<p>C</p>','2025-05-26 12:21:07'),(18,5,1,'<p>C</p>','2025-05-26 12:27:47'),(19,5,1,'<p>C</p>','2025-05-26 12:28:48'),(20,24,1,'<p>AAA</p>','2025-05-26 12:29:18');
 /*!40000 ALTER TABLE `comment` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `file`
+--
+
+DROP TABLE IF EXISTS `file`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `file` (
+  `ID` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `link` varchar(255) NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `file_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `file`
+--
+
+LOCK TABLES `file` WRITE;
+/*!40000 ALTER TABLE `file` DISABLE KEYS */;
+INSERT INTO `file` VALUES (1,1,'/uploads/1748275033298-544732338-download (1).jpg');
+/*!40000 ALTER TABLE `file` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -127,6 +181,36 @@ CREATE TABLE `follow` (
 LOCK TABLES `follow` WRITE;
 /*!40000 ALTER TABLE `follow` DISABLE KEYS */;
 /*!40000 ALTER TABLE `follow` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `followtopic`
+--
+
+DROP TABLE IF EXISTS `followtopic`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `followtopic` (
+  `ID` int NOT NULL AUTO_INCREMENT,
+  `thread_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ID`),
+  KEY `thread_id` (`thread_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `followtopic_ibfk_1` FOREIGN KEY (`thread_id`) REFERENCES `thread` (`ID`) ON DELETE CASCADE,
+  CONSTRAINT `followtopic_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `followtopic`
+--
+
+LOCK TABLES `followtopic` WRITE;
+/*!40000 ALTER TABLE `followtopic` DISABLE KEYS */;
+INSERT INTO `followtopic` VALUES (1,28,1,'2025-05-26 22:57:13');
+/*!40000 ALTER TABLE `followtopic` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -215,12 +299,9 @@ DROP TABLE IF EXISTS `tag`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tag` (
   `ID` int NOT NULL AUTO_INCREMENT,
-  `category_id` int NOT NULL,
   `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `category_id` (`category_id`),
-  CONSTRAINT `tag_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`ID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -229,6 +310,7 @@ CREATE TABLE `tag` (
 
 LOCK TABLES `tag` WRITE;
 /*!40000 ALTER TABLE `tag` DISABLE KEYS */;
+INSERT INTO `tag` VALUES (1,'JavaScript'),(2,'Node.js'),(3,'React'),(4,'CSS'),(5,'MySQL'),(6,'Security'),(7,'Performance');
 /*!40000 ALTER TABLE `tag` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -256,7 +338,7 @@ CREATE TABLE `thread` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `thread_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`),
   CONSTRAINT `thread_ibfk_2` FOREIGN KEY (`topic_id`) REFERENCES `topic` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -265,7 +347,7 @@ CREATE TABLE `thread` (
 
 LOCK TABLES `thread` WRITE;
 /*!40000 ALTER TABLE `thread` DISABLE KEYS */;
-INSERT INTO `thread` VALUES (1,1,1,'This is a new thread discussing the benefits of learning SQL.',NULL,0,0,'2025-05-19 12:19:13','2025-05-20 22:33:36','a',NULL),(5,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:48:25','2025-05-20 22:33:36','b',NULL),(6,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:48:45','2025-05-20 22:33:36','b',NULL),(7,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:49:04','2025-05-20 22:33:36','c',NULL),(8,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:59:21','2025-05-20 22:33:36','d',NULL),(13,6,1,'How to prepare for final exams?',NULL,12,0,'2024-03-14 17:00:00','2025-05-21 17:07:43',NULL,'I\'m looking for advice on how to effectively prepare for my upcoming final exams. What study techniques have worked best for you?'),(14,6,1,'Best study spots on campus',NULL,8,0,'2024-03-13 17:00:00','2025-05-21 17:07:43',NULL,NULL),(15,7,1,'Spring Festival 2024 - Event Details and Schedule',NULL,45,0,'2024-03-09 17:00:00','2025-05-21 17:08:00','Complete schedule and information about the upcoming Spring Festival',NULL),(16,7,1,'New Student Club: Photography Enthusiasts',NULL,23,0,'2024-03-11 17:00:00','2025-05-21 17:08:00','Join our new photography club! Weekly meetups and workshops',NULL),(17,7,1,'Campus Food Court Renovation Updates',NULL,67,0,'2024-03-12 17:00:00','2025-05-21 17:08:00','Latest updates on the food court renovation project',NULL),(18,7,1,'International Students Meet & Greet',NULL,34,0,'2024-03-13 17:00:00','2025-05-21 17:08:00','Monthly meetup for international students',NULL),(19,7,1,'Sports Complex Opening Hours',NULL,12,0,'2024-03-14 17:00:00','2025-05-21 17:08:00','Updated opening hours and available facilities',NULL);
+INSERT INTO `thread` VALUES (1,1,1,'This is a new thread discussing the benefits of learning SQL.',NULL,0,0,'2025-05-19 12:19:13','2025-05-20 22:33:36','a',NULL),(5,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:48:25','2025-05-20 22:33:36','b',NULL),(6,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:48:45','2025-05-20 22:33:36','b',NULL),(7,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:49:04','2025-05-20 22:33:36','c',NULL),(8,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:59:21','2025-05-20 22:33:36','d',NULL),(13,6,1,'How to prepare for final exams?',NULL,12,0,'2024-03-14 17:00:00','2025-05-21 17:07:43',NULL,'I\'m looking for advice on how to effectively prepare for my upcoming final exams. What study techniques have worked best for you?'),(14,6,1,'Best study spots on campus',NULL,8,0,'2024-03-13 17:00:00','2025-05-21 17:07:43',NULL,NULL),(15,7,1,'Spring Festival 2024 - Event Details and Schedule',NULL,45,0,'2024-03-09 17:00:00','2025-05-21 17:08:00','Complete schedule and information about the upcoming Spring Festival',NULL),(16,7,1,'New Student Club: Photography Enthusiasts',NULL,23,0,'2024-03-11 17:00:00','2025-05-21 17:08:00','Join our new photography club! Weekly meetups and workshops',NULL),(17,7,1,'Campus Food Court Renovation Updates',NULL,67,0,'2024-03-12 17:00:00','2025-05-21 17:08:00','Latest updates on the food court renovation project',NULL),(18,7,1,'International Students Meet & Greet',NULL,34,0,'2024-03-13 17:00:00','2025-05-21 17:08:00','Monthly meetup for international students',NULL),(19,7,1,'Sports Complex Opening Hours',NULL,12,0,'2024-03-14 17:00:00','2025-05-21 17:08:00','Updated opening hours and available facilities',NULL),(20,NULL,1,NULL,NULL,0,0,'2025-05-22 12:45:16',NULL,NULL,'<p>BBBB</p>'),(21,NULL,1,NULL,NULL,0,0,'2025-05-22 12:46:40',NULL,NULL,'<p>BBBB</p>'),(22,NULL,1,NULL,NULL,0,0,'2025-05-22 12:47:00',NULL,NULL,'<p>BBBB</p>'),(23,NULL,1,NULL,NULL,0,0,'2025-05-26 12:19:11',NULL,NULL,'<p>A</p>'),(24,NULL,1,NULL,NULL,0,0,'2025-05-26 12:29:08',NULL,NULL,'<p>C</p>'),(25,2,1,'aaaa',NULL,0,0,'2025-05-26 14:53:26',NULL,NULL,'<p>aaaaa</p>'),(26,2,1,'<p>aaaaa</p>',NULL,0,0,'2025-05-26 15:52:42',NULL,'aaaa','<p>aaaaa</p>'),(27,2,1,'<p>aaaaa</p>',NULL,0,0,'2025-05-26 15:53:30',NULL,'aaaa','<p>aaaaa</p>'),(28,1,1,'<p>AAAAA</p>',NULL,0,0,'2025-05-26 15:57:13',NULL,'AAAAA','<p>AAAA</p>');
 /*!40000 ALTER TABLE `thread` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -292,6 +374,7 @@ CREATE TABLE `thread_tag` (
 
 LOCK TABLES `thread_tag` WRITE;
 /*!40000 ALTER TABLE `thread_tag` DISABLE KEYS */;
+INSERT INTO `thread_tag` VALUES (28,3);
 /*!40000 ALTER TABLE `thread_tag` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -366,7 +449,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'thien','thien','https://via.placeholder.com/40',NULL,NULL,NULL,NULL,0,'2025-05-19 10:39:44','2025-05-20 22:33:36',0,0,0,'Member',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `user` VALUES (1,'thien','thien','/img/avt/avatar-1748244172497-244682238.png',NULL,NULL,NULL,'AAAA',0,'2025-05-19 10:39:44','2025-05-26 20:44:42',0,0,0,'Member','Street 10, Truong Tho District, Thu Duc, TPHCM','Student','https://x.com/','https://www.linkedin.com/feed/','https://rebalon.github.io/');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -407,4 +490,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-21 20:16:25
+-- Dump completed on 2025-05-26 23:10:58
