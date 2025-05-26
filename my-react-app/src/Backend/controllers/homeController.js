@@ -46,15 +46,6 @@ const loginUser = async (req, res) => {
         const result = await User.checkUserCredentials(userIdentifier, password);
 
         if (typeof result === 'object' && result.status === 1) {
-            // Successful login
-            await User.updateUserLastLoginStatus(result.userId);
-            res.cookie('user_id', result.userId, {
-                httpOnly: true,
-                secure: false, // change to true in production
-                sameSite: 'lax',
-                path: '/',
-                maxAge: 24 * 60 * 60 * 1000
-            });
             return res.status(200).json({ message: 'Login accepted', userId: result.userId });
         }
 
@@ -118,7 +109,7 @@ const verificationEmail = async (req, res) => {
     try {
         await transporter.sendMail(mailOptions);
         verificationCodes[email] = verificationCode;
-        res.status(200).json({ message: 'Verification email sent', code: verificationCode });
+        res.status(200).json({ message: 'Verification email sent' });
     } catch (error) {
         console.error("Error sending email:", error);
         res.status(500).json({ message: 'Failed to send verification email' });
@@ -127,15 +118,15 @@ const verificationEmail = async (req, res) => {
 
 //Verify code from user
 const verifyCode = async (req, res) => {
-    var { email, code, identifierType } = req.body;
+    var { email, code, identifierType, UID } = req.body;
     if (identifierType === "username") {
         const getUser = await User.getUserByUserName(email);
         const getEmail = await userCredentials.getUserCredentialsByID(getUser[0].ID);
         email = getEmail[0].email;
     }
-    console.log(email)
+    console.log(email);
     const storedCode = verificationCodes[email];
-    console.log(storedCode, code)
+    console.log(storedCode, code);
     if (!storedCode) {
         return res.status(400).json({ message: 'No verification code found for this email.' });
     }
@@ -143,6 +134,15 @@ const verifyCode = async (req, res) => {
     if (parseInt(code) === storedCode) {
         // Optionally delete the code after successful verification
         delete verificationCodes[email];
+        // Successful login
+        await User.updateUserLastLoginStatus(UID);
+        res.cookie('user_id', UID, {
+            httpOnly: true,
+            secure: false, // change to true in production
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 24 * 60 * 60 * 1000
+        });
         return res.status(200).json({ message: 'Code verified successfully!' });
     } else {
         return res.status(401).json({ message: 'Invalid verification code.' });
