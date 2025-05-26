@@ -15,8 +15,8 @@ interface TokenResponse {
 }
 
 const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
-  clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID || '0d17f03638cc482e9b2f26e51dc37e7e',
-  clientSecret = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET || '1db631eca33d46daa76476b7c8a85f4f',
+  clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID || '',
+  clientSecret = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET || '',
   redirectUri = process.env.REACT_APP_SPOTIFY_REDIRECT_URI || 'https://localhost:3000'
 }) => {
   const [sdk, setSdk] = useState<SpotifyApi | null>(null);
