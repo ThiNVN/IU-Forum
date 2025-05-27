@@ -126,7 +126,6 @@ const App: React.FC = () => {
                     ...formData,
                     identifierType,
                 }),
-                credentials: 'include',
             });
 
             const loginResult = await loginResponse.json();
@@ -177,6 +176,7 @@ const App: React.FC = () => {
                     identifierType,
                     UID
                 }),
+                credentials: 'include',
             });
 
             if (verificationResponse.ok) {

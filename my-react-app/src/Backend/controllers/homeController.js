@@ -127,9 +127,16 @@ const verifyCode = async (req, res) => {
     var { email, code, identifierType, UID } = req.body;
     if (identifierType === "username") {
         const getUser = await User.getUserByUserName(email);
+        if (!getUser || getUser.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
         const getEmail = await userCredentials.getUserCredentialsByID(getUser[0].ID);
+        if (!getEmail || getEmail.length === 0) {
+            return res.status(404).json({ message: 'Email not found for user' });
+        }
         email = getEmail[0].email;
     }
+
     console.log(email);
     const storedCode = verificationCodes[email];
     console.log(storedCode, code);
@@ -149,6 +156,7 @@ const verifyCode = async (req, res) => {
             path: '/',
             maxAge: 24 * 60 * 60 * 1000
         });
+
         return res.status(200).json({ message: 'Code verified successfully!' });
     } else {
         return res.status(401).json({ message: 'Invalid verification code.' });

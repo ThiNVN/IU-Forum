@@ -219,14 +219,13 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
                         </div>
                         <div className="form-group">
                             <label>Description <span className="required">REQUIRED</span></label>
-                            <RichTextEditor
+                            <input
                                 value={descriptionHtml}
-                                onChange={(html) => {
-                                    setDescriptionHtml(html);
-                                    setDescriptionText(stripHtml(html));
+                                onChange={(e) => {
+                                    setDescriptionHtml(e.target.value);
+                                    setDescriptionText(stripHtml(e.target.value));
                                 }}
                                 placeholder="Write your thread description here..."
-                                showToolbar={true}
                             />
                         </div>
                         <div className="form-group">

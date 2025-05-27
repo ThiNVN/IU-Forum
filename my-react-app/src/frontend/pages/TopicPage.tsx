@@ -133,6 +133,7 @@ const TopicPage: React.FC = () => {
                       </div>
                     </div>
                   </Link>
+
                 ))
               ) : (
                 <p className="text-gray-500 italic">No threads yet.</p>
