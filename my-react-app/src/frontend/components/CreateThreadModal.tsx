@@ -21,17 +21,19 @@ interface Tag {
 const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }) => {
     const [activeTab, setActiveTab] = useState<'content' | 'poll'>('content');
     const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
     const [selectedTopic, setSelectedTopic] = useState<string>('');
     const [topics, setTopics] = useState<Topic[]>([]);
     const [tags, setTags] = useState<Tag[]>([]);
     const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
     const [tagInput, setTagInput] = useState('');
-    const [description, setDescription] = useState('');
+    const [descriptionHtml, setDescriptionHtml] = useState('');
+    const [descriptionText, setDescriptionText] = useState('');
     const [suggestedTags, setSuggestedTags] = useState<Tag[]>([]);
     const [isFollowing, setIsFollowing] = useState(false);
     const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
     const [showQuickPost, setShowQuickPost] = useState(false);
+    const [contentHtml, setContentHtml] = useState('');
+    const [contentText, setContentText] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -109,8 +111,8 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
         formData.append('topic_id', selectedTopic);
         formData.append('user_id', userId);
         formData.append('title', title);
-        formData.append('description', description);
-        formData.append('content', content);
+        formData.append('description', descriptionText);
+        formData.append('content', contentText);
         formData.append('tags', JSON.stringify(selectedTags.map(tag => tag.id)));
         formData.append('follow', isFollowing.toString());
         attachedFiles.forEach(file => {
@@ -134,6 +136,12 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
     };
 
     if (!isOpen) return null;
+
+    function stripHtml(html: string) {
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        return div.textContent || div.innerText || '';
+    }
 
     return (
         <div className="modal-overlay">
@@ -212,8 +220,11 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
                         <div className="form-group">
                             <label>Description <span className="required">REQUIRED</span></label>
                             <RichTextEditor
-                                value={description}
-                                onChange={setDescription}
+                                value={descriptionHtml}
+                                onChange={(html) => {
+                                    setDescriptionHtml(html);
+                                    setDescriptionText(stripHtml(html));
+                                }}
                                 placeholder="Write your thread description here..."
                                 showToolbar={true}
                             />
@@ -221,8 +232,11 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
                         <div className="form-group">
                             <label>Content <span className="required">REQUIRED</span></label>
                             <RichTextEditor
-                                value={content}
-                                onChange={setContent}
+                                value={contentHtml}
+                                onChange={(html) => {
+                                    setContentHtml(html);
+                                    setContentText(stripHtml(html));
+                                }}
                                 placeholder="Write your thread content here..."
                                 showToolbar={true}
                             />
@@ -269,7 +283,7 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
                             <button
                                 className="submit-button"
                                 onClick={handleSubmit}
-                                disabled={!title || !content || !selectedTopic}
+                                disabled={!title || !contentHtml || !selectedTopic}
                             >
                                 Submit Thread
                             </button>

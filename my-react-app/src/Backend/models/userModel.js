@@ -541,5 +541,25 @@ class User {
             dbConnection.release();
         }
     }
+
+    static async getUserAvatarByUsername(username) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [avatar] = await dbConnection.query(
+                'SELECT avatar FROM user WHERE username = ?',
+                [username]
+            );
+
+            await dbConnection.commit();
+            return avatar;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 module.exports = User;

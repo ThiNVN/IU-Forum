@@ -25,7 +25,7 @@ interface ThreadData {
 const ThreadPage: React.FC = () => {
   const { threadId } = useParams<{ threadId: string }>();
   const [thread, setThread] = useState<ThreadData | null>(null);
-
+  const [avatar, setAvatar] = useState<string | null>(null);
   useEffect(() => {
     const fetchThreadAndAllComment = async () => {
       try {
@@ -57,16 +57,32 @@ const ThreadPage: React.FC = () => {
         console.error('Failed to fetch thread:', error);
       }
     };
-
     fetchThreadAndAllComment();
   }, [threadId]);
 
-  if (!thread) return <div>Loading...</div>;
+  useEffect(() => {
+    if (!thread?.author) return;
 
+    const getUserAvatar = async () => {
+      try {
+        const response = await fetch(`https://localhost:8081/api/getUserAvatar?username=${thread.author}`);
+        if (response.ok) {
+          const res = await response.json();
+          setAvatar(res.useravatar[0].avatar);
+        }
+      } catch (error) {
+        console.error('Failed to fetch avatar:', error);
+      }
+    };
+
+    getUserAvatar();
+  }, [thread?.author]);
+
+  if (!thread) return <div>Loading...</div>;
   // Prepare sidebar data
   const threadAuthor = {
     name: thread.author,
-    avatar: thread.comments.find(c => c.author === thread.author)?.avatar || undefined,
+    avatar: avatar || thread.comments.find(c => c.author === thread.author)?.avatar || undefined,
     createdAt: thread.createdAt,
   };
   // Unique comment users, excluding thread creator
@@ -77,7 +93,6 @@ const ThreadPage: React.FC = () => {
         .map(c => [c.author, { name: c.author, avatar: c.avatar }])
     ).values()
   );
-
   return (
 
     <div
@@ -98,10 +113,10 @@ const ThreadPage: React.FC = () => {
 
       {/* Main Thread Content */}
       <div style={{ flex: '1 1 600px', maxWidth: 800 }}>
-    
-    {/*// <div style={{ minHeight: '100vh', background: 'linear-gradient(120deg, #f0f4ff 0%, #f9f6ff 100%)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '2rem 0' }}>
+
+        {/*// <div style={{ minHeight: '100vh', background: 'linear-gradient(120deg, #f0f4ff 0%, #f9f6ff 100%)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '2rem 0' }}>
       {/* <ThreadUserSidebar threadAuthor={threadAuthor} commentUsers={commentUsers} /> */}
-      {/* <div style={{ flex: 1, marginLeft: 32, maxWidth: 800 }}> */}
+        {/* <div style={{ flex: 1, marginLeft: 32, maxWidth: 800 }}> */}
         <Thread
           id={thread.id}
           title={thread.title}

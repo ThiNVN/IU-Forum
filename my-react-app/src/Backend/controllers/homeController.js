@@ -813,7 +813,7 @@ const makeNewThread = async (req, res) => {
             files: uploadedFiles
         });
         //Save thread
-        const threadResult = await Thread.insertNewThread(topic_id, user_id, content, title, description, content);
+        const threadResult = await Thread.insertNewThread(topic_id, user_id, title, description, content);
         //insert new rows in thread_tag table (one thread and many tags)
         console.log(tags);
         for (const tagId of JSON.parse(tags)) {
@@ -847,6 +847,23 @@ const makeNewThread = async (req, res) => {
     }
 };
 
+const getUserAvatar = async (req, res) => {
+    const username = req.query.username;
+
+    try {
+        const useravatar = await User.getUserAvatarByUsername(username);
+
+        res.status(200).json({
+            message: 'Successfully retrieved profile posts',
+            useravatar
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
 module.exports = {
     registerUser,
     loginUser,
@@ -878,5 +895,6 @@ module.exports = {
     getAllTopics,
     getAllTags,
     makeNewThread,
-    uploadFile: uploadFile.array('files')
+    uploadFile: uploadFile.array('files'),
+    getUserAvatar
 };

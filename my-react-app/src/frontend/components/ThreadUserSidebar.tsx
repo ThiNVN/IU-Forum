@@ -15,7 +15,7 @@ interface ThreadUserSidebarProps {
 const ThreadUserSidebar: React.FC<ThreadUserSidebarProps> = ({ threadAuthor, commentUsers }) => {
   return (
     // <div className="leftPanel" style={{ minWidth: 260, maxWidth: 320 }}>
-      <div className="thread-user-sidebar" style={{ minWidth: 260, maxWidth: 320 }}>
+    <div className="thread-user-sidebar" style={{ minWidth: 260, maxWidth: 320 }}>
       <div className="leftContent">
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div className="logoPlaceholder" style={{ width: 100, height: 100, margin: '0 auto 1rem auto' }}>
