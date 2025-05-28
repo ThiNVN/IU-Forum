@@ -3,7 +3,9 @@
   border-radius: 12px;
   padding: 20px;
   color: white;
-  max-width: 800px;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
   margin: 0 auto;
 }
 
@@ -20,18 +22,28 @@
 }
 
 .playlists-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 20px;
   padding: 10px 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .playlist-item {
+  display: flex;
+  align-items: center;
   background: #282828;
   border-radius: 8px;
   padding: 15px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  width: 100%;
+  min-height: 80px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .playlist-item:hover {
@@ -39,11 +51,41 @@
 }
 
 .playlist-cover {
-  width: 100%;
+  width: 64px;
+  height: 64px;
   aspect-ratio: 1;
   object-fit: cover;
   border-radius: 4px;
-  margin-bottom: 10px;
+  margin-right: 16px;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.playlist-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  width: 100%;
+}
+
+.playlist-info .marquee-outer {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  display: flex;
+}
+
+.playlist-info .marquee-inner {
+  --trans-x: 0px;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  display: flex;
+  transform: translateX(var(--trans-x));
+  white-space: nowrap;
+  will-change: transform;
+  transition: transform 0.2s linear;
 }
 
 .playlist-info h4 {
@@ -52,12 +94,18 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
+  position: relative;
 }
 
 .playlist-info p {
   margin: 0;
   font-size: 0.8rem;
   color: #b3b3b3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .no-playlists {

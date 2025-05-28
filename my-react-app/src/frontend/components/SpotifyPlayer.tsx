@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SpotifyApi, Track, PlaybackState, SimplifiedPlaylist } from '@spotify/web-api-ts-sdk';
 import '../styles/SpotifyPlayer.css';
 import {
@@ -31,6 +31,10 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
   const [selectedPlaylist, setSelectedPlaylist] = useState<SimplifiedPlaylist | null>(null);
   const [showEmbed, setShowEmbed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Helper to manage marquee state for each playlist
+  const [marqueeStates, setMarqueeStates] = useState<{ [id: string]: { shouldMarquee: boolean; transX: string } }>({});
+  const marqueeRefs = useRef<{ [id: string]: { outer: HTMLDivElement | null; inner: HTMLDivElement | null } }>({});
 
   // PKCE login flow
   const handleLogin = async () => {
@@ -106,6 +110,54 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
       fetchPlaylists();
     }
   }, [isAuthenticated, fetchPlaylists]);
+
+  // Marquee effect for playlist names that are too long
+  useEffect(() => {
+    const intervals: { [id: string]: number } = {};
+    playlists.forEach((playlist) => {
+      const id = playlist.id;
+      const refs = marqueeRefs.current[id];
+      if (!refs || !refs.outer || !refs.inner) return;
+      const outerWidth = refs.outer.offsetWidth;
+      const innerWidth = refs.inner.scrollWidth;
+      const shouldMarquee = innerWidth > outerWidth;
+      setMarqueeStates((prev) => ({
+        ...prev,
+        [id]: { shouldMarquee, transX: '0px' },
+      }));
+      if (shouldMarquee) {
+        let start = Date.now();
+        const distance = innerWidth - outerWidth;
+        const duration = Math.max(10000, distance * 15);
+
+        intervals[id] = window.setInterval(() => {
+          const elapsed = Date.now() - start;
+          const progress = (elapsed % (duration * 2)) / duration;
+          
+          // Calculate position based on progress
+          let position: number;
+          if (progress < 1) {
+            // First half: scroll forward
+            position = -distance * progress;
+          } else {
+            // Second half: scroll backward
+            position = -distance * (2 - progress);
+          }
+
+          setMarqueeStates((prev) => ({
+            ...prev,
+            [id]: {
+              shouldMarquee: true,
+              transX: `${position}px`,
+            },
+          }));
+        }, 16);
+      }
+    });
+    return () => {
+      Object.values(intervals).forEach(clearInterval);
+    };
+  }, [playlists]);
 
   const handlePlaylistSelect = (playlist: SimplifiedPlaylist) => {
     setSelectedPlaylist(playlist);
@@ -186,25 +238,61 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
       </div>
       <div className="playlists-container">
         {playlists.length > 0 ? (
-          playlists.map((playlist) => (
-            <div
-              key={playlist.id}
-              className="playlist-item"
-              onClick={() => handlePlaylistSelect(playlist)}
-            >
-              {playlist.images?.[0] && (
-                <img
-                  src={playlist.images[0].url}
-                  alt={playlist.name}
-                  className="playlist-cover"
-                />
-              )}
-              <div className="playlist-info">
-                <h4>{playlist.name}</h4>
-                <p>{playlist.tracks?.total || 0} tracks</p>
+                    // playlists.map((playlist) => (
+                    //   <div
+                    //     key={playlist.id}
+                    //     className="playlist-item"
+                    //     onClick={() => handlePlaylistSelect(playlist)}
+                    //   >
+                    //     {playlist.images?.[0] && (
+                    //       <img
+                    //         src={playlist.images[0].url}
+                    //         alt={playlist.name}
+                    //         className="playlist-cover"
+                    //       />
+                    //     )}
+                    //     <div className="playlist-info">
+                    //       <h4>{playlist.name}</h4>
+                    //       <p>{playlist.tracks?.total || 0} tracks</p>
+                    //     </div>
+                    //   </div>
+                    // ))
+          playlists.map((playlist) => {
+            if (!marqueeRefs.current[playlist.id]) {
+              marqueeRefs.current[playlist.id] = { outer: null, inner: null };
+            }
+            const marqueeState = marqueeStates[playlist.id] || { shouldMarquee: false, transX: '0px' };
+            return (
+              <div
+                key={playlist.id}
+                className="playlist-item"
+                onClick={() => handlePlaylistSelect(playlist)}
+              >
+                {playlist.images?.[0] && (
+                  <img
+                    src={playlist.images[0].url}
+                    alt={playlist.name}
+                    className="playlist-cover"
+                  />
+                )}
+                <div className="playlist-info">
+                  <div
+                    className="marquee-outer"
+                    ref={el => { marqueeRefs.current[playlist.id].outer = el || null; }}
+                  >
+                    <div
+                      className="marquee-inner"
+                      ref={el => { marqueeRefs.current[playlist.id].inner = el || null; }}
+                      style={marqueeState.shouldMarquee ? { transform: `translateX(${marqueeState.transX})` } : {}}
+                    >
+                      <h4>{playlist.name}</h4>
+                    </div>
+                  </div>
+                  <p>{playlist.tracks?.total || 0} tracks</p>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
           <div className="no-playlists">
             <p>No playlists found</p>
