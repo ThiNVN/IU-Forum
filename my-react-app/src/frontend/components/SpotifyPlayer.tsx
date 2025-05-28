@@ -31,6 +31,8 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
   const [selectedPlaylist, setSelectedPlaylist] = useState<SimplifiedPlaylist | null>(null);
   const [showEmbed, setShowEmbed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const playlistsPerPage = 5;
 
   // Helper to manage marquee state for each playlist
   const [marqueeStates, setMarqueeStates] = useState<{ [id: string]: { shouldMarquee: boolean; transX: string } }>({});
@@ -100,6 +102,7 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
       });
       const data = await response.json();
       setPlaylists(data.items || []);
+      setCurrentPage(1); // Reset to first page when reloading
     } catch (err) {
       setError('Failed to fetch playlists');
     }
@@ -110,6 +113,12 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
       fetchPlaylists();
     }
   }, [isAuthenticated, fetchPlaylists]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(playlists.length / playlistsPerPage);
+  const startIndex = (currentPage - 1) * playlistsPerPage;
+  const endIndex = startIndex + playlistsPerPage;
+  const currentPlaylists = playlists.slice(startIndex, endIndex);
 
   // Marquee effect for playlist names that are too long
   useEffect(() => {
@@ -222,42 +231,32 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
     <div className="spotify-player">
       <div className="spotify-header">
         <h3>🎵 Your Playlists</h3>
-        <button
-          onClick={() => {
-            setIsAuthenticated(false);
-            setAccessToken(null);
-            window.localStorage.removeItem('access_token');
-            window.localStorage.removeItem('refresh_token');
-            window.localStorage.removeItem('expires_in');
-          }}
-          className='disconnect-btn'
-          title='Disconnect'
-        >
-          ↻
-        </button>
+        <div className="header-buttons">
+          <button
+            onClick={fetchPlaylists}
+            className='reload-btn'
+            title='Reload Playlists'
+          >
+            ↻
+          </button>
+          <button
+            onClick={() => {
+              setIsAuthenticated(false);
+              setAccessToken(null);
+              window.localStorage.removeItem('access_token');
+              window.localStorage.removeItem('refresh_token');
+              window.localStorage.removeItem('expires_in');
+            }}
+            className='disconnect-btn'
+            title='Disconnect Spotify'
+          >
+            ⚡
+          </button>
+        </div>
       </div>
       <div className="playlists-container">
-        {playlists.length > 0 ? (
-                    // playlists.map((playlist) => (
-                    //   <div
-                    //     key={playlist.id}
-                    //     className="playlist-item"
-                    //     onClick={() => handlePlaylistSelect(playlist)}
-                    //   >
-                    //     {playlist.images?.[0] && (
-                    //       <img
-                    //         src={playlist.images[0].url}
-                    //         alt={playlist.name}
-                    //         className="playlist-cover"
-                    //       />
-                    //     )}
-                    //     <div className="playlist-info">
-                    //       <h4>{playlist.name}</h4>
-                    //       <p>{playlist.tracks?.total || 0} tracks</p>
-                    //     </div>
-                    //   </div>
-                    // ))
-          playlists.map((playlist) => {
+        {currentPlaylists.length > 0 ? (
+          currentPlaylists.map((playlist) => {
             if (!marqueeRefs.current[playlist.id]) {
               marqueeRefs.current[playlist.id] = { outer: null, inner: null };
             }
@@ -300,6 +299,27 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
           </div>
         )}
       </div>
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="page-btn"
+          >
+            ←
+          </button>
+          <span className="page-info">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="page-btn"
+          >
+            →
+          </button>
+        </div>
+      )}
     </div>
   );
 };
