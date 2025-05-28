@@ -17,7 +17,9 @@ interface TokenResponse {
 const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
   clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID || '',
   clientSecret = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET || '',
-  redirectUri = process.env.REACT_APP_SPOTIFY_REDIRECT_URI || 'https://localhost:3000'
+  // clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID || '0d17f03638cc482e9b2f26e51dc37e7e',
+  // clientSecret = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET || '1db631eca33d46daa76476b7c8a85f4f',
+  redirectUri = process.env.REACT_APP_SPOTIFY_REDIRECT_URI || 'https://127.0.0.1:3000/callback'
 }) => {
   const [sdk, setSdk] = useState<SpotifyApi | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,9 +33,10 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
   useEffect(() => {
     console.log('Environment variables:', {
       clientId: process.env.REACT_APP_SPOTIFY_CLIENT_ID,
-      redirectUri: process.env.REACT_APP_SPOTIFY_REDIRECT_URI
+      redirectUri: process.env.REACT_APP_SPOTIFY_REDIRECT_URI,
+      actualRedirectUri: redirectUri
     });
-  }, []);
+  }, [redirectUri]);
 
   // Fetch access token
   const fetchAccessToken = useCallback(async () => {
@@ -47,23 +50,26 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${btoa(`${clientId}:${clientSecret}`)}`
         },
         body: new URLSearchParams({
           grant_type: 'client_credentials',
-          client_id: clientId,
-          client_secret: clientSecret,
+          // client_id: clientId,
+          // client_secret: clientSecret,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch access token');
+        const errorData = await response.json();
+        console.error('Token fetch failed:', errorData);
+        throw new Error(`Failed to fetch access token: ${errorData.error_description || errorData.error}`);
       }
 
       const data: TokenResponse = await response.json();
       setAccessToken(data.access_token);
       return data.access_token;
     } catch (err) {
-      setError('Failed to get access token');
+      setError(`Failed to get access token: ${err instanceof Error ? err.message : 'Unknown error'}`);
       console.error('Token fetch error:', err);
       return null;
     }
@@ -77,15 +83,27 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
       return;
     }
 
+        // Validate redirect URI format
+    if (!redirectUri.startsWith('http://') && !redirectUri.startsWith('https://')) {
+      setError('Invalid redirect URI format. Must start with http:// or https://');
+      return;
+    }
+
     try {
       const spotifyApi = SpotifyApi.withUserAuthorization(
         clientId,
         redirectUri,
-        ['user-read-playback-state', 'user-modify-playback-state', 'user-read-currently-playing']
-      );
+        ['user-read-playback-state', 
+          'user-modify-playback-state', 
+          'user-read-currently-playing',
+          'streaming',
+          'user-read-email',
+          'user-read-private'
+      ]);
       setSdk(spotifyApi);
+      console.log('Spotify SDK initialized with redirect URI:', redirectUri);
     } catch (err) {
-      setError('Failed to initialize Spotify SDK');
+      setError(`Failed to initialize Spotify SDK: ${err instanceof Error ? err.message : 'Unknown error'}`);
       console.error('Spotify SDK initialization error:', err);
     }
   }, [clientId, redirectUri]);
@@ -96,9 +114,25 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
 
     const checkAuth = async () => {
       try {
+                // Check if we're returning from Spotify auth
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+                const error = urlParams.get('error');
+        
+                if (error) {
+                  setError(`Spotify authentication error: ${error}`);
+                  return;
+                }
+        
+                if (code) {
+                  // Clear the URL parameters after successful auth
+                  window.history.replaceState({}, document.title, window.location.pathname);
+                }
+
         const user = await sdk.currentUser.profile();
         if (user) {
           setIsAuthenticated(true);
+          setError(null);
           getCurrentPlayback();
         }
       } catch (err) {
@@ -115,32 +149,43 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
 
     try {
       const playback = await sdk.player.getPlaybackState();
-      if (playback) {
+      if (playback && playback.item) {
         setPlaybackState(playback);
         setCurrentTrack(playback.item as Track);
         setIsPlaying(playback.is_playing);
+      } else {
+        setCurrentTrack(null);
+        setIsPlaying(false);
       }
     } catch (err) {
       console.error('Failed to get playback state:', err);
+      if (err instanceof Error && err.message.includes('NO_ACTIVE_DEVICE')) {
+        setError('No active device found. Please check your Spotify app.');
+      }
     }
   }, [sdk, isAuthenticated]);
-
   // Poll for playback updates
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const interval = setInterval(getCurrentPlayback, 5000);
+    const interval = setInterval(getCurrentPlayback, 3000);
     return () => clearInterval(interval);
   }, [isAuthenticated, getCurrentPlayback]);
 
   const handleLogin = async () => {
-    if (!sdk) return;
+    if (!sdk) {
+      setError('Spotify SDK not initialized');
+      return;
+    }
 
     try {
+      setError(null);
+      console.log('Attempting to authenticate with redirect URI:', redirectUri);
       await sdk.authenticate();
       setIsAuthenticated(true);
     } catch (err) {
-      setError('Failed to authenticate with Spotify');
+      const errorMessage = err instanceof Error ? err.message : 'Unknown authentication error'; 
+      setError(`Failed to authenticate with Spotify: ${errorMessage}`);
       console.error('Authentication error:', err);
     }
   };
@@ -155,8 +200,12 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
         await sdk.player.startResumePlayback('');
       }
       setIsPlaying(!isPlaying);
+      setTimeout(getCurrentPlayback, 500);
     } catch (err) {
       console.error('Failed to toggle playback:', err);
+      if(err instanceof Error && err.message.includes('NO_ACTIVE_DEVICE')) {
+        setError('No active device found. Please start playing music on Spotify first.');
+      }
     }
   };
 
@@ -168,6 +217,9 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
       setTimeout(getCurrentPlayback, 1000);
     } catch (err) {
       console.error('Failed to skip to next track:', err);
+      if(err instanceof Error && err.message.includes('NO_ACTIVE_DEVICE')) {
+        setError('No active device found. Please start playing music on Spotify first.');
+      }
     }
   };
 
@@ -179,6 +231,9 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
       setTimeout(getCurrentPlayback, 1000);
     } catch (err) {
       console.error('Failed to skip to previous track:', err);
+      if(err instanceof Error && err.message.includes('NO_ACTIVE_DEVICE')) {
+        setError('No active device found. Please start playing music on Spotify first.');
+      }
     }
   };
 
@@ -192,6 +247,19 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
     return (
       <div className="spotify-player error">
         <p>⚠️ {error}</p>
+        {error.includes('redirect URI') && (
+          <div className ="error-help">
+            <p> <strong>To fix this:</strong></p>
+            <ol>
+              <li>Go to your Spotify App Dashboard</li>
+              <li>Add this redirect URI: <code>{redirectUri}</code></li>
+              <li>Make sure to save the settings</li>
+            </ol>
+          </div>
+        )}
+        <button onClick={() => setError(null)} className='retry-btn'>
+          Try Again
+        </button>
       </div>
     );
   }
@@ -202,6 +270,9 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
         <div className="spotify-login">
           <h3>🎵 Spotify Player</h3>
           <p>Connect your Spotify account to control music playback</p>
+          <div className='redirect-info'>
+            <small>Redirect URI: {redirectUri}</small>
+          </div>
           <button onClick={handleLogin} className="spotify-login-btn">
             Connect Spotify
           </button>
@@ -214,6 +285,13 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
     <div className="spotify-player">
       <div className="spotify-header">
         <h3>🎵 Now Playing</h3>
+        <button
+        onClick={()=>setIsAuthenticated(false)}
+        className='disconnect-btn'
+        title='Disconnect'
+        >
+          ↻
+        </button>
       </div>
       
       {currentTrack ? (
@@ -232,11 +310,15 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
             <p className="artist-name" title={currentTrack.artists?.[0]?.name}>
               {currentTrack.artists?.[0]?.name}
             </p>
+            <p className='album-name' title={currentTrack.album?.name}>
+              {currentTrack.album?.name}
+            </p>
           </div>
         </div>
       ) : (
         <div className="no-track">
           <p>No track currently playing</p>
+          <small>Start playing music on any Spotify device</small>
         </div>
       )}
 
@@ -252,11 +334,24 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
         </button>
       </div>
 
-      {playbackState && (
+      {playbackState && currentTrack && (
         <div className="progress-info">
-          <span className="time">
-            {formatTime(playbackState.progress_ms || 0)} / {formatTime(currentTrack?.duration_ms || 0)}
-          </span>
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ 
+                width: `${((playbackState.progress_ms || 0) / (currentTrack.duration_ms || 1)) * 100}%` 
+              }}
+            ></div>
+          </div>
+          <div className="time-info">
+            <span className="current-time">
+              {formatTime(playbackState.progress_ms || 0)}
+            </span>
+            <span className="total-time">
+              {formatTime(currentTrack.duration_ms || 0)}
+            </span>
+          </div>
         </div>
       )}
     </div>

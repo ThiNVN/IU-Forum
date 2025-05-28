@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 
 // Apply CORS middleware first
 app.use(cors({
-    origin: ['https://localhost:3000'],
+    origin: ['https://127.0.0.1:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'],
     optionsSuccessStatus: 204
