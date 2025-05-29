@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import RichTextEditor from './RichTextEditor';
+import RichTextEditor from './RichText/RichTextEditor';
 import { useNavigate } from 'react-router-dom';
 import './CreateThreadModal.css';
 interface CreateThreadModalProps {

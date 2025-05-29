@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import Thread from '../components/Thread';
-import ThreadUserSidebar from '../components/ThreadUserSidebar';
+import Thread from '../../components/Thread';
+import ThreadUserSidebar from '../../components/ThreadUserSidebar';
 // import Sidebar from '../components/UI/Sidebar';
-import '../styles/forum.css';
+import '../../styles/forum.css';
 
 interface Comment {
   id: string;

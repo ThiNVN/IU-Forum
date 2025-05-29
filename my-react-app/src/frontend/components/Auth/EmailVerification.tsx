@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../styles/verification.css';
+import '../../styles/verification.css';
 
 interface EmailVerificationProps {
     isOpen: boolean;

@@ -1,8 +1,8 @@
 // src/components/auth/LeftPanel.tsx
 import React from 'react';
-import logo from '../assets/img/UIlogo.png';
+import logo from '../../assets/img/UIlogo.png';
 // import SpotifyPlayer from './SpotifyPlayer';
-import '../styles/register.css';
+import '../../styles/register.css';
 
 interface LeftPanelProps {
   title?: string;

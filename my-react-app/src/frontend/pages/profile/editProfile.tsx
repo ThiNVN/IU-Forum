@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import InputField from '../../components/InputField';
-import SubmitButton from '../../components/SubmitButton';
+import InputField from '../../components/Auth/InputField';
+import SubmitButton from '../../components/Auth/SubmitButton';
 import '../../styles/EditProfile.css';
 
 interface EditProfileProps {

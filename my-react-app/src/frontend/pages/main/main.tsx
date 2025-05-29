@@ -4,8 +4,8 @@ import Sidebar from '../../components/UI/Sidebar';
 import Breadcrumb from '../../components/Breadcrumb';
 import { Routes, Route } from 'react-router-dom';
 import HomePage from '../HomePage';
-import TopicPage from '../TopicPage';
-import ThreadPage from '../ThreadPage';
+import TopicPage from '../Topic&Thread/TopicPage';
+import ThreadPage from '../Topic&Thread/ThreadPage';
 import '../../styles/main.css';
 
 
