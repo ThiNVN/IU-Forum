@@ -871,6 +871,20 @@ const getUserAvatar = async (req, res) => {
     }
 };
 
+const checkUsernameAvailability = async (req, res) => {
+    const { username } = req.params;
+
+    try {
+        const user = await User.getUserByUserName(username);
+        if (user && user.length > 0) {
+            return res.status(400).json({ message: 'Username is already taken' });
+        }
+        return res.status(200).json({ message: 'Username is available' });
+    } catch (err) {
+        console.error('Error checking username:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 
 module.exports = {
     registerUser,
@@ -904,5 +918,6 @@ module.exports = {
     getAllTags,
     makeNewThread,
     uploadFile: uploadFile.array('files'),
-    getUserAvatar
+    getUserAvatar,
+    checkUsernameAvailability
 };

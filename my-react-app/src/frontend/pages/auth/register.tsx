@@ -10,6 +10,7 @@ import { Navigate } from 'react-router-dom';
 import '../../styles/register.css';
 import '../../styles/gradientbg.scss'
 import { Link } from 'react-router-dom';
+import { ValidationState, initialValidationState } from '../../components/Auth/validation';
 
 const InteractiveBubble: React.FC = () => {
     const bubbleRef = useRef<HTMLDivElement>(null);
@@ -64,13 +65,182 @@ const RegisterForm: React.FC = () => {
         terms: false,
     });
 
+    const [focusedField, setFocusedField] = useState<string | null>(null);
+
+    const [validation, setValidation] = useState<ValidationState>(initialValidationState);
+    const usernameCheckTimeout = useRef<ReturnType<typeof setTimeout>>(null);
+
+    const handleFocus = (fieldName: string) => {
+        setFocusedField(fieldName);
+    };
+
+    const handleBlur = () => {
+        setFocusedField(null);
+    };
+
+    const checkUsernameAvailability = async (username: string) => {
+        // Reset validation state at the start
+        setValidation(prev => ({
+            ...prev,
+            username: {
+                isValid: false,
+                message: '',
+                isChecking: true
+            }
+        }));
+
+        if (!username.trim()) {
+            setValidation(prev => ({
+                ...prev,
+                username: {
+                    isValid: false,
+                    message: 'Username is required',
+                    isChecking: false
+                }
+            }));
+            return;
+        }
+
+        // Username format validation
+        const usernameRegex = /^[a-zA-Z0-9._]{3,20}$/;
+        if (!usernameRegex.test(username)) {
+            setValidation(prev => ({
+                ...prev,
+                username: {
+                    isValid: false,
+                    message: 'Username must be 3-20 characters and can only contain letters, numbers, dots, and underscores',
+                    isChecking: false
+                }
+            }));
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://localhost:8081/api/check-username/${username}`);
+            const data = await response.json();
+            // print data
+            console.log('Username check response:', data);
+            /*
+            if(!response.ok){
+                throw new Error(data.message || 'Error checking username');
+            }
+            */
+            
+            setValidation(prev => ({
+                ...prev,
+                username: {
+                /*
+                isValid: data.available,
+                message: data.message,
+                */
+                    isValid: true,
+                    message: 'Username is available',
+                    isChecking: false
+                }
+            }));
+        } catch (error) {
+            console.error('Error checking username:', error);
+            setValidation(prev => ({
+                ...prev,
+                username: {
+                    isValid: false,
+                    message: error instanceof Error ? error.message : 'Error checking username availability',
+                    isChecking: false
+                }
+            }));
+        }
+    };
+
+    // Add debouncing to prevent too many API calls
+    const debouncedCheckUsername = (username: string) => {
+        if (usernameCheckTimeout.current) {
+            clearTimeout(usernameCheckTimeout.current);
+        }
+        usernameCheckTimeout.current = setTimeout(() => {
+            checkUsernameAvailability(username);
+        }, 500);
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
         }));
+
+        // Validate on input change
+        switch (name) {
+            case 'username':
+                debouncedCheckUsername(value);
+                break;
+            case 'email':
+                validateEmail(value);
+                break;
+            case 'password':
+                validatePassword(value);
+                break;
+            case 'confirmPassword':
+                validateConfirmPassword(value);
+                break;
+        }
     };
+
+    // Cleanup timeout on component unmount
+    useEffect(() => {
+        return () => {
+            if (usernameCheckTimeout.current) {
+                clearTimeout(usernameCheckTimeout.current);
+            }
+        };
+    }, []); // Empty dependency array since we only want this to run on mount/unmount
+
+    const validateEmail = (email: string) => {
+        const isValid = email.endsWith('hcmiu.edu.vn');
+        setValidation(prev => ({
+            ...prev,
+            email: {
+                isValid,
+                message: isValid ? '' : 'Email must end with hcmiu.edu.vn'
+            }
+        }));
+    };
+
+    const validatePassword = (password: string) => {
+        const requirements = {
+            length: password.length >= 8 && password.length <= 16,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /[0-9]/.test(password),
+        };
+
+        const isValid = Object.values(requirements).every(Boolean);
+
+        setValidation(prev => ({
+            ...prev,
+            password: {
+                isValid,
+                message: isValid ? '' : 'Password does not meet requirements',
+                requirements
+            }
+        }));
+
+        // Also validate confirm password when password changes
+        if (formData.confirmPassword) {
+            validateConfirmPassword(formData.confirmPassword, password);
+        }
+    };
+
+    const validateConfirmPassword = (confirmPassword: string, password: string = formData.password) => {
+        const isValid = confirmPassword === password;
+        setValidation(prev => ({
+            ...prev,
+            confirmPassword: {
+                isValid,
+                message: isValid ? '' : 'Passwords do not match'
+            }
+        }));
+    };
+
     const [isEmailVerificationOpen, setIsEmailVerificationOpen] = useState(false);
     const [verificationInProgress, setVerificationInProgress] = useState(false);
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -143,14 +313,25 @@ const RegisterForm: React.FC = () => {
         }
     };
     const isFormValid = () => {
-        return (
-            formData.username.trim() &&
-            formData.displayName.trim() &&
-            formData.email.trim() &&
-            formData.password.trim() &&
-            formData.password === formData.confirmPassword &&
-            formData.terms
+        const validationResult = (
+            formData.username.trim() !== '' &&
+            formData.email.trim() !== '' &&
+            formData.displayName.trim() !== '' &&
+            formData.password.trim() !== '' &&
+            formData.confirmPassword.trim() !== '' &&
+            formData.terms &&
+            validation.username.isValid === true && // Explicit check
+            validation.email.isValid === true &&
+            validation.password.isValid === true &&
+            validation.confirmPassword.isValid === true &&
+            !validation.username.isChecking
         );
+
+        console.log('Form Data:', formData);
+        console.log('Validation State:', validation);
+        console.log('Form Valid:', validationResult);
+
+        return validationResult;
     };
 
     return (
@@ -166,7 +347,12 @@ const RegisterForm: React.FC = () => {
                         name="username"
                         value={formData.username}
                         onChange={handleInputChange}
+                        onFocus={() => handleFocus('username')}
+                        onBlur={handleBlur}
+                        isFocused={focusedField === 'username'}
                         placeholder="nguyenvana.deptrai"
+                        error={validation.username.message}
+                        isLoading={validation.username.isChecking}
                     />
 
                     <InputField
@@ -175,7 +361,11 @@ const RegisterForm: React.FC = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
+                        onFocus={() => handleFocus('email')}
+                        onBlur={handleBlur}
+                        isFocused={focusedField === 'email'}
                         placeholder="example@student.hcmiu.edu.vn"
+                        error={validation.email.message}
                     />
 
                     <InputField
@@ -183,17 +373,39 @@ const RegisterForm: React.FC = () => {
                         name="displayName"
                         value={formData.displayName}
                         onChange={handleInputChange}
+                        onFocus={() => handleFocus('displayName')}
+                        onBlur={handleBlur}
+                        isFocused={focusedField === 'displayName'}
                         placeholder="Nguyen Van A"
                     />
 
-                    <InputField
-                        label="Password"
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        placeholder="••••••••"
-                    />
+                    <div className={`password-wrapper ${focusedField === 'password' ? 'focused' : ''}`}>
+                        <InputField
+                            label="Password"
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            onFocus={() => handleFocus('password')}
+                            onBlur={handleBlur}
+                            isFocused={focusedField === 'password'}
+                            placeholder="••••••••"
+                        />
+                        <div className="password-requirements">
+                            <div className={`requirement ${validation.password.requirements.length ? 'met' : ''}`}>
+                                • 8-16 characters
+                            </div>
+                            <div className={`requirement ${validation.password.requirements.uppercase ? 'met' : ''}`}>
+                                • At least one uppercase letter
+                            </div>
+                            <div className={`requirement ${validation.password.requirements.lowercase ? 'met' : ''}`}>
+                                • At least one lowercase letter
+                            </div>
+                            <div className={`requirement ${validation.password.requirements.number ? 'met' : ''}`}>
+                                • At least one number
+                            </div>
+                        </div>
+                    </div>
 
                     <InputField
                         label="Confirm Password"
@@ -201,7 +413,11 @@ const RegisterForm: React.FC = () => {
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
+                        onFocus={() => handleFocus('confirmPassword')}
+                        onBlur={handleBlur}
+                        isFocused={focusedField === 'confirmPassword'}
                         placeholder="••••••••"
+                        error={validation.confirmPassword.message}
                     />
 
                     <Checkbox
