@@ -73,7 +73,7 @@ class Search {
                         author: author[0].username,
                         createdAt: thread.create_at,
                         lastActivity: thread.last_activity,
-                        replyCount: countReply === 0 ? (thread.responses - 1) : (countReply - 1),
+                        replyCount: countReply === 0 ? (thread.responses) : (countReply - 1),
                         description: thread.description
                     };
                 }));
