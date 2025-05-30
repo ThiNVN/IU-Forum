@@ -55,7 +55,7 @@ class Activity {
     }
 
     // Get latest activities
-    static async getLatestActivities() {
+    static async getLatestActivities(userId) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
         const limit = 10;
@@ -64,9 +64,10 @@ class Activity {
                 `SELECT a.*, u.username, u.avatar
                 FROM activity a
                 LEFT JOIN user u ON a.user_id = u.ID
+                WHERE u.ID = ?
                 ORDER BY a.created_at DESC
                 LIMIT ?`,
-                [limit]
+                [userId, limit]
             );
 
             await dbConnection.commit();

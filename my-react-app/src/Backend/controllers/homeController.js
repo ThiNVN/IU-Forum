@@ -778,13 +778,17 @@ const getAllTags = async (req, res) => {
     }
 };
 
+
 const storageFile = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path.join(__dirname, '../../../public/uploads'));
     },
     filename: function (req, file, cb) {
+        const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + '-' + file.originalname);
+        const fileExtension = path.extname(originalName); // Lấy phần mở rộng
+        const baseName = path.basename(originalName, fileExtension); // Lấy tên file gốc
+        cb(null, `${uniqueSuffix}-${baseName}${fileExtension}`);
     }
 });
 

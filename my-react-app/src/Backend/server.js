@@ -26,7 +26,8 @@ app.use(cors({
 }));
 
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json({ charset: 'utf-8' }));
+app.use(express.urlencoded({ extended: true }));
 
 // Sample route
 app.get('/', (req, res) => {

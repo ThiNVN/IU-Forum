@@ -93,7 +93,10 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
 
     const handleFileAttach = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            setAttachedFiles([...attachedFiles, ...Array.from(e.target.files)]);
+            const files = Array.from(e.target.files).map(file => {
+                return new File([file], file.name, { type: file.type });
+            });
+            setAttachedFiles([...attachedFiles, ...files]);
         }
     };
 
