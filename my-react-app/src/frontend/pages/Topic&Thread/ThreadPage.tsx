@@ -26,6 +26,7 @@ const ThreadPage: React.FC = () => {
   const { threadId } = useParams<{ threadId: string }>();
   const [thread, setThread] = useState<ThreadData | null>(null);
   const [avatar, setAvatar] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<any[]>([]);
   useEffect(() => {
     const fetchThreadAndAllComment = async () => {
       try {
@@ -78,6 +79,22 @@ const ThreadPage: React.FC = () => {
     getUserAvatar();
   }, [thread?.author]);
 
+  useEffect(() => {
+    if (!threadId) return;
+    const fetchAttachments = async () => {
+      try {
+        const response = await fetch(`https://localhost:8081/api/thread/${threadId}/attachments`);
+        if (response.ok) {
+          const res = await response.json();
+          setAttachments(res.attachments || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch attachments:', error);
+      }
+    };
+    fetchAttachments();
+  }, [threadId]);
+
   if (!thread) return <div>Loading...</div>;
   // Prepare sidebar data
   const threadAuthor = {
@@ -125,6 +142,21 @@ const ThreadPage: React.FC = () => {
           createdAt={thread.createdAt}
           comments={thread.comments}
         />
+        {attachments.length > 0 && (
+          <div className="thread-attachments" style={{ marginTop: 24 }}>
+            <h3>Attachments</h3>
+            <ul>
+              {attachments.map((file) => (
+                <li key={file.id || file.filename}>
+                   {/* <a href={`https://localhost:8081${file.link}`} download target="_blank" rel="noopener noreferrer"> */}
+                  <a href={`https://localhost:8081/api/download/${file.id}`} download target="_blank" rel="noopener noreferrer">
+                    {file.originalName || file.link.split('/').pop()}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Right Sidebar */}

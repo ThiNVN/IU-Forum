@@ -8,14 +8,14 @@ class File {
     }
 
     // Insert a new thread_tag
-    static async insertFile(user_id, link) {
+    static async insertFile(user_id, link, thread_id = null) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
 
         try {
             const [Result] = await dbConnection.query(
-                'INSERT INTO file (user_id, link) VALUES (?, ?)',
-                [user_id, link]
+                'INSERT INTO file (user_id, link, thread_id) VALUES (?, ?, ?)',
+                [user_id, link, thread_id]
             );
 
             await dbConnection.commit();
@@ -27,6 +27,16 @@ class File {
         } finally {
             dbConnection.release();
         }
+    }
+
+    static async getFilesByThreadId(thread_id) {
+        const [rows] = await connection.query('SELECT * FROM file WHERE thread_id = ?', [thread_id]);
+        return rows;
+    }
+
+    static async getFileById(fileId) {
+        const [rows] = await connection.query('SELECT * FROM file WHERE id = ?', [fileId]);
+        return rows;
     }
 
 }

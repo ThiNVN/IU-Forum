@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.42, for Win64 (x86_64)
 --
--- Host: localhost    Database: forum_2025
+-- Host: 127.0.0.1    Database: forum_2025
 -- ------------------------------------------------------
--- Server version	8.0.41
+-- Server version	8.0.42
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -31,7 +31,7 @@ CREATE TABLE `activity` (
   PRIMARY KEY (`ID`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `activity_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `activity` (
 
 LOCK TABLES `activity` WRITE;
 /*!40000 ALTER TABLE `activity` DISABLE KEYS */;
-INSERT INTO `activity` VALUES (1,1,'post','User posted a new profile post','2025-05-19 12:48:25'),(2,1,'post','User posted a new profile post','2025-05-19 12:48:45'),(3,1,'post','User posted a new profile post','2025-05-19 12:49:04'),(4,1,'post','User posted a new profile post','2025-05-19 12:59:21'),(5,1,'comment','User made a new comment in a thread in undefined','2025-05-19 13:02:14'),(6,1,'comment','User made a new comment in a thread in undefined','2025-05-19 16:07:27'),(7,1,'post','User posted a new profile post','2025-05-22 12:47:00'),(8,1,'comment','User made a new comment in a thread in undefined','2025-05-25 15:42:37'),(9,1,'comment','User made a new comment in a thread in undefined','2025-05-25 15:42:46'),(10,1,'post','User posted a new profile thread','2025-05-26 12:19:11'),(11,1,'comment','User made a new comment in a profile thread','2025-05-26 12:28:48'),(12,1,'post','User posted a new profile thread','2025-05-26 12:29:08'),(13,1,'comment','User made a new comment in a profile thread','2025-05-26 12:29:18');
+INSERT INTO `activity` VALUES (1,1,'post','User posted a new profile post','2025-05-19 12:48:25'),(2,1,'post','User posted a new profile post','2025-05-19 12:48:45'),(3,1,'post','User posted a new profile post','2025-05-19 12:49:04'),(4,1,'post','User posted a new profile post','2025-05-19 12:59:21'),(5,1,'comment','User made a new comment in a thread in undefined','2025-05-19 13:02:14'),(6,1,'comment','User made a new comment in a thread in undefined','2025-05-19 16:07:27'),(7,1,'post','User posted a new profile post','2025-05-22 12:47:00'),(8,1,'comment','User made a new comment in a thread in undefined','2025-05-25 15:42:37'),(9,1,'comment','User made a new comment in a thread in undefined','2025-05-25 15:42:46'),(10,1,'post','User posted a new profile thread','2025-05-26 12:19:11'),(11,1,'comment','User made a new comment in a profile thread','2025-05-26 12:28:48'),(12,1,'post','User posted a new profile thread','2025-05-26 12:29:08'),(13,1,'comment','User made a new comment in a profile thread','2025-05-26 12:29:18'),(14,2,'post','User posted a new profile thread','2025-05-30 04:44:28');
 /*!40000 ALTER TABLE `activity` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -138,10 +138,11 @@ CREATE TABLE `file` (
   `ID` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `link` varchar(255) NOT NULL,
+  `thread_id` int DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `file_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -150,7 +151,7 @@ CREATE TABLE `file` (
 
 LOCK TABLES `file` WRITE;
 /*!40000 ALTER TABLE `file` DISABLE KEYS */;
-INSERT INTO `file` VALUES (1,1,'/uploads/1748275033298-544732338-download (1).jpg');
+INSERT INTO `file` VALUES (1,1,'/uploads/1748275033298-544732338-download (1).jpg',NULL),(2,2,'/uploads/1748582795520-85399302-Máº«u-3.docx',31),(3,2,'/uploads/1748582844583-426225660-HÆ°á»ng dáº«n reg Google One 30T.docx',32);
 /*!40000 ALTER TABLE `file` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -200,7 +201,7 @@ CREATE TABLE `followtopic` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `followtopic_ibfk_1` FOREIGN KEY (`thread_id`) REFERENCES `thread` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `followtopic_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -209,7 +210,7 @@ CREATE TABLE `followtopic` (
 
 LOCK TABLES `followtopic` WRITE;
 /*!40000 ALTER TABLE `followtopic` DISABLE KEYS */;
-INSERT INTO `followtopic` VALUES (1,28,1,'2025-05-26 22:57:13');
+INSERT INTO `followtopic` VALUES (1,28,1,'2025-05-26 22:57:13'),(2,30,2,'2025-05-30 12:00:50'),(3,31,2,'2025-05-30 12:26:35'),(4,32,2,'2025-05-30 12:27:24');
 /*!40000 ALTER TABLE `followtopic` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -338,7 +339,7 @@ CREATE TABLE `thread` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `thread_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`),
   CONSTRAINT `thread_ibfk_2` FOREIGN KEY (`topic_id`) REFERENCES `topic` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -347,7 +348,7 @@ CREATE TABLE `thread` (
 
 LOCK TABLES `thread` WRITE;
 /*!40000 ALTER TABLE `thread` DISABLE KEYS */;
-INSERT INTO `thread` VALUES (1,1,1,'This is a new thread discussing the benefits of learning SQL.',NULL,0,0,'2025-05-19 12:19:13','2025-05-20 22:33:36','a',NULL),(5,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:48:25','2025-05-20 22:33:36','b',NULL),(6,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:48:45','2025-05-20 22:33:36','b',NULL),(7,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:49:04','2025-05-20 22:33:36','c',NULL),(8,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:59:21','2025-05-20 22:33:36','d',NULL),(13,6,1,'How to prepare for final exams?',NULL,12,0,'2024-03-14 17:00:00','2025-05-21 17:07:43',NULL,'I\'m looking for advice on how to effectively prepare for my upcoming final exams. What study techniques have worked best for you?'),(14,6,1,'Best study spots on campus',NULL,8,0,'2024-03-13 17:00:00','2025-05-21 17:07:43',NULL,NULL),(15,7,1,'Spring Festival 2024 - Event Details and Schedule',NULL,45,0,'2024-03-09 17:00:00','2025-05-21 17:08:00','Complete schedule and information about the upcoming Spring Festival',NULL),(16,7,1,'New Student Club: Photography Enthusiasts',NULL,23,0,'2024-03-11 17:00:00','2025-05-21 17:08:00','Join our new photography club! Weekly meetups and workshops',NULL),(17,7,1,'Campus Food Court Renovation Updates',NULL,67,0,'2024-03-12 17:00:00','2025-05-21 17:08:00','Latest updates on the food court renovation project',NULL),(18,7,1,'International Students Meet & Greet',NULL,34,0,'2024-03-13 17:00:00','2025-05-21 17:08:00','Monthly meetup for international students',NULL),(19,7,1,'Sports Complex Opening Hours',NULL,12,0,'2024-03-14 17:00:00','2025-05-21 17:08:00','Updated opening hours and available facilities',NULL),(20,NULL,1,NULL,NULL,0,0,'2025-05-22 12:45:16',NULL,NULL,'<p>BBBB</p>'),(21,NULL,1,NULL,NULL,0,0,'2025-05-22 12:46:40',NULL,NULL,'<p>BBBB</p>'),(22,NULL,1,NULL,NULL,0,0,'2025-05-22 12:47:00',NULL,NULL,'<p>BBBB</p>'),(23,NULL,1,NULL,NULL,0,0,'2025-05-26 12:19:11',NULL,NULL,'<p>A</p>'),(24,NULL,1,NULL,NULL,0,0,'2025-05-26 12:29:08',NULL,NULL,'<p>C</p>'),(25,2,1,'aaaa',NULL,0,0,'2025-05-26 14:53:26',NULL,NULL,'<p>aaaaa</p>'),(26,2,1,'<p>aaaaa</p>',NULL,0,0,'2025-05-26 15:52:42',NULL,'aaaa','<p>aaaaa</p>'),(27,2,1,'<p>aaaaa</p>',NULL,0,0,'2025-05-26 15:53:30',NULL,'aaaa','<p>aaaaa</p>'),(28,1,1,'<p>AAAAA</p>',NULL,0,0,'2025-05-26 15:57:13',NULL,'AAAAA','<p>AAAA</p>');
+INSERT INTO `thread` VALUES (1,1,1,'This is a new thread discussing the benefits of learning SQL.',NULL,0,0,'2025-05-19 12:19:13','2025-05-20 22:33:36','a',NULL),(5,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:48:25','2025-05-20 22:33:36','b',NULL),(6,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:48:45','2025-05-20 22:33:36','b',NULL),(7,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:49:04','2025-05-20 22:33:36','c',NULL),(8,NULL,1,'<p>AAA</p>',NULL,0,0,'2025-05-19 12:59:21','2025-05-20 22:33:36','d',NULL),(13,6,1,'How to prepare for final exams?',NULL,12,0,'2024-03-14 17:00:00','2025-05-21 17:07:43',NULL,'I\'m looking for advice on how to effectively prepare for my upcoming final exams. What study techniques have worked best for you?'),(14,6,1,'Best study spots on campus',NULL,8,0,'2024-03-13 17:00:00','2025-05-21 17:07:43',NULL,NULL),(15,7,1,'Spring Festival 2024 - Event Details and Schedule',NULL,45,0,'2024-03-09 17:00:00','2025-05-21 17:08:00','Complete schedule and information about the upcoming Spring Festival',NULL),(16,7,1,'New Student Club: Photography Enthusiasts',NULL,23,0,'2024-03-11 17:00:00','2025-05-21 17:08:00','Join our new photography club! Weekly meetups and workshops',NULL),(17,7,1,'Campus Food Court Renovation Updates',NULL,67,0,'2024-03-12 17:00:00','2025-05-21 17:08:00','Latest updates on the food court renovation project',NULL),(18,7,1,'International Students Meet & Greet',NULL,34,0,'2024-03-13 17:00:00','2025-05-21 17:08:00','Monthly meetup for international students',NULL),(19,7,1,'Sports Complex Opening Hours',NULL,12,0,'2024-03-14 17:00:00','2025-05-21 17:08:00','Updated opening hours and available facilities',NULL),(20,NULL,1,NULL,NULL,0,0,'2025-05-22 12:45:16',NULL,NULL,'<p>BBBB</p>'),(21,NULL,1,NULL,NULL,0,0,'2025-05-22 12:46:40',NULL,NULL,'<p>BBBB</p>'),(22,NULL,1,NULL,NULL,0,0,'2025-05-22 12:47:00',NULL,NULL,'<p>BBBB</p>'),(23,NULL,1,NULL,NULL,0,0,'2025-05-26 12:19:11',NULL,NULL,'<p>A</p>'),(24,NULL,1,NULL,NULL,0,0,'2025-05-26 12:29:08',NULL,NULL,'<p>C</p>'),(25,2,1,'aaaa',NULL,0,0,'2025-05-26 14:53:26',NULL,NULL,'<p>aaaaa</p>'),(26,2,1,'<p>aaaaa</p>',NULL,0,0,'2025-05-26 15:52:42',NULL,'aaaa','<p>aaaaa</p>'),(27,2,1,'<p>aaaaa</p>',NULL,0,0,'2025-05-26 15:53:30',NULL,'aaaa','<p>aaaaa</p>'),(28,1,1,'<p>AAAAA</p>',NULL,0,0,'2025-05-26 15:57:13',NULL,'AAAAA','<p>AAAA</p>'),(29,NULL,2,'<p>Zs</p>',NULL,0,0,'2025-05-30 04:44:28',NULL,NULL,NULL),(30,1,2,'AAAASDASD',NULL,0,0,'2025-05-30 05:00:49',NULL,'u stoobid','u stoobid'),(31,1,2,'asd',NULL,0,0,'2025-05-30 05:26:35',NULL,'asdasd','asdadaasd'),(32,1,2,'concac',NULL,0,0,'2025-05-30 05:27:24',NULL,'concac','concac');
 /*!40000 ALTER TABLE `thread` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -440,7 +441,7 @@ CREATE TABLE `user` (
   `LinkedIn` varchar(255) DEFAULT NULL,
   `website` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -449,7 +450,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'thien','thien','/img/avt/avatar-1748244172497-244682238.png',NULL,NULL,NULL,'AAAA',0,'2025-05-19 10:39:44','2025-05-26 20:44:42',0,0,0,'Member','Street 10, Truong Tho District, Thu Duc, TPHCM','Student','https://x.com/','https://www.linkedin.com/feed/','https://rebalon.github.io/');
+INSERT INTO `user` VALUES (1,'thien','thien','/img/avt/avatar-1748244172497-244682238.png',NULL,NULL,NULL,'AAAA',0,'2025-05-19 10:39:44','2025-05-26 20:44:42',0,0,0,'Member','Street 10, Truong Tho District, Thu Duc, TPHCM','Student','https://x.com/','https://www.linkedin.com/feed/','https://rebalon.github.io/'),(2,'minhduc','Duke','/img/avt/avatar-1748580222334-779726913.png',NULL,NULL,NULL,NULL,0,'2025-05-29 10:47:14','2025-05-30 11:13:56',0,0,0,'Member',NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -468,7 +469,7 @@ CREATE TABLE `user_credentials` (
   PRIMARY KEY (`ID`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `user_credentials_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`ID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -477,9 +478,17 @@ CREATE TABLE `user_credentials` (
 
 LOCK TABLES `user_credentials` WRITE;
 /*!40000 ALTER TABLE `user_credentials` DISABLE KEYS */;
-INSERT INTO `user_credentials` VALUES (1,'ngthien0929@gmail.com','$2b$10$TE8thjp2d9ILUQx//WCkFOT9mW.kr8q1zIgG/cdPv9VzkVMhybLCO',1);
+INSERT INTO `user_credentials` VALUES (1,'ngthien0929@gmail.com','$2b$10$TE8thjp2d9ILUQx//WCkFOT9mW.kr8q1zIgG/cdPv9VzkVMhybLCO',1),(2,'itcsiu22218@student.hcmiu.edu.vn','$2b$10$GRBSA0Z5pTWRq/FJi6ADmOjrt5w8dIR8fH1kJYJzrxthfYGd/2mvm',2);
 /*!40000 ALTER TABLE `user_credentials` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Dumping events for database 'forum_2025'
+--
+
+--
+-- Dumping routines for database 'forum_2025'
+--
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -490,4 +499,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-26 23:10:58
+-- Dump completed on 2025-05-30 12:45:20

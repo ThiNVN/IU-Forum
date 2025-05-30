@@ -833,7 +833,7 @@ const makeNewThread = async (req, res) => {
         }
         //insert to file table
         for (const file of uploadedFiles) {
-            await File.insertFile(user_id, file.path);
+            await File.insertFile(user_id, file.path, threadResult.insertId);
         }
         //Check if tag existed(Now only existed tag will be add)
         // const existedTags = await Tag.getAll();
@@ -886,6 +886,34 @@ const checkUsernameAvailability = async (req, res) => {
     }
 };
 
+const getThreadAttachments = async (req, res) => {
+    const { threadId } = req.params;
+    try {
+        const files = await File.getFilesByThreadId(threadId);
+        res.status(200).json({ attachments: files });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const downloadAttachment = async (req, res) => {
+    const { fileId } = req.params;
+    try {
+        const files = await File.getFileById(fileId);
+        if (!files || files.length === 0) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+        const file = files[0];
+        const filePath = path.join(__dirname, '../../../public', file.link);
+        res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(file.originalName)}`);
+        res.download(filePath, file.originalName);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -919,5 +947,7 @@ module.exports = {
     makeNewThread,
     uploadFile: uploadFile.array('files'),
     getUserAvatar,
-    checkUsernameAvailability
+    checkUsernameAvailability,
+    getThreadAttachments,
+    downloadAttachment
 };

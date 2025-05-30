@@ -87,3 +87,5 @@ wss.on('connection', (ws) => {
     // Send a welcome message
     ws.send(JSON.stringify({ type: 'welcome', message: 'Connected to WebSocket server' }));
 });
+
+app.use('/uploads', express.static(path.join(__dirname, '../../public/uploads')));
