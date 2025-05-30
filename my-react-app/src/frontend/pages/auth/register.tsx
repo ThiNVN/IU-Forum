@@ -126,15 +126,12 @@ const RegisterForm: React.FC = () => {
             }
             */
             
+            // Handle both 200 and 400 responses as valid responses
             setValidation(prev => ({
                 ...prev,
                 username: {
-                /*
-                isValid: data.available,
-                message: data.message,
-                */
-                    isValid: true,
-                    message: 'Username is available',
+                    isValid: response.ok, // true for 200, false for 400
+                    message: data.message,
                     isChecking: false
                 }
             }));
