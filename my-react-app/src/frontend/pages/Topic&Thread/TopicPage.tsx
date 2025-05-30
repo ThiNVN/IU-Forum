@@ -114,11 +114,22 @@ const TopicPage: React.FC = () => {
             <div className="threads-list">
               {topic.threads.length > 0 ? (
                 topic.threads.map((thread) => (
-                  <Link key={thread.id} to={`/thread/${thread.id}`} className="thread-item">
+                  <div key={thread.id} className="thread-item">
                     <div className="thread-container">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h3 className="thread-title">{thread.title}</h3>
+                          <Link 
+                            to={`/thread/${thread.id}`} 
+                            style={{ 
+                              textDecoration: 'none',
+                              color: '#333',
+                              transition: 'color 0.2s ease'
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.color = '#007bff'}
+                            onMouseOut={(e) => e.currentTarget.style.color = '#333'}
+                          >
+                            <h3 className="thread-title">{thread.title}</h3>
+                          </Link>
                           {thread.description && (
                             <p className="text-sm text-gray-600 mt-1">{thread.description}</p>
                           )}
@@ -132,8 +143,7 @@ const TopicPage: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                  </Link>
-
+                  </div>
                 ))
               ) : (
                 <p className="text-gray-500 italic">No threads yet.</p>
@@ -169,11 +179,22 @@ const TopicPage: React.FC = () => {
 
       <div className="threads-list">
         {topic.threads.map((thread) => (
-          <Link key={thread.id} to={`/thread/${thread.id}`} className="thread-item">
+          <div key={thread.id} className="thread-item">
             <div className="thread-container">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h2 className="thread-title">{thread.title}</h2>
+                  <Link 
+                    to={`/thread/${thread.id}`} 
+                    style={{ 
+                      textDecoration: 'none',
+                      color: '#333',
+                      transition: 'color 0.2s ease'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.color = '#007bff'}
+                    onMouseOut={(e) => e.currentTarget.style.color = '#333'}
+                  >
+                    <h2 className="thread-title">{thread.title}</h2>
+                  </Link>
                   {thread.description && (
                     <p className="text-sm text-gray-600 mt-1">{thread.description}</p>
                   )}
@@ -187,7 +208,7 @@ const TopicPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
     </div>
