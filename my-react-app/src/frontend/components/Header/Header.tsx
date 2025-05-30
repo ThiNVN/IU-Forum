@@ -23,6 +23,7 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'account' | 'bookmarks'>('account');
   const userProfileRef = useRef<HTMLDivElement>(null);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -109,9 +110,13 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
   };
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     const color = e.target.value;
-    setShowColorPicker(false);
     setHeaderFooterColor(color);
+  };
+
+  const handleColorPickerClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
   };
 
   useEffect(() => {
@@ -119,16 +124,16 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
       if (userProfileRef.current && !userProfileRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
       }
+      if (colorPickerRef.current && !colorPickerRef.current.contains(event.target as Node)) {
+        setShowColorPicker(false);
+      }
     };
 
-    if (dropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [dropdownOpen]);
+  }, [dropdownOpen, showColorPicker]);
 
   const handleCreateClick = () => {
     const userId = sessionStorage.getItem('userId');
@@ -176,13 +181,19 @@ const Header: React.FC<HeaderProps> = ({ headerFooterColor, setHeaderFooterColor
 
           <button className="iconButton" onClick={handleColorButtonClick}>🎨</button>
           {showColorPicker && (
-            <div className="color-picker-panel" style={{ position: 'absolute', top: '60px', right: '60px', background: '#fff', border: '1px solid #ccc', borderRadius: '8px', padding: '1rem', zIndex: 2000 }}>
+            <div 
+              ref={colorPickerRef}
+              className="color-picker-panel" 
+              onClick={handleColorPickerClick}
+              style={{ position: 'absolute', top: '60px', right: '60px', background: '#fff', border: '1px solid #ccc', borderRadius: '8px', padding: '1rem', zIndex: 2000 }}
+            >
               <label htmlFor="header-footer-color" style={{ color: 'black' }}>Pick header/footer color:</label>
               <input
                 id="header-footer-color"
                 type="color"
                 value={headerFooterColor}
                 onChange={handleColorChange}
+                onClick={handleColorPickerClick}
                 style={{ marginLeft: '1rem', width: '40px', height: '40px', border: 'none', background: 'none' }}
               />
             </div>
