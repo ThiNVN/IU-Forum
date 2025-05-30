@@ -24,6 +24,7 @@
   overflow: hidden;
   animation: fadeInPanel 0.25s cubic-bezier(.4,0,.2,1);
   border: 1px solid var(--border-color, #e0e0e0);
+  margin-top: 300px;
 }
 
 @keyframes fadeInPanel {
