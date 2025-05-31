@@ -15,6 +15,8 @@ interface AboutProps {
 }
 
 const About: React.FC<AboutProps> = ({ userId, userInfo }) => {
+  // Filter out empty social links
+  const socialLinks = userInfo.socialLinks ? Object.entries(userInfo.socialLinks).filter(([_, url]) => url && url.trim() !== '') : [];
   return (
     <div className="about-section">
       {userInfo.biography && (
@@ -39,18 +41,7 @@ const About: React.FC<AboutProps> = ({ userId, userInfo }) => {
           </div>
         )}
 
-        {userInfo.interests && userInfo.interests.length > 0 && (
-          <div className="detail-item">
-            <span className="detail-label">Interests</span>
-            <div className="detail-value interests-list">
-              {userInfo.interests.map((interest, index) => (
-                <span key={index} className="interest-tag">{interest}</span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {userInfo.website && (
+        {userInfo.website && userInfo.website.trim() !== '' && (
           <div className="detail-item">
             <span className="detail-label">Website</span>
             <a href={userInfo.website} target="_blank" rel="noopener noreferrer" 
@@ -60,11 +51,11 @@ const About: React.FC<AboutProps> = ({ userId, userInfo }) => {
           </div>
         )}
 
-        {userInfo.socialLinks && Object.keys(userInfo.socialLinks).length > 0 && (
+        {socialLinks.length > 0 && (
           <div className="detail-item">
             <span className="detail-label">Social Links</span>
             <div className="detail-value social-links">
-              {Object.entries(userInfo.socialLinks).map(([platform, url]) => (
+              {socialLinks.map(([platform, url]) => (
                 <a key={platform} href={url} target="_blank" rel="noopener noreferrer" 
                    className="social-link">
                   {platform}
