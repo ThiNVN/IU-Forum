@@ -152,8 +152,8 @@ const verifyCode = async (req, res) => {
         await User.updateUserLastLoginStatus(UID);
         res.cookie('user_id', UID, {
             httpOnly: true,
-            secure: false, // change to true in production
-            sameSite: 'lax',
+            secure: true, // change to true in production or https
+            sameSite: 'none',
             path: '/',
             maxAge: 24 * 60 * 60 * 1000
         });
@@ -924,10 +924,10 @@ const chat = async (req, res) => {
     try {
         const { message } = req.body;
         const ngrokUrl = process.env.NGROK_URL;
-        
+
         console.log('Request body:', req.body);
         console.log('NGROK_URL from env:', ngrokUrl);
-        
+
         if (!ngrokUrl) {
             throw new Error('NGROK_URL is not defined in environment variables');
         }
@@ -943,7 +943,7 @@ const chat = async (req, res) => {
 
         console.log('Sending request to:', ngrokUrl);
         console.log('Request payload:', requestPayload);
-        
+
         // Make request to your ngrok endpoint
         const modelResponse = await axios.post(ngrokUrl + '/ask', requestPayload, {
             headers: {
@@ -978,8 +978,8 @@ const chat = async (req, res) => {
             response: err.response?.data,
             status: err.response?.status
         });
-        
-        res.status(500).json({ 
+
+        res.status(500).json({
             message: 'Server error',
             error: err.message,
             details: err.response?.data || 'No additional details available'

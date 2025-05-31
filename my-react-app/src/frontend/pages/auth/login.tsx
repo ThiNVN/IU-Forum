@@ -71,14 +71,14 @@ const App: React.FC = () => {
                     },
                     credentials: 'include', // Include cookies
                 });
-
+                console.log(response)
                 if (response.ok) {
                     const result = await response.json();
                     if (result.userId) {
                         // Set userId in sessionStorage
                         sessionStorage.setItem('userId', result.userId);
                         // Redirect to main page
-                        navigate('/main');
+                        navigate('/');
                     }
                 }
             } catch (error) {
@@ -167,6 +167,7 @@ const App: React.FC = () => {
         try {
             const verificationResponse = await fetch("https://localhost:8081/api/verify-code", {
                 method: "POST",
+                credentials: 'include',
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -175,8 +176,7 @@ const App: React.FC = () => {
                     code,
                     identifierType,
                     UID
-                }),
-                credentials: 'include',
+                })
             });
 
             if (verificationResponse.ok) {
