@@ -252,31 +252,39 @@ const addNewComment = async (req, res) => {
         const thread = await Thread.getThreadByID(thread_id);
         const topic = await Topic.getTopicByID(thread[0].topic_id);
         await Thread.updateThread(thread[0].ID, thread[0].topic_id, thread[0].user_id, thread[0].title, thread[0].image, thread[0].responses + 1, thread[0].views, thread[0].description, thread[0].content);
-        await Topic.updateTopic(topic[0].ID, topic[0].title, topic[0].description)
-        console.log(topic)
         //Make new activity record
         var description = "";
         if (!topic || topic.length === 0) {
             description = "User made a new comment in a profile thread";
+            if (thread[0].user_id == user_id) {
+                message = "a new reply/ comment is added in your profile thread by yourself";
+                await Notification.insertNotification(thread_id, user_id, null, CommentResult.insertId, null, message, null, 0, 0, 1, 1, 0);
+            } else {
+                const user = await User.getByID(user_id);
+                message = "a new comment is added in your profile thread by user '" + user.username + "'";
+                await Notification.insertNotification(thread_id, user_id, null, CommentResult.insertId, null, message, null, 0, 0, 1, 0, 0);
+            }
         } else {
             description = "User made a new comment in a thread '" + thread[0].title + "' in topic '" + topic[0].title + "'";
+            await Topic.updateTopic(topic[0].ID, topic[0].title, topic[0].description)
+            //Add new notification
+            const followList = await FollowThread.getFollowThreadByThread_ID(thread_id);
+            let message = "";
+            for (const f of followList) {
+                if (f.user_id != user_id) {
+                    const user = await User.getByID(user_id);
+                    message = "a new comment is added in '" + thread[0].title + "' by user '" + user.username + "'";
+                    await Notification.insertNotification(thread_id, f.user_id, null, CommentResult.insertId, null, message, null, 0, 0, 1, 0, 0);
+                } else {
+                    message = "a new reply/ comment is added in your thread '" + thread[0].title + "' by yourself";
+                    await Notification.insertNotification(thread_id, f.user_id, null, CommentResult.insertId, null, message, null, 0, 0, 1, 1, 0);
+                }
+
+            }
         }
         const activity_type = "comment";
 
         await Activity.insertActivity(user_id, activity_type, description)
-        //Add new notification
-        const followList = await FollowThread.getFollowThreadByThread_ID(thread_id);
-        let message = "";
-        for (const f of followList) {
-            if (f.user_id != user_id) {
-                message = "a new comment is added in '" + thread[0].title + "'";
-                await Notification.insertNotification(thread_id, f.user_id, null, CommentResult.insertId, null, message, null, 0, 0, 1, 0, 0);
-            } else {
-                message = "a new reply/ comment is added in your thread '" + thread[0].title + "'";
-                await Notification.insertNotification(thread_id, f.user_id, null, CommentResult.insertId, null, message, null, 0, 0, 1, 1, 0);
-            }
-
-        }
 
         // Respond with success message and user ID
         res.status(201).json({ message: 'Comment added successfully', newComment, userData });
