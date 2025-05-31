@@ -33,9 +33,9 @@ export default function App() {
                         <Route path="/*" element={<Main />} />
                         <Route path="/home" element={<HomePage />} />
                         <Route path="/topic" element={<TopicPage />} />
-                        <Route path="/profile" element={<Profile />} />
                         <Route path="/profile/:id" element={<UserProfile1 />} />
                         <Route path="/profile/:id/edit" element={<EditProfile />} />
+                        <Route path="/profile" element={<Profile />} />
                         <Route path="/changePassword" element={<ChangePassword />} />
                         <Route path="/about" element={<About />} />
                         <Route path="/privacy" element={<Privacy />} />

@@ -404,6 +404,7 @@ const getTopicAndAllThread = async (req, res) => {
                     id: thread.ID,
                     title: thread.title,
                     author: author[0].username,
+                    user_id: thread.user_id,
                     createdAt: thread.create_at,
                     lastActivity: thread.last_activity,
                     replyCount: countReply === 0 ? (thread.responses) : (countReply - 1),
@@ -986,6 +987,20 @@ const chat = async (req, res) => {
     }
 };
 
+const getUserById = async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const userProfile = await User.getUserByID(userId);
+        if (!userProfile || userProfile.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ userProfile: userProfile[0] });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -1022,5 +1037,6 @@ module.exports = {
     checkUsernameAvailability,
     getThreadAttachments,
     downloadAttachment,
-    chat
+    chat,
+    getUserById
 };

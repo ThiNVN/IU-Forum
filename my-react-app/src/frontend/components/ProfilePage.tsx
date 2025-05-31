@@ -71,12 +71,14 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
   // Use state for the active tab
   const [activeTab, setActiveTab] = useState(0);
 
+  const isGuest = !sessionStorage.getItem('userId');
+
   const handleAvatarError = () => {
     setAvatarError(true);
     setAvatar(defaultAvatar);
   };
   const handleAvatarClick = () => {
-    if (isOwnProfile && fileInputRef.current) {
+    if (!isGuest && isOwnProfile && fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
@@ -156,7 +158,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
             alt={user.username}
             onError={handleAvatarError}
           />
-          {isOwnProfile && (
+          {!isGuest && isOwnProfile && (
             <>
               <button className="edit-avatar">Edit</button>
               <input

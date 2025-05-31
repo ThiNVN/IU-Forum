@@ -10,6 +10,7 @@ interface Thread {
   lastActivity: string;
   replyCount: number;
   description?: string;
+  user_id: string;
 }
 
 interface Topic {
@@ -55,7 +56,8 @@ const TopicPage: React.FC = () => {
           createdAt: thread.createdAt ? new Date(thread.createdAt).toISOString().slice(0, 10) : 'Unknown',
           lastActivity: thread.lastActivity ? timeAgo(thread.lastActivity) : 'Unknown',
           replyCount: thread.replyCount || 0,
-          description: thread.description
+          description: thread.description,
+          user_id: thread.user_id
         })) || []
       }));
       setTopics(mappedTopics);
@@ -77,7 +79,8 @@ const TopicPage: React.FC = () => {
                 createdAt: thread.createdAt ? new Date(thread.createdAt).toISOString().slice(0, 10) : 'Unknown',
                 lastActivity: thread.lastActivity ? timeAgo(thread.lastActivity) : 'Unknown',
                 replyCount: thread.replyCount,
-                description: thread.description
+                description: thread.description,
+                user_id: thread.user_id
               }))
             }));
             setTopics(mappedTopics);
@@ -134,7 +137,7 @@ const TopicPage: React.FC = () => {
                             <p className="text-sm text-gray-600 mt-1">{thread.description}</p>
                           )}
                           <p className="thread-meta mt-2">
-                            Posted by {thread.author} on {thread.createdAt}
+                            Posted by <Link to={`/profile/${thread.user_id}`} className="text-blue-600 hover:text-blue-800">{thread.author}</Link> on {thread.createdAt}
                           </p>
                         </div>
                         <div className="text-right ml-4">
@@ -199,8 +202,8 @@ const TopicPage: React.FC = () => {
                     <p className="text-sm text-gray-600 mt-1">{thread.description}</p>
                   )}
                   <p className="thread-meta mt-2">
-                    Posted by {thread.author} on {thread.createdAt}
-                  </p>
+                    Posted by <Link to={`/profile/${thread.user_id}`} className="text-blue-600 hover:text-blue-800">{thread.author}</Link> on {thread.createdAt}
+                  </p> 
                 </div>
                 <div className="text-right ml-4">
                   <p className="thread-stats">{thread.replyCount} replies</p>
