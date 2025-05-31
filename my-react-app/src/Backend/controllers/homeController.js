@@ -864,7 +864,7 @@ const makeNewThread = async (req, res) => {
             files: uploadedFiles
         });
         //Save thread
-        const threadResult = await Thread.insertNewThread(topic_id, user_id, title, description, content);
+        const threadResult = await Thread.insertNewThread(topic_id, user_id, title, null, description, content);
         //insert new rows in thread_tag table (one thread and many tags)
         console.log(tags);
         for (const tagId of JSON.parse(tags)) {
