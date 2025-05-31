@@ -48,6 +48,7 @@ function timeAgo(dateString: string): string {
 const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
   const [avatarError, setAvatarError] = useState(false);
   const [avatar, setAvatar] = useState(!avatarError && user.avatar ? user.avatar : defaultAvatar);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const title = user.title || '';
   var joined = user.joined || 'Unknown';

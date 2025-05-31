@@ -46,6 +46,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
 
                 if (response.ok) {
                     const res = await response.json();
+                    console.log(res)
                     const data = res.threads;
                     const userdata = res.user;
                     const formattedPosts: Thread[] = await Promise.all(
@@ -128,25 +129,6 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
         }
     };
 
-    // DUKE'S LOCAL FILE
-    // const handleCommentSubmit = (postId: string) => {
-    //     const commentContent = newCommentContentMap[postId];
-    //     if (commentContent.trim() === '') return;
-    //     const newComment: Comment = {
-    //         id: Date.now().toString(),
-    //         content: commentContent,
-    //         author: 'User', // Replace with actual user name
-    //         timestamp: new Date().toISOString()
-    //     };
-    //     setPosts(posts.map(post => 
-    //         post.id === postId 
-    //             ? { ...post, comments: [...post.comments, newComment] } 
-    //             : post
-    //     ));
-    //     // setNewCommentContent('');
-    //     setNewCommentContentMap(prev => ({...prev, [postId]: ''}));
-
-    //fROM github
     const handleCommentSubmit = async (postId: string) => {
         const content = newCommentContentMap[postId]?.trim();
         if (!content) return;
@@ -191,33 +173,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
             console.error('Error submitting comment:', error);
         }
     };
-    // const handlePostSubmit = () => {
-    //     if (newPostContent.trim() === '') return;
-    //     const newPost: Post = {
-    //         id: Date.now().toString(),
-    //         content: newPostContent,
-    //         author: 'User', // Replace with actual user name
-    //         timestamp: new Date().toISOString(),
-    //         comments: []
-    //         setPosts([...posts, newPost]);
-    //         setNewPostContent('');
-    //     };
-    // const handleCommentSubmit = (postId: string) => {
-    //     if (newCommentContent.trim() === '') return;
-    //     const newComment: Comment = {
-    //         id: Date.now().toString(),
-    //         content: newCommentContent,
-    //         author: 'User', // Replace with actual user name
-    //         timestamp: new Date().toISOString()
-    //     };
-    //     setPosts(posts.map(post =>
-    //         post.id === postId
-    //             ? { ...post, comments: [...post.comments, newComment] }
-    //             : post
-    //     ));
-    //     // setNewCommentContent('');
-    //     setNewCommentContentMap(prev => ({ ...prev, [postId]: '' }));
-    // };
+
     return (
         <div className="profile-posts">
             <h2>Profile Posts</h2>

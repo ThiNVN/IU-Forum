@@ -202,22 +202,22 @@ const getUserProfileThread = async (req, res) => {
 };
 
 const addNewThread = async (req, res) => {
-    const { topic_id, user_id, content, image } = req.body;
+    const { topic_id, user_id, title, image, description, content } = req.body;
     try {
         // Insert the new post into the database
-        const newThreadResult = await Thread.insertNewThread(topic_id, user_id, content, image);
+        const newThreadResult = await Thread.insertNewThread(topic_id, user_id, title, image, description, content);
         const newThread = await Thread.getThreadByID(newThreadResult.insertId);
         const userData = await User.getUserByID(newThread[0].user_id);
         //Make new activity record
         const activity_type = "post";
-        var description = "";
+        var ACdescription = "";
         if (topic_id == null) {
-            description = "User posted a new profile thread";
+            ACdescription = "User posted a new profile thread";
         } else {
             const result = Topic.getTopicByID(topic_id);
-            description = "User posted a new thread in topic " + result[0].title;
+            ACdescription = "User posted a new thread in topic " + result[0].title;
         }
-        await Activity.insertActivity(user_id, activity_type, description)
+        await Activity.insertActivity(user_id, activity_type, ACdescription)
         // Respond with success message and user ID
         res.status(201).json({ message: 'Post added successfully', newThread, userData });
     } catch (err) {
