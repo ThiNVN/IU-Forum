@@ -1056,7 +1056,6 @@ const getAllThreadByUserID = async (req, res) => {
 const get5MostThreadTag = async (req, res) => {
     try {
         const result = await ThreadTag.getTop5Tag();
-        console.log(result)
         res.status(200).json({
             message: 'Successfully retrieved 5 most threads tags',
             result
