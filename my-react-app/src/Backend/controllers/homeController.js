@@ -250,13 +250,14 @@ const addNewComment = async (req, res) => {
         const userData = await User.getUserByID(newComment[0].user_id);
 
         const thread = await Thread.getThreadByID(thread_id);
-        const topic = await Topic.getTopicByID(thread.ID);
+        const topic = await Topic.getTopicByID(thread[0].topic_id);
+        console.log(topic)
         //Make new activity record
         var description = "";
         if (!topic || topic.length === 0) {
             description = "User made a new comment in a profile thread";
         } else {
-            description = "User made a new comment in a thread '" + thread.title + "' in topic '" + topic[0].title + "'";
+            description = "User made a new comment in a thread '" + thread[0].title + "' in topic '" + topic[0].title + "'";
         }
         const activity_type = "comment";
 
