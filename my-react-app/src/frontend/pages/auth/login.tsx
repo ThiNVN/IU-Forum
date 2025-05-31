@@ -54,6 +54,8 @@ const App: React.FC = () => {
         password: '',
     });
     const [identifierType, setIdentifierType] = useState<'email' | 'username' | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string>('');
+    const [successMessage, setSuccessMessage] = useState<string>('');
 
     const [isEmailVerificationOpen, setIsEmailVerificationOpen] = useState(false);
     const [verificationInProgress, setVerificationInProgress] = useState(false);
@@ -109,14 +111,14 @@ const App: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setErrorMessage('');
 
         if (!isFormValid()) {
-            alert('Please fill in all information correctly!');
+            setErrorMessage('Please fill in all information correctly!');
             return;
         }
 
         try {
-
             const loginResponse = await fetch("https://localhost:8081/api/login", {
                 method: "POST",
                 headers: {
@@ -131,7 +133,7 @@ const App: React.FC = () => {
             const loginResult = await loginResponse.json();
 
             if (!loginResponse.ok) {
-                alert(loginResult.message || "Login failed");
+                setErrorMessage(loginResult.message || "Login failed");
                 return;
             }
             setUID(loginResult.userId);
@@ -150,7 +152,7 @@ const App: React.FC = () => {
 
             if (!verificationResponse.ok) {
                 const error = await verificationResponse.json();
-                alert(error.message || "Failed to send verification email.");
+                setErrorMessage(error.message || "Failed to send verification email.");
                 return;
             }
             console.log(await verificationResponse.json());
@@ -159,7 +161,7 @@ const App: React.FC = () => {
 
         } catch (error) {
             console.error("Login or verification error:", error);
-            alert("Something went wrong. Please try again.");
+            setErrorMessage("Something went wrong. Please try again.");
         }
     };
     const handleVerificationComplete = async (code: string) => {
@@ -183,16 +185,19 @@ const App: React.FC = () => {
                 setVerificationInProgress(false);
                 setIsEmailVerificationOpen(false);
                 sessionStorage.setItem('userId', String(UID));
-                // Redirect now that everything is verified
-                window.location.href = "/";
+                setSuccessMessage('Login successful! Redirecting...');
+                // Redirect after showing success message
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 1500);
             } else {
                 const errorData = await verificationResponse.json();
-                alert(errorData.message || "Invalid verification code. Try again!");
+                setErrorMessage(errorData.message || "Invalid verification code. Try again!");
             }
 
         } catch (error) {
             console.error("Verification error:", error);
-            alert("Something went wrong during verification.");
+            setErrorMessage("Something went wrong during verification.");
         }
     };
     const isFormValid = () => {
@@ -216,6 +221,26 @@ const App: React.FC = () => {
             <div className="rightPanel">
                 <form onSubmit={handleSubmit} className="form">
                     <h2 className="formTitle">Login</h2>
+
+                    {errorMessage && (
+                        <div style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>
+                            {errorMessage}
+                        </div>
+                    )}
+
+                    {successMessage && (
+                        <div style={{ 
+                            color: 'white', 
+                            marginBottom: '1rem', 
+                            textAlign: 'center',
+                            backgroundColor: '#4CAF50',
+                            padding: '10px',
+                            borderRadius: '5px',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        }}>
+                            {successMessage}
+                        </div>
+                    )}
 
                     <InputField
                         label="Email or Username"

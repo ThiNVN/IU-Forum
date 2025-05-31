@@ -64,6 +64,8 @@ const RegisterForm: React.FC = () => {
         confirmPassword: '',
         terms: false,
     });
+    const [errorMessage, setErrorMessage] = useState<string>('');
+    const [successMessage, setSuccessMessage] = useState<string>('');
 
     const [focusedField, setFocusedField] = useState<string | null>(null);
 
@@ -241,8 +243,10 @@ const RegisterForm: React.FC = () => {
     const [verificationInProgress, setVerificationInProgress] = useState(false);
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setErrorMessage('');
+
         if (!isFormValid()) {
-            alert('Please fill in all information correctly!');
+            setErrorMessage('Please fill in all information correctly!');
             return;
         }
 
@@ -262,11 +266,11 @@ const RegisterForm: React.FC = () => {
                 setVerificationInProgress(true);
             } else {
                 const errorData = await verificationResponse.json();
-                alert(errorData.message);
+                setErrorMessage(errorData.message);
             }
         } catch (error) {
             console.error("Error during verification:", error);
-            alert("Something went wrong. Please try again.");
+            setErrorMessage("Something went wrong. Please try again.");
         }
     };
     const handleVerificationComplete = async (code: string) => {
@@ -290,19 +294,21 @@ const RegisterForm: React.FC = () => {
                     body: JSON.stringify(formData),
                 });
                 if (registerResponse.ok) {
-                    /*redirect login Navigate("/login")*/
-                    navigate('/login');
+                    setSuccessMessage('Registration successful! Redirecting to login...');
+                    setTimeout(() => {
+                        navigate('/login');
+                    }, 1500);
                 } else {
                     const errorData = await registerResponse.json();
-                    alert(errorData.message);
+                    setErrorMessage(errorData.message);
                 }
             } else {
                 const errorData = await verificationResponse.json();
-                alert(errorData.message);
+                setErrorMessage(errorData.message);
             }
         } catch (error) {
             console.error("Error during verification:", error);
-            alert("Something went wrong. Please try again.");
+            setErrorMessage("Something went wrong. Please try again.");
         } finally {
             setVerificationInProgress(false);
             setIsEmailVerificationOpen(false);
@@ -336,6 +342,26 @@ const RegisterForm: React.FC = () => {
             <div className="rightPanel">
                 <form onSubmit={handleSubmit} className="form">
                     <h2 className="formTitle">Register</h2>
+
+                    {errorMessage && (
+                        <div style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>
+                            {errorMessage}
+                        </div>
+                    )}
+
+                    {successMessage && (
+                        <div style={{ 
+                            color: 'white', 
+                            marginBottom: '1rem', 
+                            textAlign: 'center',
+                            backgroundColor: '#4CAF50',
+                            padding: '10px',
+                            borderRadius: '5px',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        }}>
+                            {successMessage}
+                        </div>
+                    )}
 
                     <InputField
                         label="Username"
