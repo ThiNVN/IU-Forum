@@ -124,7 +124,7 @@ const ThreadPage: React.FC = () => {
     >
       {/* Left User Sidebar */}
       {/* <div style={{ flex: '0 0 120px', marginRight: 32 }}> */}
-        {/* <ThreadUserSidebar author={threadAuthor} /> */}
+      {/* <ThreadUserSidebar author={threadAuthor} /> */}
       {/* </div> */}
       {/* Main Thread Content */}
       <div style={{ flex: '1 1 600px', maxWidth: 800 }}>
@@ -136,7 +136,7 @@ const ThreadPage: React.FC = () => {
           id={thread.id}
           title={thread.title}
           content={thread.content}
-          author={thread.author}
+          author={threadAuthor}
           createdAt={thread.createdAt}
           comments={thread.comments}
         />
@@ -146,7 +146,7 @@ const ThreadPage: React.FC = () => {
             <ul>
               {attachments.map((file) => (
                 <li key={file.id || file.filename}>
-                   {/* <a href={`https://localhost:8081${file.link}`} download target="_blank" rel="noopener noreferrer"> */}
+                  {/* <a href={`https://localhost:8081${file.link}`} download target="_blank" rel="noopener noreferrer"> */}
                   <a href={`https://localhost:8081/api/download/${file.id}`} download target="_blank" rel="noopener noreferrer">
                     {file.originalName || file.link.split('/').pop()}
                   </a>

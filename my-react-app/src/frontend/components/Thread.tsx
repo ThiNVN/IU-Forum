@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ThreadUserSidebar from './ThreadUserSidebar';
 import RichTextEditor from './RichText/RichTextEditor';
@@ -11,11 +11,17 @@ export interface Comment {
   avatar?: string;
 }
 
+type Author = {
+  name: string;
+  avatar?: string;
+  createdAt: string;
+};
+
 export interface ThreadProps {
   id: string;
   title: string;
   content: string;
-  author: string;
+  author: Author;
   createdAt: string;
   comments: Comment[];
 }
@@ -31,7 +37,24 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, 
   const [newCommentContentMap, setNewCommentContentMap] = useState<{ [postId: string]: string }>({})
   const [showCommentEditor, setShowCommentEditor] = useState(false);
   const userId = sessionStorage.getItem('userId');
-  const userAvatar = sessionStorage.getItem('userAvatar') || '/default-avatar.png'; // fallback avatar
+  const [userAvatar, setUserAvatar] = useState<string>('/img/avt/guest_avatar.png');
+  useEffect(() => {
+    if (!userId) return;
+
+    const getUserAvatar = async () => {
+      try {
+        const response = await fetch(`https://localhost:8081/api/getUserAvatar?userID=${userId}`);
+        if (response.ok) {
+          const res = await response.json();
+          setUserAvatar(res.useravatar[0].avatar);
+        }
+      } catch (error) {
+        console.error('Failed to fetch avatar:', error);
+      }
+    };
+
+    getUserAvatar();
+  }, [userId]);
   const handleCommentSubmit = async (postId: string) => {
     const content = newCommentContentMap[postId]?.trim();
     if (!content) return;
@@ -68,12 +91,12 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, 
   return (
     <div className="thread-container bg-white rounded-lg shadow-md p-4 mb-4">
       <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 24 }}>
-        <ThreadUserSidebar author={{ name: author, avatar: comments.find(c => c.author === author)?.avatar, createdAt }} />
+        <ThreadUserSidebar author={{ name: author.name, avatar: author.avatar, createdAt }} />
         <div style={{ flex: 1 }}>
           <div className="thread-header mb-4">
             <h1 className="text-2xl font-bold mb-2">{title}</h1>
             <div className="flex items-center text-sm text-gray-600">
-              <span>Posted by {author}</span>
+              <span>Posted by {author.name}</span>
               <span className="mx-2">•</span>
               <span>{createdAt}</span>
             </div>

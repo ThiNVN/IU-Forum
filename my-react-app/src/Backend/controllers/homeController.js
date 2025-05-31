@@ -214,7 +214,7 @@ const addNewThread = async (req, res) => {
         if (topic_id == null) {
             ACdescription = "User posted a new profile thread";
         } else {
-            const result = Topic.getTopicByID(topic_id);
+            const result = await Topic.getTopicByID(topic_id);
             ACdescription = "User posted a new thread in topic " + result[0].title;
         }
         await Activity.insertActivity(user_id, activity_type, ACdescription)
@@ -851,10 +851,17 @@ const makeNewThread = async (req, res) => {
         // console.log('Existing tags:', existingTags);
         // TODO: Save the thread, tags, follow status, and file metadata in the DB
 
+        //Save in activity
+        const newThread = await Thread.getThreadByID(threadResult.insertId);
+        const activity_type = "post";
         res.status(201).json({
             message: 'Thread created successfully',
             threadId: threadResult.insertId
         });
+
+        const result = await Topic.getTopicByID(topic_id);
+        var ACdescription = "User posted a new thread in topic " + result[0].title;
+        await Activity.insertActivity(user_id, activity_type, ACdescription)
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
@@ -863,9 +870,14 @@ const makeNewThread = async (req, res) => {
 
 const getUserAvatar = async (req, res) => {
     const username = req.query.username;
-
+    const userID = req.query.userID;
+    var useravatar;
     try {
-        const useravatar = await User.getUserAvatarByUsername(username);
+        if (username) {
+            useravatar = await User.getUserAvatarByUsername(username);
+        } else {
+            useravatar = await User.getUserAvatarByUserID(userID);
+        }
 
         res.status(200).json({
             message: 'Successfully retrieved profile posts',
