@@ -1,5 +1,6 @@
 import React from 'react';
 import '../styles/ThreadLeftSideBar.css';
+import { Link } from 'react-router-dom';
 {/*
   // Old code
   interface ThreadUserSidebarProps {
@@ -15,6 +16,7 @@ import '../styles/ThreadLeftSideBar.css';
 
 interface UserSidebarProps {
   author: {
+    id: string,
     name: string;
     avatar?: string;
     createdAt: string;
@@ -31,8 +33,13 @@ const ThreadUserSidebar: React.FC<UserSidebarProps> = ({ author }) => {
           <span style={{ fontSize: 24 }}>{author.name[0]}</span>
         )}
       </div>
-      <div className="author name" style={{ fontWeight: 'bold' }}>{author.name}</div>
-      <div className="author date" style={{ fontSize: 12, color: '#777' }}>{author.createdAt}</div>
+      <span>
+        Posted by{' '}
+        <Link to={`/profile/${author.id}`} className="text-blue-600 hover:text-blue-800 font-medium">
+          {author.name}
+        </Link>{' '}
+        on {author.createdAt}
+      </span>
     </div>
   );
 };

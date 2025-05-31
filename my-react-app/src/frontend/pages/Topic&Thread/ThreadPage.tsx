@@ -11,6 +11,7 @@ interface Comment {
   content: string;
   createdAt: string;
   avatar: string;
+  user_id: string
 }
 
 interface ThreadData {
@@ -19,6 +20,7 @@ interface ThreadData {
   content: string;
   author: string;
   createdAt: string;
+  user_id: string;
   comments: Comment[];
 }
 
@@ -41,12 +43,14 @@ const ThreadPage: React.FC = () => {
             content: threadData.content,
             author: threadData.author || 'Anonymous',
             createdAt: threadData.createdAt ? new Date(threadData.createdAt).toISOString().slice(0, 10) : 'Unknown',
+            user_id: threadData.user_id,
             comments: threadData.comments.map((comment: any) => ({
               id: comment.id,
               author: comment.author,
               content: comment.content,
               createdAt: comment.createdAt ? new Date(comment.createdAt).toISOString().slice(0, 10) : 'Unknown',
-              avatar: comment.avatar
+              avatar: comment.avatar,
+              user_id: comment.user_id
             }))
           };
 
@@ -138,6 +142,7 @@ const ThreadPage: React.FC = () => {
           content={thread.content}
           author={threadAuthor}
           createdAt={thread.createdAt}
+          user_id={thread.user_id}
           comments={thread.comments}
         />
         {attachments.length > 0 && (

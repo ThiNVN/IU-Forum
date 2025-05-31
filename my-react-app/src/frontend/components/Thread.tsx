@@ -8,6 +8,7 @@ export interface Comment {
   author: string;
   content: string;
   createdAt: string;
+  user_id: string;
   avatar?: string;
 }
 
@@ -23,6 +24,7 @@ export interface ThreadProps {
   content: string;
   author: Author;
   createdAt: string;
+  user_id: string;
   comments: Comment[];
 }
 interface Thread {
@@ -33,7 +35,7 @@ interface Thread {
   comments: Comment[];
 }
 
-const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, comments }) => {
+const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, user_id, comments }) => {
   const [newCommentContentMap, setNewCommentContentMap] = useState<{ [postId: string]: string }>({})
   const [showCommentEditor, setShowCommentEditor] = useState(false);
   const userId = sessionStorage.getItem('userId');
@@ -81,6 +83,7 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, 
           content: savedComment.newComment[0].content,
           author: savedComment.userData[0].username,
           createdAt: savedComment.newComment[0].create_at,
+          user_id: savedComment.newComment[0].user_id,
           avatar: savedComment.userData[0].avatar
         };
         setNewCommentContentMap(prev => ({ ...prev, [postId]: '' }));
@@ -95,7 +98,7 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, 
   return (
     <div className="thread-container bg-white rounded-lg shadow-md p-4 mb-4">
       <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 24 }}>
-        <ThreadUserSidebar author={{ name: author.name, avatar: author.avatar, createdAt }} />
+        <ThreadUserSidebar author={{ id: user_id, name: author.name, avatar: author.avatar, createdAt }} />
         <div style={{ flex: 1 }}>
           <div className="thread-header mb-4">
             <h1 className="text-2xl font-bold mb-2">{title}</h1>
@@ -115,7 +118,7 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, 
         {comments.map((comment) => (
           <div key={comment.id} className="comment-item border-t pt-4 mt-4">
             <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-              <ThreadUserSidebar author={{ name: comment.author, avatar: comment.avatar, createdAt: comment.createdAt }} />
+              <ThreadUserSidebar author={{ id: comment.user_id, name: comment.author, avatar: comment.avatar, createdAt: comment.createdAt }} />
               <div className="flex-1">
                 <div className="text-gray-700" dangerouslySetInnerHTML={{ __html: comment.content }} />
               </div>

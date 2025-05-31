@@ -483,7 +483,8 @@ const getThreadAndAllComment = async (req, res) => {
                 author: comment.username,
                 content: comment.content,
                 createdAt: comment.create_at,
-                avatar: comment.avatar
+                avatar: comment.avatar,
+                user_id: comment.user_id
             };
         }));
 
@@ -493,6 +494,7 @@ const getThreadAndAllComment = async (req, res) => {
             author: threadAuthor[0].username,
             createdAt: thread[0].create_at,
             title: thread[0].title,
+            user_id: thread[0].user_id,
             comments: listComments
         };
 
