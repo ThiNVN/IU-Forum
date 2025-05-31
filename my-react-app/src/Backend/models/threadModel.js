@@ -212,6 +212,30 @@ class Thread {
             dbConnection.release();
         }
     }
+
+    // Get all thread by user id
+    static async getThreadByUserID(userId) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            // Get threads for this user (profile threads only)
+            const threads = await dbConnection.query(
+                `SELECT *
+                    FROM thread
+                    WHERE user_id = ?`,
+                [userId]
+            );
+
+            await dbConnection.commit();
+            return threads[0];
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 
 module.exports = Thread;

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface Post {
   id: string;
   title: string;
   content: string;
   date: string;
-  forum: string;
+  topic: string;
   replies: number;
   views: number;
 }
@@ -16,31 +16,37 @@ interface PostingsProps {
 
 const Postings: React.FC<PostingsProps> = ({ userId }) => {
   const [filter, setFilter] = useState<'threads' | 'posts'>('threads');
-
   // In a real app, you would fetch this data from an API
-  const posts: Post[] = [
-    {
-      id: '1',
-      title: 'Sample Thread Title',
-      content: 'This is a sample thread content...',
-      date: '2024-03-18',
-      forum: 'General Discussion',
-      replies: 5,
-      views: 100
-    }
-    // Add more sample posts as needed
-  ];
+  const [posts, setPosts] = useState<Post[]>([]);
 
+  useEffect(() => {
+    if (!userId) return;
+
+    const getAllThread = async () => {
+      try {
+        const response = await fetch(`https://localhost:8081/api/getAllThread?userID=${userId}`);
+        if (response.ok) {
+          const res = await response.json();
+          console.log(res);
+          setPosts(res.threads);
+        }
+      } catch (error) {
+        console.error('Failed to fetch avatar:', error);
+      }
+    };
+
+    getAllThread();
+  }, [userId]);
   return (
     <div className="postings">
       <div className="postings-filter">
-        <button 
+        <button
           className={`filter-button ${filter === 'threads' ? 'active' : ''}`}
           onClick={() => setFilter('threads')}
         >
           Threads
         </button>
-        <button 
+        <button
           className={`filter-button ${filter === 'posts' ? 'active' : ''}`}
           onClick={() => setFilter('posts')}
         >
@@ -56,10 +62,10 @@ const Postings: React.FC<PostingsProps> = ({ userId }) => {
               <div className="posting-preview">{post.content}</div>
             </div>
             <div className="posting-meta">
-              <span className="posting-date">{post.date}</span>
-              <span className="posting-forum">{post.forum}</span>
+              <span className="posting-date">{new Date(post.date).toLocaleString()} in</span>
+              <span className="posting-forum"> {post.topic}</span>
               <div className="posting-stats">
-                <span>{post.replies} replies</span>
+                <span>{post.replies} replies </span>
                 <span>{post.views} views</span>
               </div>
             </div>

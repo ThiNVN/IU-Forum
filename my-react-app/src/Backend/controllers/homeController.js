@@ -1014,6 +1014,39 @@ const getUserById = async (req, res) => {
     }
 };
 
+const getAllThreadByUserID = async (req, res) => {
+    const userId = req.query.userID;
+
+    try {
+        const threads = await Thread.getThreadByUserID(userId);
+
+        const filteredThreads = await Promise.all(
+            threads.map(async thread => {
+                const topicData = await Topic.getTopicByID(thread.topic_id);
+                const topicTitle = topicData?.title || 'Profile Thread';
+
+                return {
+                    id: thread.ID,
+                    title: thread.title,
+                    content: thread.content,
+                    date: thread.create_at,
+                    topic: topicTitle,
+                    replies: thread.responses,
+                    views: thread.views
+                };
+            })
+        );
+
+        res.status(200).json({
+            message: 'Successfully retrieved threads by userid',
+            threads: filteredThreads
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -1051,5 +1084,6 @@ module.exports = {
     getThreadAttachments,
     downloadAttachment,
     chat,
-    getUserById
+    getUserById,
+    getAllThreadByUserID
 };
