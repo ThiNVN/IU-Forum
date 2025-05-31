@@ -317,4 +317,9 @@
 
 .thread-footer {
   @apply flex justify-between items-center text-sm text-gray-500;
+}
+
+a:hover .thread-title, a:focus .thread-title {
+  color: #007bff;
+  transition: color 0.2s;
 } 
