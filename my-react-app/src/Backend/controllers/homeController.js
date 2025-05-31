@@ -15,7 +15,7 @@ const UserCredentials = require('../models/userCredentialsModel');
 const Search = require('../models/searchModel');
 const Tag = require('../models/tagModel');
 const ThreadTag = require('../models/thread_tagModel');
-const FollowTopic = require('../models/followTopicModel');
+const FollowThread = require('../models/followThreadModel');
 const File = require('../models/fileModel');
 const multer = require("multer");
 const fs = require("fs");
@@ -264,6 +264,19 @@ const addNewComment = async (req, res) => {
         const activity_type = "comment";
 
         await Activity.insertActivity(user_id, activity_type, description)
+        //Add new notification
+        const followList = await FollowThread.getFollowThreadByThread_ID(thread_id);
+        let message = "";
+        for (const f of followList) {
+            if (f.user_id != user_id) {
+                message = "a new comment is added in '" + thread[0].title + "'";
+                await Notification.insertNotification(thread_id, f.user_id, null, CommentResult.insertId, null, message, null, 0, 0, 1, 0, 0);
+            } else {
+                message = "a new reply/ comment is added in your thread '" + thread[0].title + "'";
+                await Notification.insertNotification(thread_id, f.user_id, null, CommentResult.insertId, null, message, null, 0, 0, 1, 1, 0);
+            }
+
+        }
 
         // Respond with success message and user ID
         res.status(201).json({ message: 'Comment added successfully', newComment, userData });
@@ -838,7 +851,7 @@ const makeNewThread = async (req, res) => {
         }
         //insert follow topic
         if (follow) {
-            await FollowTopic.insertFollowTopic(threadResult.insertId, user_id);
+            await FollowThread.insertFollowThread(threadResult.insertId, user_id);
         }
         //insert to file table
         for (const file of uploadedFiles) {
@@ -855,7 +868,6 @@ const makeNewThread = async (req, res) => {
         // TODO: Save the thread, tags, follow status, and file metadata in the DB
 
         //Save in activity
-        const newThread = await Thread.getThreadByID(threadResult.insertId);
         const activity_type = "post";
         res.status(201).json({
             message: 'Thread created successfully',
