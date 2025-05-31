@@ -47,9 +47,8 @@ function timeAgo(dateString: string): string {
 }
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
-  const { id } = useParams();
   var guestID: string | null = null;
-  if (id) {
+  if (!isOwnProfile) {
     guestID = sessionStorage.getItem('userId');
   }
   const [avatarError, setAvatarError] = useState(false);
@@ -140,9 +139,13 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
   const renderActiveTab = () => {
     switch (activeTab) {
       case 0:
-        return <ProfilePosts userId={userId} />;
+        return <ProfilePosts userId={userId} isOwnProfile={isOwnProfile} />;
       case 1:
-        return <LatestActivity userId={userId} />;
+        if (isOwnProfile) {
+          return <LatestActivity userId={userId} />;
+        }
+        //hide if not user own profile page
+        return
       case 2:
         return <Postings userId={userId} />;
       case 3:
@@ -158,7 +161,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
           }
         }} />;
       default:
-        return <ProfilePosts userId={userId} />;
+        return <ProfilePosts userId={userId} isOwnProfile={isOwnProfile} />;
     }
   };
 

@@ -16,6 +16,7 @@ interface ProfilePost {
 
 interface ProfilePostsProps {
     userId: string | null;
+    isOwnProfile: boolean;
 }
 
 interface Thread {
@@ -33,10 +34,10 @@ interface Comment {
     timestamp: string;
 }
 
-const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
-    const { id } = useParams();
+const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId, isOwnProfile }) => {
     var guestID: string | null;
-    if (id) {
+    console.log(isOwnProfile)
+    if (!isOwnProfile) {
         guestID = sessionStorage.getItem('userId');
     }
     const [posts, setPosts] = useState<Thread[]>([]);
@@ -184,15 +185,17 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
     return (
         <div className="profile-posts">
             <h2>Profile Posts</h2>
-            <div className="new-post">
-                <RichTextEditor
-                    value={newPostContent}
-                    onChange={setNewPostContent}
-                    placeholder="Write a new post..."
-                    showToolbar={false}
-                />
-                <button onClick={handlePostSubmit}>Post</button>
-            </div>
+            {isOwnProfile && (
+                <div className="new-post">
+                    <RichTextEditor
+                        value={newPostContent}
+                        onChange={setNewPostContent}
+                        placeholder="Write a new post..."
+                        showToolbar={false}
+                    />
+                    <button onClick={handlePostSubmit}>Post</button>
+                </div>
+            )}
             <div className="posts-list">
                 {posts.map(post => (
                     <div key={post.id} className="post">

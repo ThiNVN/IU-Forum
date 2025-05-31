@@ -30,7 +30,8 @@ interface UserProfile {
 const Profile: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const { id } = useParams();
-  const userId = id ?? sessionStorage.getItem('userId');
+  const sessionUserID = sessionStorage.getItem('userId');
+  const userId = id ?? sessionUserID;
   useEffect(() => {
     const fetchUserProfile = async () => {
 
@@ -81,7 +82,7 @@ const Profile: React.FC = () => {
   }, []);
 
   if (!user) return <div>Loading...</div>;
-  return <ProfilePage isOwnProfile={true} user={user} />;
+  return <ProfilePage isOwnProfile={userId != sessionUserID ? false : true} user={user} />;
 };
 
 export default Profile;
