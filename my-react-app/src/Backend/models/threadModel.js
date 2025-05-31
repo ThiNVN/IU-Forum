@@ -21,7 +21,7 @@ class Thread {
         try {
             // Insert into 'thread' table
             const [threadResult] = await dbConnection.query(
-                'INSERT INTO thread (topic_id, user_id, title, image, description, content) VALUES (?, ?, ?, ?, ?, ?)',
+                'INSERT INTO thread (topic_id, user_id, title, image, description, content, last_activity) VALUES (?, ?, ?, ?, ?, ?, NOW())',
                 [topic_id, user_id, title, image, description, content]
             );
             await dbConnection.commit();
@@ -183,7 +183,7 @@ class Thread {
         }
     }
     //Update thread
-    static async updateThread(id, topic_id, user_id, main_comment_id, content, image, responses, views) {
+    static async updateThread(id, topic_id, user_id, title, image, responses, views, description, content) {
         const dbConnection = await connection.getConnection(); // Get a connection for the transaction
         await dbConnection.beginTransaction(); // Start transaction
 
@@ -193,13 +193,15 @@ class Thread {
                 `UPDATE thread 
                  SET topic_id = ?, 
                      user_id = ?, 
-                     main_comment_id = ?, 
-                     content = ?, 
+                     title = ?, 
                      image = ?, 
                      responses = ?, 
-                     views = ? 
+                     views = ?,
+                     last_activity = NOW(),
+                     description = ?,
+                     content = ? 
                  WHERE id = ?`,
-                [topic_id, user_id, main_comment_id, content, image, responses, views, id]
+                [topic_id, user_id, title, image, responses, views, description, content, id]
             );
 
             await dbConnection.commit();

@@ -251,6 +251,8 @@ const addNewComment = async (req, res) => {
 
         const thread = await Thread.getThreadByID(thread_id);
         const topic = await Topic.getTopicByID(thread[0].topic_id);
+        await Thread.updateThread(thread[0].ID, thread[0].topic_id, thread[0].user_id, thread[0].title, thread[0].image, thread[0].responses + 1, thread[0].views, thread[0].description, thread[0].content);
+        await Topic.updateTopic(topic[0].ID, topic[0].title, topic[0].description)
         console.log(topic)
         //Make new activity record
         var description = "";
@@ -408,7 +410,7 @@ const getTopicAndAllThread = async (req, res) => {
                     user_id: thread.user_id,
                     createdAt: thread.create_at,
                     lastActivity: thread.last_activity,
-                    replyCount: countReply === 0 ? (thread.responses) : (countReply - 1),
+                    replyCount: countReply === 0 ? (thread.responses) : (countReply),
                     description: thread.description
                 };
             }));
@@ -863,6 +865,10 @@ const makeNewThread = async (req, res) => {
         const result = await Topic.getTopicByID(topic_id);
         var ACdescription = "User posted a new thread in topic " + result[0].title;
         await Activity.insertActivity(user_id, activity_type, ACdescription)
+
+        const thread = await Thread.getThreadByID(threadResult.insertId);
+        const topic = await Topic.getTopicByID(thread[0].topic_id);
+        await Topic.updateTopic(topic[0].ID, topic[0].title, topic[0].description)
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });

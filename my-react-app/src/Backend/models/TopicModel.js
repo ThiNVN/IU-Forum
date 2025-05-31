@@ -95,7 +95,7 @@ class Topic {
 
         try {
             const [Result] = await dbConnection.query(
-                'UPDATE topic SET title = ?, description = ? WHERE ID = ?',
+                'UPDATE topic SET title = ?, description = ?, last_activity = NOW() WHERE ID = ?',
                 [title, description, ID]
             );
             await dbConnection.commit();
