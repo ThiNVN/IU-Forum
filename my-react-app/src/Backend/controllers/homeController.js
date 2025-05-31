@@ -339,8 +339,8 @@ const logoutUser = (req, res) => {
         // Clear the user_id cookie
         res.clearCookie('user_id', {
             httpOnly: true,
-            secure: false, // Set to false for local development
-            sameSite: 'lax',
+            secure: true, // Set to false for local development
+            sameSite: 'none',
             path: '/' // Match the path used when setting the cookie
         });
 

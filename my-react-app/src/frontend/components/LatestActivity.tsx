@@ -29,7 +29,7 @@ const LatestActivity: React.FC<LatestActivityProps> = ({ userId }) => {
             type: activity.activity_type,
             content: activity.description,
             date: activity.created_at,
-            target: "Later fix", // You can refine this if needed
+            target: "Later fix", // In What?
           }));
 
           setActivities(formattedActivities);
