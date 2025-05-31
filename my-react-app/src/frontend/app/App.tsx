@@ -18,6 +18,7 @@ import Privacy from '../pages/Privacy';
 import Terms from '../pages/Terms';
 import Help from '../pages/Help';
 import RecentActivity from '../pages/RecentActivity';
+import Chatbot from '../pages/Chatbot';
 import { ThemeProvider } from '../context/ThemeContext';
 import '../styles/darkMode.css';
 
@@ -41,6 +42,7 @@ export default function App() {
                         <Route path="/terms" element={<Terms />} />
                         <Route path="/help" element={<Help />} />
                         <Route path="/recent" element={<RecentActivity />} />
+                        <Route path="/chatbot" element={<Chatbot />} />
                     </Route>
 
                     <Route path="/login" element={<Login />} />

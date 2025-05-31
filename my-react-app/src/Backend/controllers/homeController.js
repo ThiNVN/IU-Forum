@@ -19,6 +19,7 @@ const FollowTopic = require('../models/followTopicModel');
 const File = require('../models/fileModel');
 const multer = require("multer");
 const fs = require("fs");
+const axios = require('axios');
 
 const registerUser = async (req, res) => {
     const { username, email, displayName, password } = req.body;
@@ -918,6 +919,73 @@ const downloadAttachment = async (req, res) => {
     }
 };
 
+const chat = async (req, res) => {
+    try {
+        const { message } = req.body;
+        const ngrokUrl = process.env.NGROK_URL;
+        
+        console.log('Request body:', req.body);
+        console.log('NGROK_URL from env:', ngrokUrl);
+        
+        if (!ngrokUrl) {
+            throw new Error('NGROK_URL is not defined in environment variables');
+        }
+
+        if (!message) {
+            throw new Error('Message is required in request body');
+        }
+
+        // Format the request to match the expected format
+        const requestPayload = {
+            question: message
+        };
+
+        console.log('Sending request to:', ngrokUrl);
+        console.log('Request payload:', requestPayload);
+        
+        // Make request to your ngrok endpoint
+        const modelResponse = await axios.post(ngrokUrl + '/ask', requestPayload, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('Raw response from model:', modelResponse.data);
+
+        // Extract the answer from the response
+        let responseText;
+        if (modelResponse.data.answer) {
+            responseText = modelResponse.data.answer;
+        } else if (typeof modelResponse.data === 'string') {
+            responseText = modelResponse.data;
+        } else if (modelResponse.data.response) {
+            responseText = modelResponse.data.response;
+        } else if (modelResponse.data.message) {
+            responseText = modelResponse.data.message;
+        } else {
+            responseText = JSON.stringify(modelResponse.data);
+        }
+
+        res.status(200).json({
+            message: 'Success',
+            response: responseText
+        });
+    } catch (err) {
+        console.error('Chat error details:', {
+            message: err.message,
+            code: err.code,
+            response: err.response?.data,
+            status: err.response?.status
+        });
+        
+        res.status(500).json({ 
+            message: 'Server error',
+            error: err.message,
+            details: err.response?.data || 'No additional details available'
+        });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -953,5 +1021,6 @@ module.exports = {
     getUserAvatar,
     checkUsernameAvailability,
     getThreadAttachments,
-    downloadAttachment
+    downloadAttachment,
+    chat
 };

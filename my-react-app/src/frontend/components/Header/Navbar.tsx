@@ -10,6 +10,9 @@ const Navbar: React.FC = () => {
       <a href="/clubs" className="navLink">
         Clubs
       </a>
+      <a href="/chatbot" className="navLink">
+        Chatbot
+      </a>
     </nav>
   );
 };

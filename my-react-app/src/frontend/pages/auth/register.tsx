@@ -120,11 +120,10 @@ const RegisterForm: React.FC = () => {
             const data = await response.json();
             // print data
             console.log('Username check response:', data);
-            /*
-            if(!response.ok){
-                throw new Error(data.message || 'Error checking username');
-            }
-            */
+            
+            // if(!response.ok){
+            //     throw new Error(data.message || 'Error checking username');
+            // }
             
             // Handle both 200 and 400 responses as valid responses
             setValidation(prev => ({
