@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Thread from '../../components/Thread';
-import ThreadUserSidebar from '../../components/ThreadUserSidebar';
+// import ThreadUserSidebar from '../../components/ThreadUserSidebar';
 // import Sidebar from '../components/UI/Sidebar';
 import '../../styles/forum.css';
 
@@ -102,16 +102,15 @@ const ThreadPage: React.FC = () => {
     avatar: avatar || thread.comments.find(c => c.author === thread.author)?.avatar || undefined,
     createdAt: thread.createdAt,
   };
-  // Unique comment users, excluding thread creator
-  const commentUsers = Array.from(
-    new Map(
-      thread.comments
-        .filter(c => c.author !== thread.author)
-        .map(c => [c.author, { name: c.author, avatar: c.avatar }])
-    ).values()
-  );
+  // // Unique comment users, excluding thread creator
+  // const commentUsers = Array.from(
+  //   new Map(
+  //     thread.comments
+  //       .filter(c => c.author !== thread.author)
+  //       .map(c => [c.author, { name: c.author, avatar: c.avatar }])
+  //   ).values()
+  // );
   return (
-
     <div
       style={{
         display: 'flex',
@@ -124,10 +123,9 @@ const ThreadPage: React.FC = () => {
       }}
     >
       {/* Left User Sidebar */}
-      <div style={{ flex: '0 0 260px', marginRight: 32 }}>
-        <ThreadUserSidebar threadAuthor={threadAuthor} commentUsers={commentUsers} />
-      </div>
-
+      {/* <div style={{ flex: '0 0 120px', marginRight: 32 }}> */}
+        {/* <ThreadUserSidebar author={threadAuthor} /> */}
+      {/* </div> */}
       {/* Main Thread Content */}
       <div style={{ flex: '1 1 600px', maxWidth: 800 }}>
 
@@ -158,7 +156,6 @@ const ThreadPage: React.FC = () => {
           </div>
         )}
       </div>
-
       {/* Right Sidebar */}
       {/* <div style={{ flex: '0 0 300px', marginLeft: 32 }}>
         <Sidebar />

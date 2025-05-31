@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import ThreadUserSidebar from './ThreadUserSidebar';
+import RichTextEditor from './RichText/RichTextEditor';
 
 export interface Comment {
   id: string;
@@ -25,14 +27,14 @@ interface Thread {
   comments: Comment[];
 }
 
-
 const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, comments }) => {
   const [newCommentContentMap, setNewCommentContentMap] = useState<{ [postId: string]: string }>({})
+  const [showCommentEditor, setShowCommentEditor] = useState(false);
   const userId = sessionStorage.getItem('userId');
+  const userAvatar = sessionStorage.getItem('userAvatar') || '/default-avatar.png'; // fallback avatar
   const handleCommentSubmit = async (postId: string) => {
     const content = newCommentContentMap[postId]?.trim();
     if (!content) return;
-
     try {
       const response = await fetch('https://localhost:8081/api/addNewComment', {
         method: 'POST',
@@ -45,7 +47,6 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, 
           content: content,
         }),
       });
-
       if (response.ok) {
         const savedComment = await response.json();
         const newComment: Comment = {
@@ -55,18 +56,8 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, 
           createdAt: savedComment.newComment[0].create_at,
           avatar: savedComment.userData[0].avatar
         };
-        console.log('Timestamp:', newComment.createdAt);
-        console.log('Is valid?', !isNaN(new Date(newComment.createdAt).getTime()));
-        // setPosts(prevPosts =>
-        //     prevPosts.map(post =>
-        //         post.id === postId
-        //             ? { ...post, comments: [...post.comments, newComment] }
-        //             : post
-        //     )
-        // );
-
-        // Clear input for this post only
         setNewCommentContentMap(prev => ({ ...prev, [postId]: '' }));
+        setShowCommentEditor(false);
       } else {
         console.error('Failed to add comment');
       }
@@ -74,59 +65,81 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, 
       console.error('Error submitting comment:', error);
     }
   };
-
   return (
     <div className="thread-container bg-white rounded-lg shadow-md p-4 mb-4">
-      <div className="thread-header mb-4">
-        <h1 className="text-2xl font-bold mb-2">{title}</h1>
-        <div className="flex items-center text-sm text-gray-600">
-          <span>Posted by {author}</span>
-          <span className="mx-2">•</span>
-          <span>{createdAt}</span>
+      <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 24 }}>
+        <ThreadUserSidebar author={{ name: author, avatar: comments.find(c => c.author === author)?.avatar, createdAt }} />
+        <div style={{ flex: 1 }}>
+          <div className="thread-header mb-4">
+            <h1 className="text-2xl font-bold mb-2">{title}</h1>
+            <div className="flex items-center text-sm text-gray-600">
+              <span>Posted by {author}</span>
+              <span className="mx-2">•</span>
+              <span>{createdAt}</span>
+            </div>
+          </div>
+          <div className="thread-content mb-6">
+            <p className="text-gray-800">{content}</p>
+          </div>
         </div>
       </div>
-
-      <div className="thread-content mb-6">
-        <p className="text-gray-800">{content}</p>
-      </div>
-
       <div className="comments-section">
         <h2 className="text-xl font-semibold mb-4">Comments ({comments.length})</h2>
         {comments.map((comment) => (
           <div key={comment.id} className="comment-item border-t pt-4 mt-4">
-            <div className="flex items-start">
-              {comment.avatar && (
-                <img
-                  src={comment.avatar}
-                  alt={`${comment.author}'s avatar`}
-                  className="w-10 h-10 rounded-full mr-3"
-                />
-              )}
+            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+              <ThreadUserSidebar author={{ name: comment.author, avatar: comment.avatar, createdAt: comment.createdAt }} />
               <div className="flex-1">
-                <div className="flex items-center mb-2">
-                  <span className="font-semibold mr-2">{comment.author}</span>
-                  <span className="text-sm text-gray-500">{comment.createdAt}</span>
-                </div>
-                <p className="text-gray-700">{comment.content}</p>
+                <div className="text-gray-700" dangerouslySetInnerHTML={{ __html: comment.content }} />
               </div>
             </div>
           </div>
         ))}
       </div>
-
-      <div className="comment-form mt-6">
-        <textarea
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          rows={4}
-          placeholder="Write a comment..."
-          value={newCommentContentMap[id] || ''}
-          onChange={(e) =>
-            setNewCommentContentMap(prev => ({ ...prev, [id]: e.target.value }))
-          }
+      {/* Beautified comment form */}
+      <div className="comment-form mt-6 flex items-start">
+        {/* Avatar */}
+        <img
+          src={userAvatar}
+          alt="Your avatar"
+          className="w-12 h-12 rounded-full mr-4"
+          style={{ marginTop: showCommentEditor ? 0 : 8 }}
         />
-        <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onClick={() => handleCommentSubmit(id)}>
-          Post Comment
-        </button>
+        {/* Editor area */}
+        <div style={{ flex: 1 }}>
+          {!showCommentEditor ? (
+            <button
+              className="w-full flex items-center gap-2 text-lg border border-blue-200 rounded-xl px-6 py-4 bg-blue-50 hover:bg-blue-100 shadow transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              style={{ minHeight: 56 }}
+              onClick={() => setShowCommentEditor(true)}
+            >
+              <span className="text-blue-700 font-medium">Click here to open comment...</span>
+            </button>
+          ) : (
+            <div className="border rounded-lg p-2 bg-white shadow-sm" style={{ position: 'relative' }}>
+              <RichTextEditor
+                value={newCommentContentMap[id] || ''}
+                onChange={val => setNewCommentContentMap(prev => ({ ...prev, [id]: val }))}
+                placeholder="Write a comment..."
+                showToolbar={true}
+              />
+              <div className="flex justify-between items-center mt-2">
+                {/* Disabled follow topic toggle for future */}
+                <label className="flex items-center text-gray-500 text-sm select-none">
+                  <input type="checkbox" disabled className="mr-2" />
+                  Follow topic
+                </label>
+                <button
+                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold rounded-xl shadow hover:from-blue-600 hover:to-blue-800 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  style={{ minWidth: 140, fontSize: '1.1rem' }}
+                  onClick={() => handleCommentSubmit(id)}
+                >
+                  Submit Reply
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div >
   );
