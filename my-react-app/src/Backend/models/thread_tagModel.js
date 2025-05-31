@@ -29,6 +29,33 @@ class ThreadTag {
         }
     }
 
+    static async getTop5Tag() {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+    
+        try {
+            const [result] = await dbConnection.query(`
+                SELECT 
+                    t.name AS tag_name, 
+                    COUNT(tt.thread_id) AS thread_count,
+                    t.ID as tag_id 
+                FROM tag t
+                JOIN thread_tag tt ON t.ID = tt.tag_id
+                GROUP BY t.ID
+                ORDER BY thread_count DESC
+                LIMIT 5
+            `);
+    
+            await dbConnection.commit();
+            return result;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 
 

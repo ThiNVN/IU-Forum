@@ -1053,6 +1053,20 @@ const getAllThreadByUserID = async (req, res) => {
     }
 };
 
+const get5MostThreadTag = async (req, res) => {
+    try {
+        const result = await ThreadTag.getTop5Tag();
+        console.log(result)
+        res.status(200).json({
+            message: 'Successfully retrieved 5 most threads tags',
+            result
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -1091,5 +1105,6 @@ module.exports = {
     downloadAttachment,
     chat,
     getUserById,
-    getAllThreadByUserID
+    getAllThreadByUserID,
+    get5MostThreadTag
 };
