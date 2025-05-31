@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import RichTextEditor from './RichText/RichTextEditor';
+import { useParams } from 'react-router-dom';
 
 interface ProfilePost {
     id: String;
@@ -14,7 +15,7 @@ interface ProfilePost {
 }
 
 interface ProfilePostsProps {
-    userId: string;
+    userId: string | null;
 }
 
 interface Thread {
@@ -33,6 +34,11 @@ interface Comment {
 }
 
 const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
+    const { id } = useParams();
+    var guestID: string | null;
+    if (id) {
+        guestID = sessionStorage.getItem('userId');
+    }
     const [posts, setPosts] = useState<Thread[]>([]);
     const [newPostContent, setNewPostContent] = useState<string>('');
     //const [newCommentContent, setNewCommentContent] = useState<string>('');
@@ -143,6 +149,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
                     thread_id: postId,
                     user_id: userId,
                     content: content,
+                    guestID: guestID
                 }),
             });
 

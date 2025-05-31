@@ -242,10 +242,16 @@ const getAllCommentOfThread = async (req, res) => {
 };
 
 const addNewComment = async (req, res) => {
-    const { thread_id, user_id, content } = req.body;
+    const { thread_id, user_id, content, guestID } = req.body;
     try {
         // Insert the new comment into the database
-        const CommentResult = await Comment.insertComment(thread_id, user_id, content);
+        var CommentResult;
+        if (guestID) {
+            CommentResult = await Comment.insertComment(thread_id, guestID, content);
+        } else {
+            CommentResult = await Comment.insertComment(thread_id, user_id, content);
+        }
+
         const newComment = await Comment.getCommentByID(CommentResult.insertId);
         const userData = await User.getUserByID(newComment[0].user_id);
 
@@ -255,12 +261,15 @@ const addNewComment = async (req, res) => {
         //Make new activity record
         var description = "";
         if (!topic || topic.length === 0) {
-            description = "User made a new comment in a profile thread";
-            if (thread[0].user_id == user_id) {
+
+            if (!guestID) {
+                description = "User made a new comment in a profile thread of yourself";
                 message = "a new reply/ comment is added in your profile thread by yourself";
                 await Notification.insertNotification(thread_id, user_id, null, CommentResult.insertId, null, message, null, 0, 0, 1, 1, 0);
             } else {
-                const user = await User.getByID(user_id);
+                const ownerUser = await User.getByID(user_id);
+                description = "User made a new comment in a profile thread of user '" + ownerUser.username + "'";
+                const user = await User.getByID(guestID);
                 message = "a new comment is added in your profile thread by user '" + user.username + "'";
                 await Notification.insertNotification(thread_id, user_id, null, CommentResult.insertId, null, message, null, 0, 0, 1, 0, 0);
             }
@@ -283,8 +292,12 @@ const addNewComment = async (req, res) => {
             }
         }
         const activity_type = "comment";
+        if (!guestID) {
+            await Activity.insertActivity(user_id, activity_type, description)
+        } else {
+            await Activity.insertActivity(guestID, activity_type, description)
+        }
 
-        await Activity.insertActivity(user_id, activity_type, description)
 
         // Respond with success message and user ID
         res.status(201).json({ message: 'Comment added successfully', newComment, userData });

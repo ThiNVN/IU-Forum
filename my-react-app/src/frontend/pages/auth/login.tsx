@@ -135,7 +135,6 @@ const App: React.FC = () => {
                 return;
             }
             setUID(loginResult.userId);
-            alert("Login information correct. Sending verification code...");
 
             const verificationResponse = await fetch("https://localhost:8081/api/verification", {
                 method: "POST",
@@ -181,7 +180,6 @@ const App: React.FC = () => {
 
             if (verificationResponse.ok) {
                 const result = await verificationResponse.json();
-                alert("Verification successful!");
                 setVerificationInProgress(false);
                 setIsEmailVerificationOpen(false);
                 sessionStorage.setItem('userId', String(UID));

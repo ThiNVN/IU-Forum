@@ -39,7 +39,7 @@ const TopicPage: React.FC = () => {
   const { topicId } = useParams<{ topicId: string }>();
   const location = useLocation();
   const [topics, setTopics] = useState<Topic[]>([]);
-
+  const userId = sessionStorage.getItem('userId');
   useEffect(() => {
     const useSearchResults = location.state?.searchResults;
 

@@ -6,7 +6,7 @@ import Checkbox from '../../components/Auth/Checkbox';
 import SubmitButton from '../../components/Auth/SubmitButton';
 import LeftPanel from '../../components/Auth/LeftPanel';
 import EmailVerification from '../../components/Auth/EmailVerification';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/register.css';
 import '../../styles/gradientbg.scss'
 import { Link } from 'react-router-dom';
@@ -14,7 +14,6 @@ import { ValidationState, initialValidationState } from '../../components/Auth/v
 
 const InteractiveBubble: React.FC = () => {
     const bubbleRef = useRef<HTMLDivElement>(null);
-
     useEffect(() => {
         let curX = 0;
         let curY = 0;
@@ -56,6 +55,7 @@ interface RegisterFormData {
 }
 
 const RegisterForm: React.FC = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState<RegisterFormData>({
         username: '',
         displayName: '',
@@ -120,11 +120,11 @@ const RegisterForm: React.FC = () => {
             const data = await response.json();
             // print data
             console.log('Username check response:', data);
-            
+
             // if(!response.ok){
             //     throw new Error(data.message || 'Error checking username');
             // }
-            
+
             // Handle both 200 and 400 responses as valid responses
             setValidation(prev => ({
                 ...prev,
@@ -290,8 +290,8 @@ const RegisterForm: React.FC = () => {
                     body: JSON.stringify(formData),
                 });
                 if (registerResponse.ok) {
-                    alert("Registration successful! Please login to continue.");
                     /*redirect login Navigate("/login")*/
+                    navigate('/login');
                 } else {
                     const errorData = await registerResponse.json();
                     alert(errorData.message);

@@ -203,10 +203,9 @@ class User {
         try {
             // Insert into 'user' table
             const [userResult] = await dbConnection.query(
-                'INSERT INTO user (username, full_name) VALUES (?, ?)',
-                [username, displayName]
+                'INSERT INTO user (username, full_name, avatar) VALUES (?, ?, ?)',
+                [username, displayName, '/img/avt/guest_avatar.png']
             );
-
             const userId = userResult.insertId;
 
             // Hash the password using bcrypt

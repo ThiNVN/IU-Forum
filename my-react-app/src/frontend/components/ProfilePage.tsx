@@ -6,6 +6,7 @@ import About from './About';
 import '../styles/ProfilePage.css';
 import '../styles/ProfileTabs.css';
 import defaultAvatar from '../assets/img/avt/guest_avatar.png';
+import { useParams } from 'react-router-dom';
 
 interface ProfilePageProps {
   isOwnProfile: boolean;
@@ -46,6 +47,11 @@ function timeAgo(dateString: string): string {
 }
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
+  const { id } = useParams();
+  var guestID: string | null = null;
+  if (id) {
+    guestID = sessionStorage.getItem('userId');
+  }
   const [avatarError, setAvatarError] = useState(false);
   const [avatar, setAvatar] = useState(!avatarError && user.avatar ? user.avatar : defaultAvatar);
 
@@ -57,8 +63,16 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isOwnProfile, user }) => {
     const formatted = `${date.toLocaleDateString('en-CA')} at ${date.toLocaleTimeString('en-US')}`;
     joined = formatted;
   }
-  const lastSeen = user.lastSeen || 'Unknown';
-  const displayTime = lastSeen ? timeAgo(lastSeen) : 'Unknown';
+  let lastSeen: string;
+  if (!guestID) {
+    lastSeen = "Active";
+  } else {
+    lastSeen = user.lastSeen || 'Unknown';
+  }
+
+  const displayTime = lastSeen === "Active"
+    ? "Active"
+    : (user.lastSeen ? timeAgo(user.lastSeen) : "Unknown");
   const stats = user.stats || { messages: 0, reactionScore: 0, points: 0 };
 
   const userId = user.id;

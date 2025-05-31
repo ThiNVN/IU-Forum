@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ProfilePage from '../../components/ProfilePage';
+import { useParams } from 'react-router-dom';
 
 interface UserProfile {
   id: string;
@@ -28,10 +29,10 @@ interface UserProfile {
 
 const Profile: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
-
+  const { id } = useParams();
+  const userId = id ?? sessionStorage.getItem('userId');
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const userId = sessionStorage.getItem('userId');
 
       if (!userId) return;
       try {

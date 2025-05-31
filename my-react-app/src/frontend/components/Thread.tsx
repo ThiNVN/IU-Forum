@@ -57,7 +57,11 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, 
   }, [userId]);
   const handleCommentSubmit = async (postId: string) => {
     const content = newCommentContentMap[postId]?.trim();
-    if (!content) return;
+    const temp = document.createElement('div');
+    temp.innerHTML = content;
+    const text = temp.textContent?.trim();
+
+    if (!text) return; // This means the content is effectively empty
     try {
       const response = await fetch('https://localhost:8081/api/addNewComment', {
         method: 'POST',
@@ -122,12 +126,19 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, 
       {/* Beautified comment form */}
       <div className="comment-form mt-6 flex items-start">
         {/* Avatar */}
-        <img
+        {/* <img
           src={userAvatar}
           alt="Your avatar"
           className="w-12 h-12 rounded-full mr-4"
           style={{ marginTop: showCommentEditor ? 0 : 8 }}
-        />
+        /> */}
+        <div style={{ width: 48, height: 48, margin: '0 auto 1rem auto' }}>
+          {userAvatar ? (
+            <img src={userAvatar} alt={"Your avatar"} style={{ width: '100%', height: '100%', borderRadius: '50%', marginTop: showCommentEditor ? 0 : 8 }} />
+          ) : (
+            <span style={{ fontSize: 24 }}>{"Your avatar"}</span>
+          )}
+        </div>
         {/* Editor area */}
         <div style={{ flex: 1 }}>
           {!showCommentEditor ? (
