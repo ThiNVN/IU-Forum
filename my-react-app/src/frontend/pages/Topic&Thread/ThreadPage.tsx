@@ -18,6 +18,7 @@ interface ThreadData {
   id: string;
   title: string;
   content: string;
+  description: string;
   author: string;
   createdAt: string;
   user_id: string;
@@ -41,6 +42,7 @@ const ThreadPage: React.FC = () => {
             id: threadData.id,
             title: threadData.title,
             content: threadData.content,
+            description: threadData.description || '',
             author: threadData.author || 'Anonymous',
             createdAt: threadData.createdAt ? new Date(threadData.createdAt).toISOString().slice(0, 10) : 'Unknown',
             user_id: threadData.user_id,
@@ -140,6 +142,7 @@ const ThreadPage: React.FC = () => {
           id={thread.id}
           title={thread.title}
           content={thread.content}
+          description={thread.description}
           author={threadAuthor}
           createdAt={thread.createdAt}
           user_id={thread.user_id}

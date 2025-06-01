@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+// const User = require('../models/User');
 
 // Check username availability
 router.get('/check-username/:username', async (req, res) => {

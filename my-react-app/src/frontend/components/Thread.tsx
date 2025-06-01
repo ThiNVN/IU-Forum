@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ThreadUserSidebar from './ThreadUserSidebar';
 import RichTextEditor from './RichText/RichTextEditor';
+import EditThreadModal from './EditThreadModal';
 
 export interface Comment {
   id: string;
@@ -22,6 +23,7 @@ export interface ThreadProps {
   id: string;
   title: string;
   content: string;
+  description: string;
   author: Author;
   createdAt: string;
   user_id: string;
@@ -35,11 +37,14 @@ interface Thread {
   comments: Comment[];
 }
 
-const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, user_id, comments }) => {
+const Thread: React.FC<ThreadProps> = ({ id, title, content, description, author, createdAt, user_id, comments }) => {
   const [newCommentContentMap, setNewCommentContentMap] = useState<{ [postId: string]: string }>({})
   const [showCommentEditor, setShowCommentEditor] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const userId = sessionStorage.getItem('userId');
   const [userAvatar, setUserAvatar] = useState<string>('/img/avt/guest_avatar.png');
+  const navigate = useNavigate();
   useEffect(() => {
     if (!userId) return;
 
@@ -95,13 +100,102 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, 
       console.error('Error submitting comment:', error);
     }
   };
+
+  const handleEditThread = () => {
+    //debug
+    setShowEditModal(true);
+  };
+
+  const handleDeleteThread = async () => {
+    if (!window.confirm('Are you sure you want to delete this thread? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://localhost:8081/api/thread/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // Redirect to the topic page after successful deletion
+        navigate(-1);
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Failed to delete thread');
+      }
+    } catch (error) {
+      console.error('Error deleting thread:', error);
+      alert('Error deleting thread');
+    }
+  };
+
+  // Add click outside handler for dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const dropdown = document.getElementById('thread-dropdown');
+      if (dropdown && !dropdown.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div className="thread-container bg-white rounded-lg shadow-md p-4 mb-4">
+    <div className="thread-container bg-white rounded-lg shadow-md p-4 mb-4 relative">
+      {/* Dropdown button at top right */}
+      {userId == user_id && (
+        <div className="absolute top-4 right-4 z-20">
+          <button
+            onClick={() => setShowDropdown(!showDropdown)}
+            className="focus:outline-none text-gray-500 hover:text-blue-600 transition-colors p-1 bg-transparent"
+            style={{ border: 'none', background: 'none', fontSize: 28, lineHeight: 1, borderRadius: '50%', boxShadow: showDropdown ? '0 2px 8px rgba(0,0,0,0.10)' : 'none' }}
+            aria-label="Thread options"
+          >
+            &#8230;
+          </button>
+          {showDropdown && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl py-2 z-30 border border-gray-200 animate-fadeIn"
+                 style={{ minWidth: 160, top: 36, display: 'absolute' }}>
+              <button
+                onClick={() => {
+                  setShowDropdown(false);
+                  handleEditThread();
+                }}
+                className="w-full text-left px-5 py-3 text-base text-gray-700 hover:bg-blue-50 hover:text-blue-700 flex items-center gap-2 transition-colors rounded-t-xl"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+                Edit Thread
+              </button>
+              <button
+                onClick={() => {
+                  setShowDropdown(false);
+                  handleDeleteThread();
+                }}
+                className="w-full text-left px-5 py-3 text-base text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center gap-2 transition-colors rounded-b-xl"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                Delete Thread
+              </button>
+            </div>
+          )}
+        </div>
+      )}
       <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 24 }}>
         <ThreadUserSidebar author={{ id: user_id, name: author.name, avatar: author.avatar, createdAt }} />
         <div style={{ flex: 1 }}>
           <div className="thread-header mb-4">
-            <h1 className="text-2xl font-bold mb-2">{title}</h1>
+            <div className="flex justify-between items-start">
+              <h1 className="text-2xl font-bold mb-2">{title}</h1>
+            </div>
             <div className="flex items-center text-sm text-gray-600">
               <span>Posted by {author.name}</span>
               <span className="mx-2">•</span>
@@ -178,7 +272,18 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, author, createdAt, 
           )}
         </div>
       </div>
-    </div >
+
+      {showEditModal && (
+        <EditThreadModal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          threadId={id}
+          initialTitle={title}
+          initialContent={content}
+          initialDescription={description}
+        />
+      )}
+    </div>
   );
 };
 

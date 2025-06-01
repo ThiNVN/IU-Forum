@@ -10,6 +10,7 @@ const app = express();
 const PORT = process.env.PORT;
 const webRoutes = require('./routes/web');
 const cookieParser = require('cookie-parser');
+// const threadRoutes = require('./routes/threadRoutes');
 
 // Log requests for debugging
 app.use((req, res, next) => {
@@ -90,3 +91,4 @@ wss.on('connection', (ws) => {
 });
 
 app.use('/uploads', express.static(path.join(__dirname, '../../public/uploads')));
+// app.use('/api/threads', threadRoutes);
