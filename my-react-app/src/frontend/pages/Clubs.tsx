@@ -6,7 +6,8 @@ interface Club {
   name: string;
   description: string;
   president_name: string;
-  contact_email: string;
+  link: string;
+  logo: string;
   created_at: string;
 }
 
@@ -41,30 +42,60 @@ const Clubs: React.FC = () => {
   if (error) {
     return <div className="text-red-500 text-center p-4">{error}</div>;
   }
-
+  console.log(clubs)
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">IU Clubs</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {clubs.map((club) => (
-          <div key={club.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-2 border-gray-400">
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">{club.name}</h2>
-            <p className="text-gray-600 mb-4">{club.description}</p>
-            <div className="border-t pt-4">
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">President:</span>{' '}
-                {club.president_name}
-              </p>
-              <p className="text-sm text-gray-600 mt-2">
-                <span className="font-medium">Contact:</span>{' '}
-                <a href={`mailto:${club.contact_email}`} className="text-blue-600 hover:underline">
-                  {club.contact_email}
-                </a>
-              </p>
-              <p className="text-sm text-gray-600 mt-2">
-                <span className="font-medium">Created:</span>{' '}
-                {new Date(club.created_at).toLocaleDateString()}
-              </p>
+          <div key={club.id} style={{ padding: '8px' }}>
+            <div
+              style={{
+                display: 'flex',
+                border: '2px solid #ccc',
+                borderRadius: '8px',
+                backgroundColor: 'white',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                transition: 'box-shadow 0.3s',
+                padding: '16px',
+                alignItems: 'flex-start',
+              }}
+            >
+              {/* Logo on the left */}
+              <div style={{ marginRight: '16px', flexShrink: 0 }}>
+                <img
+                  src={club.logo}
+                  alt={`${club.name} logo`}
+                  style={{
+                    maxHeight: '200px',
+                    maxWidth: '200px',
+                    objectFit: 'contain',
+                    borderRadius: '4px',
+                  }}
+                />
+              </div>
+
+              {/* Content on the right */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#2d3748', marginBottom: '8px' }}>
+                    {club.name}
+                  </h2>
+                  <p style={{ color: '#4a5568', marginBottom: '16px' }}>{club.description}</p>
+                </div>
+
+                <div style={{ borderTop: '1px solid #ccc', paddingTop: '8px' }}>
+                  <p style={{ fontSize: '14px', color: '#4a5568', marginTop: '8px' }}>
+                    <strong>Facebook Link:</strong>{' '}
+                    <a
+                      href={club.link}
+                      style={{ color: '#3182ce', textDecoration: 'underline', wordBreak: 'break-word' }}
+                    >
+                      {club.link}
+                    </a>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         ))}
