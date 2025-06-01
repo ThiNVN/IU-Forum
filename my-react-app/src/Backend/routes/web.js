@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, verificationEmail, verifyCode, getUserProfile, getUserProfileThread, addNewThread, getAllCommentOfThread, addNewComment, updateUserProfile, get10LastedActivity, checkUserCookie, logoutUser, getAllCategoryAndTopic, getTopicAndAllThread, getThreadAndAllComment, getNotifications, markNotificationAsRead, markAllNotificationsAsRead, changePassword, getAboutPage, getPrivacyPage, getTermsPage, getHelpPage, search, uploadAvatar, uploadMiddleware, getAllTopics, getAllTags, makeNewThread, uploadFile, getUserAvatar, checkUsernameAvailability, getThreadAttachments, downloadAttachment, chat, getUserById, getAllThreadByUserID, get5MostThreadTag, getAllClubs, getClubByID, createClub, updateClub, deleteClub, getClubsByPresident } = require('../controllers/homeController');
+const { registerUser, loginUser, verificationEmail, verifyCode, getUserProfile, getUserProfileThread, addNewThread, getAllCommentOfThread, addNewComment, updateUserProfile, get10LastedActivity, checkUserCookie, logoutUser, getAllCategoryAndTopic, getTopicAndAllThread, getThreadAndAllComment, getNotifications, markNotificationAsRead, markAllNotificationsAsRead, changePassword, getAboutPage, getPrivacyPage, getTermsPage, getHelpPage, search, uploadAvatar, uploadMiddleware, getAllTopics, getAllTags, makeNewThread, uploadFile, getUserAvatar, checkUsernameAvailability, getThreadAttachments, downloadAttachment, chat, getUserById, getAllThreadByUserID, get5MostThreadTag, uploadImg, uploadIma, getAllClubs, getClubByID, createClub, updateClub, deleteClub, getClubsByPresident } = require('../controllers/homeController');
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
@@ -47,5 +47,6 @@ router.post('/clubs', createClub);
 router.put('/clubs', updateClub);
 router.delete('/clubs/:id', deleteClub);
 router.get('/clubs/president/:presidentID', getClubsByPresident);
+router.post("/uploadImage", uploadImg, uploadIma);
 
 module.exports = router;

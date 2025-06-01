@@ -1101,7 +1101,26 @@ const get5MostThreadTag = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+const uploadImageDir = path.join(__dirname, "../../../public/img/commentImage");
 
+const storageImage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadImageDir);
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        cb(null, Date.now() + '-' + Math.round(Math.random() * 1e9) + ext);
+    }
+});
+
+const uploadImage = multer({ storage: storageImage });
+
+const uploadIma = async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const imageUrl = `/img/commentImage/${req.file.filename}`;
+    console.log(imageUrl)
+    res.json({ url: imageUrl });
+};
 // Get all clubs
 const getAllClubs = async (req, res) => {
     try {
@@ -1238,6 +1257,8 @@ module.exports = {
     getUserById,
     getAllThreadByUserID,
     get5MostThreadTag,
+    uploadImg: uploadImage.single("image"),
+    uploadIma,
     getAllClubs,
     getClubByID,
     createClub,
