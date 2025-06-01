@@ -37,6 +37,70 @@ interface Thread {
   comments: Comment[];
 }
 
+const processBase64Images = async (htmlContent: string): Promise<string> => {
+  const div = document.createElement('div');
+  div.innerHTML = htmlContent;
+
+  const images = Array.from(div.querySelectorAll('img'));
+
+  for (const img of images) {
+    const src = img.getAttribute('src');
+    if (src && src.startsWith('data:image/')) {
+      try {
+        const blob = await fetch(src).then(res => res.blob());
+        const formData = new FormData();
+        formData.append('image', blob, 'image.png');
+
+        const response = await fetch('https://localhost:8081/api/uploadImage', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          img.setAttribute('src', data.url); // update <img> src to the server URL
+        }
+      } catch (err) {
+        console.error('Image upload failed', err);
+      }
+    }
+  }
+
+  return div.innerHTML; // waits until all images are processed
+};
+
+const processBase64Images = async (htmlContent: string): Promise<string> => {
+  const div = document.createElement('div');
+  div.innerHTML = htmlContent;
+
+  const images = Array.from(div.querySelectorAll('img'));
+
+  for (const img of images) {
+    const src = img.getAttribute('src');
+    if (src && src.startsWith('data:image/')) {
+      try {
+        const blob = await fetch(src).then(res => res.blob());
+        const formData = new FormData();
+        formData.append('image', blob, 'image.png');
+
+        const response = await fetch('https://localhost:8081/api/uploadImage', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          img.setAttribute('src', data.url); // update <img> src to the server URL
+        }
+      } catch (err) {
+        console.error('Image upload failed', err);
+      }
+    }
+  }
+
+  return div.innerHTML; // waits until all images are processed
+};
+
 const Thread: React.FC<ThreadProps> = ({ id, title, content, description, author, createdAt, user_id, comments }) => {
   const [newCommentContentMap, setNewCommentContentMap] = useState<{ [postId: string]: string }>({})
   const [showCommentEditor, setShowCommentEditor] = useState(false);
@@ -63,12 +127,17 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, description, author
     getUserAvatar();
   }, [userId]);
   const handleCommentSubmit = async (postId: string) => {
-    const content = newCommentContentMap[postId]?.trim();
+    let content = newCommentContentMap[postId]?.trim();
+    if (!content) return;
+
     const temp = document.createElement('div');
     temp.innerHTML = content;
     const text = temp.textContent?.trim();
+    if (!text) return;
 
-    if (!text) return; // This means the content is effectively empty
+    // 🧠 Process base64 images
+    content = await processBase64Images(content);
+    console.log(content)
     try {
       const response = await fetch('https://localhost:8081/api/addNewComment', {
         method: 'POST',
@@ -81,6 +150,7 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, description, author
           content: content,
         }),
       });
+
       if (response.ok) {
         const savedComment = await response.json();
         const newComment: Comment = {
@@ -89,7 +159,7 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, description, author
           author: savedComment.userData[0].username,
           createdAt: savedComment.newComment[0].create_at,
           user_id: savedComment.newComment[0].user_id,
-          avatar: savedComment.userData[0].avatar
+          avatar: savedComment.userData[0].avatar,
         };
         setNewCommentContentMap(prev => ({ ...prev, [postId]: '' }));
         setShowCommentEditor(false);

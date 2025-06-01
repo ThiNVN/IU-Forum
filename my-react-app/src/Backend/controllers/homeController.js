@@ -20,6 +20,7 @@ const File = require('../models/fileModel');
 const multer = require("multer");
 const fs = require("fs");
 const axios = require('axios');
+const Club = require('../models/clubModel');
 
 const registerUser = async (req, res) => {
     const { username, email, displayName, password } = req.body;
@@ -1100,6 +1101,121 @@ const get5MostThreadTag = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+const uploadImageDir = path.join(__dirname, "../../../public/img/commentImage");
+
+const storageImage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadImageDir);
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        cb(null, Date.now() + '-' + Math.round(Math.random() * 1e9) + ext);
+    }
+});
+
+const uploadImage = multer({ storage: storageImage });
+
+const uploadIma = async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const imageUrl = `/img/commentImage/${req.file.filename}`;
+    console.log(imageUrl)
+    res.json({ url: imageUrl });
+};
+// Get all clubs
+const getAllClubs = async (req, res) => {
+    try {
+        const clubs = await Club.getAllWithPresidents();
+        res.status(200).json({
+            message: 'Successfully retrieved all clubs',
+            result: clubs
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Get club by ID
+const getClubByID = async (req, res) => {
+    try {
+        const clubID = req.params.id;
+        const club = await Club.getClubWithPresident(clubID);
+        if (!club) {
+            return res.status(404).json({ message: 'Club not found' });
+        }
+        res.status(200).json({
+            message: 'Successfully retrieved club',
+            result: club
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Create new club
+const createClub = async (req, res) => {
+    try {
+        const { name, description, president, contact_email } = req.body;
+        const clubID = await Club.create(name, description, president, contact_email);
+        res.status(201).json({
+            message: 'Club created successfully',
+            result: { id: clubID }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Update club
+const updateClub = async (req, res) => {
+    try {
+        const { id, name, description, president, contact_email } = req.body;
+        const success = await Club.update(id, name, description, president, contact_email);
+        if (!success) {
+            return res.status(404).json({ message: 'Club not found' });
+        }
+        res.status(200).json({
+            message: 'Club updated successfully'
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Delete club
+const deleteClub = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const success = await Club.delete(id);
+        if (!success) {
+            return res.status(404).json({ message: 'Club not found' });
+        }
+        res.status(200).json({
+            message: 'Club deleted successfully'
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Get clubs by president
+const getClubsByPresident = async (req, res) => {
+    try {
+        const { presidentID } = req.params;
+        const clubs = await Club.getByPresident(presidentID);
+        res.status(200).json({
+            message: 'Successfully retrieved clubs',
+            result: clubs
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 
 module.exports = {
     registerUser,
@@ -1140,5 +1256,13 @@ module.exports = {
     chat,
     getUserById,
     getAllThreadByUserID,
-    get5MostThreadTag
+    get5MostThreadTag,
+    uploadImg: uploadImage.single("image"),
+    uploadIma,
+    getAllClubs,
+    getClubByID,
+    createClub,
+    updateClub,
+    deleteClub,
+    getClubsByPresident
 };
