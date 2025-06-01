@@ -91,12 +91,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "vercel-build": "echo 'Building...'",
-    "dev": "nodemon server.js"
-  },
-  "engines": {
-    "node": ">=14.0.0"
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",

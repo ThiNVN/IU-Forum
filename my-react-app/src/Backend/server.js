@@ -3,11 +3,14 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const express = require('express');
 const cors = require('cors');
+const https = require('https');
+const fs = require('fs');
 const WebSocket = require('ws');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 const webRoutes = require('./routes/web');
 const cookieParser = require('cookie-parser');
+// const threadRoutes = require('./routes/threadRoutes');
 
 // Log requests for debugging
 app.use((req, res, next) => {
@@ -41,35 +44,51 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Unexpected server error' });
 });
 
-// Handle static files
-app.use('/uploads', express.static(path.join(__dirname, '../../public/uploads')));
+// Check if SSL certificates exist for HTTPS
+const sslKeyPath = path.join(__dirname, 'ssl', 'key.pem');
+const sslCertPath = path.join(__dirname, 'ssl', 'cert.pem');
 
-// Only start the server if we're not in a serverless environment
-if (process.env.NODE_ENV !== 'production') {
-    const server = app.listen(PORT, () => {
-        console.log(`🚀 Server running on port ${PORT}`);
+let server;
+
+if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
+    // HTTPS server
+    const sslOptions = {
+        key: fs.readFileSync(sslKeyPath),
+        cert: fs.readFileSync(sslCertPath)
+    };
+    
+    server = https.createServer(sslOptions, app);
+    server.listen(PORT, () => {
+        console.log(`🚀 HTTPS Server running on https://localhost:${PORT}`);
+        console.log(`💡 To enable HTTPS, create SSL certificates in ./ssl/ directory`);
     });
-
-    // WebSocket server setup (only in development)
-    const wss = new WebSocket.Server({ server });
-
-    wss.on('connection', (ws) => {
-        console.log('Client connected');
-
-        ws.on('message', (message) => {
-            console.log('Received:', message.toString());
-            // Echo the message back to the client
-            ws.send(message.toString());
-        });
-
-        ws.on('close', () => {
-            console.log('Client disconnected');
-        });
-
-        // Send a welcome message
-        ws.send(JSON.stringify({ type: 'welcome', message: 'Connected to WebSocket server' }));
+} else {
+    // Fallback to HTTP if no SSL certificates
+    server = app.listen(PORT, () => {
+        console.log(`🚀 HTTP Server running on http://localhost:${PORT}`);
+        console.log(`💡 To enable HTTPS, create SSL certificates in ./ssl/ directory`);
     });
 }
 
-// Export the Express API
-module.exports = app;
+// WebSocket server setup
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+
+    ws.on('message', (message) => {
+        console.log('Received:', message.toString());
+        // Echo the message back to the client
+        ws.send(message.toString());
+    });
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+
+    // Send a welcome message
+    ws.send(JSON.stringify({ type: 'welcome', message: 'Connected to WebSocket server' }));
+});
+
+app.use('/uploads', express.static(path.join(__dirname, '../../public/uploads')));
+// app.use('/api/threads', threadRoutes);
