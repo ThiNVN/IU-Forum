@@ -129,13 +129,32 @@ class Thread {
 
     // Get normal thread of a category. Not yet
 
-    // Delete a thread and its comments
+    // Delete a thread and its comments, files, and notifications
     static async deleteThread(thread_id) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
 
         try {
-            // Delete all comments associated with this thread
+            // Delete notifications linked to comments on this thread
+            await dbConnection.query(`
+            DELETE n FROM notification n
+            JOIN comment c ON n.comment_id = c.ID
+            WHERE c.thread_id = ?
+        `, [thread_id]);
+
+            // Delete notifications linked directly to the thread
+            await dbConnection.query(`
+            DELETE FROM notification
+            WHERE thread_id = ?
+        `, [thread_id]);
+
+            // Delete files linked to the thread
+            await dbConnection.query(
+                'DELETE FROM file WHERE thread_id = ?',
+                [thread_id]
+            );
+
+            // Delete comments on this thread
             await dbConnection.query(
                 'DELETE FROM comment WHERE thread_id = ?',
                 [thread_id]
