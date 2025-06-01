@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Card } from '../../components/UI/Card';
-import Sidebar from '../../components/UI/Sidebar';
 import Breadcrumb from '../../components/Breadcrumb';
 import { Routes, Route } from 'react-router-dom';
 import HomePage from '../HomePage';
@@ -18,15 +17,12 @@ const MainPage: React.FC = () => {
       <Breadcrumb />
       <div className="main-content">
         <div className="main-column">
-
-
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/topic/:topicId" element={<TopicPage />} />
             <Route path="/thread/:threadId" element={<ThreadPage />} />
           </Routes>
         </div>
-        <Sidebar />
       </div>
     </div>
   );

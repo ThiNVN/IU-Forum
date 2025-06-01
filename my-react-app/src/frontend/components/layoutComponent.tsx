@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header/Header';
 import Navbar from './Header/Navbar';
 import Footer from './Header/Footer';
+import Sidebar from './UI/Sidebar';
 import '../styles/main.css'; 
 import {Outlet} from 'react-router-dom';
 
@@ -19,9 +20,12 @@ const Main: React.FC = () => {
         <Navbar />
       </header>
 
-      <main>
-        <Outlet />
-      </main>
+      <div className="main-content">
+        <main className="main-column">
+          <Outlet />
+        </main>
+        <Sidebar />
+      </div>
 
       <Footer headerFooterColor={headerFooterColor} />
 
