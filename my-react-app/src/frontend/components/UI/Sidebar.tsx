@@ -39,7 +39,6 @@ const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
     fetch5MostThreadTag();
   }, []);
 
-  console.log(tags)
   return (
     <aside className={`sidebar ${className}`}>
       {/* Spotify Player */}

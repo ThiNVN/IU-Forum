@@ -492,6 +492,7 @@ const getThreadAndAllComment = async (req, res) => {
         const result = {
             id: thread[0].ID,
             content: thread[0].content,
+            description: thread[0].description,
             author: threadAuthor[0].username,
             createdAt: thread[0].create_at,
             title: thread[0].title,
@@ -1216,6 +1217,40 @@ const getClubsByPresident = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+const editThread = async (req, res) => {
+    try {
+        const { threadId } = req.params;
+        const { title, content, description, access_user_id } = req.body;
+
+        // Get the thread to check ownership
+        const thread = await Thread.getThreadByID(threadId);
+        if (!thread) {
+            return res.status(404).json({ message: 'Thread not found' });
+        }
+        // Check if user is the thread owner
+        if (thread[0].user_id !== Number(access_user_id[0])) {
+            return res.status(403).json({ message: 'Not authorized to modify this thread' });
+        }
+
+        // Update the thread
+        const result = await Thread.updateThread(
+            threadId,
+            thread[0].topic_id,
+            access_user_id[0],
+            title,
+            thread[0].image,
+            thread[0].responses,
+            thread[0].views,
+            description,
+            content
+        );
+
+        res.json({ message: 'Thread updated successfully', result });
+    } catch (error) {
+        console.error('Error updating thread:', error);
+        res.status(500).json({ message: 'Error updating thread' });
+    }
+};
 
 module.exports = {
     registerUser,
@@ -1264,5 +1299,6 @@ module.exports = {
     createClub,
     updateClub,
     deleteClub,
-    getClubsByPresident
+    getClubsByPresident,
+    editThread
 };

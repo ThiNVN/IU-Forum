@@ -9,6 +9,7 @@ interface EditThreadModalProps {
   initialTitle: string;
   initialContent: string;
   initialDescription: string;
+  currentUserID: string | null;
 }
 
 const EditThreadModal: React.FC<EditThreadModalProps> = ({
@@ -18,10 +19,12 @@ const EditThreadModal: React.FC<EditThreadModalProps> = ({
   initialTitle,
   initialContent,
   initialDescription,
+  currentUserID
 }) => {
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [description, setDescription] = useState(initialDescription);
+  const access_user_id = useState(currentUserID);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,6 +41,7 @@ const EditThreadModal: React.FC<EditThreadModalProps> = ({
           title,
           content,
           description,
+          access_user_id
         }),
       });
 

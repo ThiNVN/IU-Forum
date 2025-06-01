@@ -132,12 +132,15 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, description, author
 
     const temp = document.createElement('div');
     temp.innerHTML = content;
+
     const text = temp.textContent?.trim();
-    if (!text) return;
+    const hasImage = !!temp.querySelector('img[src]');
+
+    // Only return (skip) if no text and no image
+    if (!text && !hasImage) return;
 
     // 🧠 Process base64 images
     content = await processBase64Images(content);
-    console.log(content)
     try {
       const response = await fetch('https://localhost:8081/api/addNewComment', {
         method: 'POST',
@@ -230,7 +233,7 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, description, author
           </button>
           {showDropdown && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl py-2 z-30 border border-gray-200 animate-fadeIn"
-                 style={{ minWidth: 160, top: 36, display: 'absolute' }}>
+              style={{ minWidth: 160, top: 36, display: 'absolute' }}>
               <button
                 onClick={() => {
                   setShowDropdown(false);
@@ -273,7 +276,7 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, description, author
             </div>
           </div>
           <div className="thread-content mb-6">
-            <p className="text-gray-800">{<div className="text-gray-700" dangerouslySetInnerHTML={{ __html: content }} />}</p>
+            <div className="text-gray-700" dangerouslySetInnerHTML={{ __html: content }} />
           </div>
         </div>
       </div>
@@ -351,6 +354,7 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, description, author
           initialTitle={title}
           initialContent={content}
           initialDescription={description}
+          currentUserID={userId}
         />
       )}
     </div>
