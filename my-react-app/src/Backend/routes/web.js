@@ -39,7 +39,7 @@ router.post('/chatbot', chat);
 router.get('/user/:id', getUserById);
 router.get('/getAllThread', getAllThreadByUserID);
 router.get('/5MostThreadTag', get5MostThreadTag);
-
+router.post("/uploadImage", uploadImg, uploadIma);
 // Club routes
 router.get('/clubs', getAllClubs);
 router.get('/clubs/:id', getClubByID);
@@ -47,6 +47,6 @@ router.post('/clubs', createClub);
 router.put('/clubs', updateClub);
 router.delete('/clubs/:id', deleteClub);
 router.get('/clubs/president/:presidentID', getClubsByPresident);
-router.post("/uploadImage", uploadImg, uploadIma);
+
 
 module.exports = router;
