@@ -121,9 +121,9 @@ const TopicPage: React.FC = () => {
                     <div className="thread-container">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <Link 
-                            to={`/thread/${thread.id}`} 
-                            style={{ 
+                          <Link
+                            to={`/thread/${thread.id}`}
+                            style={{
                               textDecoration: 'none',
                               color: '#333',
                               transition: 'color 0.2s ease'
@@ -175,9 +175,9 @@ const TopicPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-800">{topic.title}</h1>
           <p className="text-gray-600 mt-2">{topic.description}</p>
         </div>
-        <Link to={`/topic/${topic.slug}/new-thread`} className="forum-button">
+        {/* <Link to={`/topic/${topic.slug}/new-thread`} className="forum-button">
           New Thread
-        </Link>
+        </Link> */}
       </div>
 
       <div className="threads-list">
@@ -186,9 +186,9 @@ const TopicPage: React.FC = () => {
             <div className="thread-container">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <Link 
-                    to={`/thread/${thread.id}`} 
-                    style={{ 
+                  <Link
+                    to={`/thread/${thread.id}`}
+                    style={{
                       textDecoration: 'none',
                       color: '#333',
                       transition: 'color 0.2s ease'
@@ -203,7 +203,7 @@ const TopicPage: React.FC = () => {
                   )}
                   <p className="thread-meta mt-2">
                     Posted by <Link to={`/profile/${thread.user_id}`} className="text-blue-600 hover:text-blue-800">{thread.author}</Link> on {thread.createdAt}
-                  </p> 
+                  </p>
                 </div>
                 <div className="text-right ml-4">
                   <p className="thread-stats">{thread.replyCount} replies</p>

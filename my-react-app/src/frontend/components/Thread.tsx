@@ -273,7 +273,7 @@ const Thread: React.FC<ThreadProps> = ({ id, title, content, description, author
             </div>
           </div>
           <div className="thread-content mb-6">
-            <p className="text-gray-800">{content}</p>
+            <p className="text-gray-800">{<div className="text-gray-700" dangerouslySetInnerHTML={{ __html: content }} />}</p>
           </div>
         </div>
       </div>

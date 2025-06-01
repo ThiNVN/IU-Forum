@@ -1101,7 +1101,7 @@ const get5MostThreadTag = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-const uploadImageDir = path.join(__dirname, "../../../public/img/commentImage");
+const uploadImageDir = path.join(__dirname, "../../../public/img/Thread_Comment_Image");
 
 const storageImage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -1117,7 +1117,7 @@ const uploadImage = multer({ storage: storageImage });
 
 const uploadIma = async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const imageUrl = `/img/commentImage/${req.file.filename}`;
+    const imageUrl = `/img/Thread_Comment_Image/${req.file.filename}`;
     console.log(imageUrl)
     res.json({ url: imageUrl });
 };

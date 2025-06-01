@@ -18,6 +18,38 @@ interface Tag {
     name: string;
 }
 
+const processBase64Images = async (htmlContent: string): Promise<string> => {
+    const div = document.createElement('div');
+    div.innerHTML = htmlContent;
+
+    const images = Array.from(div.querySelectorAll('img'));
+
+    for (const img of images) {
+        const src = img.getAttribute('src');
+        if (src && src.startsWith('data:image/')) {
+            try {
+                const blob = await fetch(src).then(res => res.blob());
+                const formData = new FormData();
+                formData.append('image', blob, 'image.png');
+
+                const response = await fetch('https://localhost:8081/api/uploadImage', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    img.setAttribute('src', data.url); // update <img> src to the server URL
+                }
+            } catch (err) {
+                console.error('Image upload failed', err);
+            }
+        }
+    }
+
+    return div.innerHTML; // waits until all images are processed
+};
+
 const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }) => {
     const [activeTab, setActiveTab] = useState<'content' | 'poll'>('content');
     const [title, setTitle] = useState('');
@@ -110,12 +142,14 @@ const CreateThreadModal: React.FC<CreateThreadModalProps> = ({ isOpen, onClose }
             navigate('/login');
             return;
         }
+        const content = await processBase64Images(contentHtml);
         const formData = new FormData();
+
         formData.append('topic_id', selectedTopic);
         formData.append('user_id', userId);
         formData.append('title', title);
         formData.append('description', descriptionText);
-        formData.append('content', contentText);
+        formData.append('content', content);
         formData.append('tags', JSON.stringify(selectedTags.map(tag => tag.id)));
         formData.append('follow', isFollowing.toString());
         attachedFiles.forEach(file => {
