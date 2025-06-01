@@ -19,7 +19,7 @@ class Club {
     // Create new club
     static async create(name, description, president, contact_email) {
         const [result] = await connection.query(
-            'INSERT INTO club (name, description, president, contact_email) VALUES (?, ?, ?, ?)',
+            'INSERT INTO club (name, description, president_id, contact_email) VALUES (?, ?, ?, ?)',
             [name, description, president, contact_email]
         );
         return result.insertId;
@@ -28,7 +28,7 @@ class Club {
     // Update club
     static async update(ID, name, description, president, contact_email) {
         const [result] = await connection.query(
-            'UPDATE club SET name = ?, description = ?, president = ?, contact_email = ? WHERE id = ?',
+            'UPDATE club SET name = ?, description = ?, president_id = ?, contact_email = ? WHERE id = ?',
             [name, description, president, contact_email, ID]
         );
         return result.affectedRows > 0;
@@ -46,7 +46,7 @@ class Club {
     // Get clubs by president ID
     static async getByPresident(presidentID) {
         const [rows] = await connection.query(
-            'SELECT * FROM club WHERE president = ?',
+            'SELECT * FROM club WHERE president_id = ?',
             [presidentID]
         );
         return rows;
@@ -69,7 +69,7 @@ class Club {
         const [rows] = await connection.query(
             `SELECT c.*, u.username as president_name, u.avatar as president_avatar 
              FROM club c 
-             LEFT JOIN user u ON c.president = u.ID`
+             LEFT JOIN user u ON c.president_id = u.ID`
         );
         return rows;
     }
