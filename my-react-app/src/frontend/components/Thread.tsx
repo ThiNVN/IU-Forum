@@ -69,37 +69,37 @@ const processBase64Images = async (htmlContent: string): Promise<string> => {
   return div.innerHTML; // waits until all images are processed
 };
 
-const processBase64Images = async (htmlContent: string): Promise<string> => {
-  const div = document.createElement('div');
-  div.innerHTML = htmlContent;
+// const processBase64Images = async (htmlContent: string): Promise<string> => {
+//   const div = document.createElement('div');
+//   div.innerHTML = htmlContent;
 
-  const images = Array.from(div.querySelectorAll('img'));
+//   const images = Array.from(div.querySelectorAll('img'));
 
-  for (const img of images) {
-    const src = img.getAttribute('src');
-    if (src && src.startsWith('data:image/')) {
-      try {
-        const blob = await fetch(src).then(res => res.blob());
-        const formData = new FormData();
-        formData.append('image', blob, 'image.png');
+//   for (const img of images) {
+//     const src = img.getAttribute('src');
+//     if (src && src.startsWith('data:image/')) {
+//       try {
+//         const blob = await fetch(src).then(res => res.blob());
+//         const formData = new FormData();
+//         formData.append('image', blob, 'image.png');
 
-        const response = await fetch('https://localhost:8081/api/uploadImage', {
-          method: 'POST',
-          body: formData,
-        });
+//         const response = await fetch('https://localhost:8081/api/uploadImage', {
+//           method: 'POST',
+//           body: formData,
+//         });
 
-        if (response.ok) {
-          const data = await response.json();
-          img.setAttribute('src', data.url); // update <img> src to the server URL
-        }
-      } catch (err) {
-        console.error('Image upload failed', err);
-      }
-    }
-  }
+//         if (response.ok) {
+//           const data = await response.json();
+//           img.setAttribute('src', data.url); // update <img> src to the server URL
+//         }
+//       } catch (err) {
+//         console.error('Image upload failed', err);
+//       }
+//     }
+//   }
 
-  return div.innerHTML; // waits until all images are processed
-};
+//   return div.innerHTML; // waits until all images are processed
+// };
 
 const Thread: React.FC<ThreadProps> = ({ id, title, content, description, author, createdAt, user_id, comments }) => {
   const [newCommentContentMap, setNewCommentContentMap] = useState<{ [postId: string]: string }>({})
