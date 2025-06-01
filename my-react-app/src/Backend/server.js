@@ -41,32 +41,35 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Unexpected server error' });
 });
 
-// Create HTTP server
-const server = app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-});
-
-// WebSocket server setup
-const wss = new WebSocket.Server({ server });
-
-wss.on('connection', (ws) => {
-    console.log('Client connected');
-
-    ws.on('message', (message) => {
-        console.log('Received:', message.toString());
-        // Echo the message back to the client
-        ws.send(message.toString());
-    });
-
-    ws.on('close', () => {
-        console.log('Client disconnected');
-    });
-
-    // Send a welcome message
-    ws.send(JSON.stringify({ type: 'welcome', message: 'Connected to WebSocket server' }));
-});
-
+// Handle static files
 app.use('/uploads', express.static(path.join(__dirname, '../../public/uploads')));
+
+// Only start the server if we're not in a serverless environment
+if (process.env.NODE_ENV !== 'production') {
+    const server = app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+    });
+
+    // WebSocket server setup (only in development)
+    const wss = new WebSocket.Server({ server });
+
+    wss.on('connection', (ws) => {
+        console.log('Client connected');
+
+        ws.on('message', (message) => {
+            console.log('Received:', message.toString());
+            // Echo the message back to the client
+            ws.send(message.toString());
+        });
+
+        ws.on('close', () => {
+            console.log('Client disconnected');
+        });
+
+        // Send a welcome message
+        ws.send(JSON.stringify({ type: 'welcome', message: 'Connected to WebSocket server' }));
+    });
+}
 
 // Export the Express API
 module.exports = app;
