@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 
 // Apply CORS middleware first
 app.use(cors({
-    origin: ['https://127.0.0.1:3000'],
+    origin: [process.env.FRONTEND_URL],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'],
     optionsSuccessStatus: 204
