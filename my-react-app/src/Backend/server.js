@@ -67,7 +67,7 @@ if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
         const protocol = 'https';
         const host = process.env.NODE_ENV === 'production' 
             ? 'iu-forum-server.vercel.app'
-            : `${HOST}:${PORT}`;
+            : 'iu-forum-server.vercel.app';
         console.log(`🚀 Server running on ${protocol}://${host}`);
     });
 } else {
@@ -76,7 +76,7 @@ if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
         const protocol = 'http';
         const host = process.env.NODE_ENV === 'production' 
             ? 'iu-forum-server.vercel.app'
-            : `${HOST}:${PORT}`;
+            : 'iu-forum-server.vercel.app';
         console.log(`🚀 Server running on ${protocol}://${host}`);
     });
 }
