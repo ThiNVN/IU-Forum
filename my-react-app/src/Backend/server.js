@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 // Apply CORS middleware first
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
-        ? ['https://iu-forum.vercel.app', 'https://iu-forum-server.vercel.app']
+        ? ['https://iu-forum-server.vercel.app']
         : [process.env.FRONTEND_URL || 'http://localhost:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'],
