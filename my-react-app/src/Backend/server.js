@@ -23,7 +23,9 @@ app.use((req, res, next) => {
 
 // Apply CORS middleware first
 app.use(cors({
-    origin: [process.env.FRONTEND_URL],
+    origin: process.env.NODE_ENV === 'production' 
+        ? ['https://iu-forum.vercel.app', 'https://iu-forum-server.vercel.app']
+        : [process.env.FRONTEND_URL || 'http://localhost:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'],
     optionsSuccessStatus: 204
@@ -101,3 +103,13 @@ wss.on('connection', (ws) => {
 
 app.use('/uploads', express.static(path.join(__dirname, '../../public/uploads')));
 // app.use('/api/threads', threadRoutes);
+
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Development server running on http://localhost:${PORT}`);
+    });
+}
+
+// Export the Express API
+module.exports = app;
