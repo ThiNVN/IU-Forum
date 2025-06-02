@@ -7,7 +7,10 @@ const https = require('https');
 const fs = require('fs');
 const WebSocket = require('ws');
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3001;
+const HOST = process.env.NODE_ENV === 'production' 
+    ? '0.0.0.0'  // Listen on all available network interfaces
+    : 'localhost';
 const webRoutes = require('./routes/web');
 const cookieParser = require('cookie-parser');
 // const threadRoutes = require('./routes/threadRoutes');
@@ -58,15 +61,21 @@ if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
     };
     
     server = https.createServer(sslOptions, app);
-    server.listen(PORT, () => {
-        console.log(`🚀 HTTPS Server running on https://localhost:${PORT}`);
-        console.log(`💡 To enable HTTPS, create SSL certificates in ./ssl/ directory`);
+    server.listen(PORT, HOST, () => {
+        const protocol = 'https';
+        const host = process.env.NODE_ENV === 'production' 
+            ? 'iu-forum-server.vercel.app'
+            : `${HOST}:${PORT}`;
+        console.log(`🚀 Server running on ${protocol}://${host}`);
     });
 } else {
     // Fallback to HTTP if no SSL certificates
-    server = app.listen(PORT, () => {
-        console.log(`🚀 HTTP Server running on http://localhost:${PORT}`);
-        console.log(`💡 To enable HTTPS, create SSL certificates in ./ssl/ directory`);
+    server = app.listen(PORT, HOST, () => {
+        const protocol = 'http';
+        const host = process.env.NODE_ENV === 'production' 
+            ? 'iu-forum-server.vercel.app'
+            : `${HOST}:${PORT}`;
+        console.log(`🚀 Server running on ${protocol}://${host}`);
     });
 }
 
