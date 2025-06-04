@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, verificationEmail, verifyCode, getUserProfile, getUserProfileThread, addNewThread, getAllCommentOfThread, addNewComment, updateUserProfile, get10LastedActivity, checkUserCookie, logoutUser, getAllCategoryAndTopic, getTopicAndAllThread, getThreadAndAllComment, getNotifications, markNotificationAsRead, markAllNotificationsAsRead, changePassword, getAboutPage, getPrivacyPage, getTermsPage, getHelpPage, search, uploadAvatar, uploadMiddleware, getAllTopics, getAllTags, makeNewThread, uploadFile, getUserAvatar, checkUsernameAvailability, getThreadAttachments, downloadAttachment, chat, getUserById, getAllThreadByUserID, get5MostThreadTag, uploadImg, uploadIma, getAllClubs, getClubByID, createClub, updateClub, deleteClub, getClubsByPresident, editThread, deleteThread, getAllUsers, updateUserRole, deleteUser, getAdminDashboard, getAdminStats, getAllThreads, getAllTopic, getAllActivities, getAllNotifications, createActivity, updateActivity, deleteActivity, createNotification, updateNotification, deleteNotification, getAllTag, createTag, updateTag, deleteTag, getAllFiles, createFile, updateFile, deleteFile, getAllComments, createComment, updateComment, deleteComment } = require('../controllers/homeController');
+const { registerUser, loginUser, verificationEmail, verifyCode, getUserProfile, getUserProfileThread, addNewThread, getAllCommentOfThread, addNewComment, updateUserProfile, get10LastedActivity, checkUserCookie, logoutUser, getAllCategoryAndTopic, getTopicAndAllThread, getThreadAndAllComment, getNotifications, markNotificationAsRead, markAllNotificationsAsRead, changePassword, getAboutPage, getPrivacyPage, getTermsPage, getHelpPage, search, uploadAvatar, uploadMiddleware, getAllTopics, getAllTags, makeNewThread, uploadFile, getUserAvatar, checkUsernameAvailability, getThreadAttachments, downloadAttachment, chat, getUserById, getAllThreadByUserID, get5MostThreadTag, uploadImg, uploadIma, getAllClubs, getClubByID, createClub, updateClub, deleteClub, getClubsByPresident, editThread, deleteThread, getAllUsers, updateUserRole, deleteUser, getAdminDashboard, getAdminStats, getAllThreads, getAllTopic, getAllActivities, getAllNotifications, createActivity, updateActivity, deleteActivity, createNotification, updateNotification, deleteNotification, getAllTag, createTag, updateTag, deleteTag, getAllFiles, createFile, updateFile, deleteFile, getAllComments, createComment, updateComment, deleteComment, updateUser, createUser, createCategory, updateCategory, deleteCategory, createTopic, updateTopic, deleteTopic } = require('../controllers/homeController');
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
@@ -54,13 +54,24 @@ router.delete('/thread/:threadId', deleteThread)
 // Admin routes
 router.get('/admin/dashboard', getAdminDashboard);
 router.get('/admin/stats', getAdminStats);
+// Admin User routes
 router.get('/admin/users', getAllUsers);
-// router.post('/admin/users', createUser);
+router.post('/admin/users', createUser);
+router.put('/admin/users/:id', updateUser);
 router.put('/admin/users/:userId/role', updateUserRole);
 router.delete('/admin/users/:userId', deleteUser);
+// Admin Category routes
 router.get('/admin/categories', getAllCategoryAndTopic);
-// router.get('/admin/threads', getAllThreads);
+router.post('/admin/categories', createCategory);
+router.put('/admin/categories/:id', updateCategory);
+router.delete('/admin/categories/:id', deleteCategory);
+// Admin Thread routes
+router.get('/admin/threads', getAllThreads);
+// Admin Topic routes
 router.get('/admin/topics', getAllTopic);
+router.post('/admin/topics', createTopic);
+router.put('/admin/topics/:id', updateTopic);
+router.delete('/admin/topics/:id', deleteTopic);
 
 // Admin Club routes
 router.get('/admin/clubs', getAllClubs);

@@ -388,17 +388,17 @@ class User {
     }
 
     // Update User
-    static async updateUser(ID, username, title, location, occupation, website, Twitter, LinkedIn, bio) {
+    static async updateUser(ID, username, full_name, avatar, age, school, major, bio, is_admin, created_at, last_login, total_message, total_reaction, point, title, location, occupation, website, Twitter, LinkedIn) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
 
         try {
             const [Result] = await dbConnection.query(
-                'UPDATE user SET username = ?, title = ?, location = ?, occupation = ?, website = ?,Twitter = ?, LinkedIn = ?, bio = ? WHERE ID =  ?',
-                [username, title, location, occupation, website, Twitter, LinkedIn, bio, ID]
+                'UPDATE user SET username = ?, full_name = ?, avatar = ?, age = ?, school = ?, major = ?, bio = ?, is_admin = ?, total_message = ?, total_reaction =?, point =?, title =?, location =?, occupation =?, website =?, Twitter =?, LinkedIn =?  WHERE ID =  ?',
+                [username, full_name, avatar, age, school, major, bio, is_admin, total_message, total_reaction, point, title, location, occupation, website, Twitter, LinkedIn, ID]
             );
             await dbConnection.commit();
-            return 1;
+            return Result.affectedRows > 0;
         } catch (err) {
             await dbConnection.rollback();
             console.error("Database error:", err);

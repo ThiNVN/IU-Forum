@@ -1172,8 +1172,9 @@ const createClub = async (req, res) => {
 // Update club
 const updateClub = async (req, res) => {
     try {
-        const { id, name, description, president, contact_email } = req.body;
-        const success = await Club.update(id, name, description, president, contact_email);
+        const { id, name, description, president, link } = req.body;
+        console.log(req.body)
+        const success = await Club.update(id, name, description, president, link);
         if (!success) {
             return res.status(404).json({ message: 'Club not found' });
         }
@@ -1310,16 +1311,36 @@ const updateUserRole = async (req, res) => {
     }
 };
 
-// const createUser = async (req, res) => {
-//     const { username, email, password, role } = req.body;
-//     try {
-//         const user = await User.createUser(username, email, password, role);
-//         res.status(201).json({ data: activity });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: 'Server error' });
-//     }
-// };
+const createUser = async (req, res) => {
+    const { ID, username, full_name, avatar, age, school, major, bio, is_admin, total_message, total_reaction, point, title, location, occupation, website, Twitter, LinkedIn } = req.body;
+    console.log(req.body)
+    try {
+        const user = await User.insertUser(username, full_name, avatar, age, school, major, bio, is_admin, total_message, total_reaction, point, title, location, occupation, website, Twitter, LinkedIn);
+        console.log(user)
+        res.status(201).json({ data: user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Update user
+const updateUser = async (req, res) => {
+    try {
+        const { ID, username, full_name, avatar, age, school, major, bio, is_admin, created_at, last_login, total_message, total_reaction, point, title, location, occupation, website, Twitter, LinkedIn } = req.body;
+        console.log(req.body)
+        const success = await User.updateUser(ID, username, full_name, avatar, age, school, major, bio, is_admin, created_at, last_login, total_message, total_reaction, point, title, location, occupation, website, Twitter, LinkedIn);
+        if (!success) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({
+            message: 'User updated successfully'
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 
 const deleteUser = async (req, res) => {
     const { userId } = req.params;
@@ -1391,6 +1412,44 @@ const getAllThreads = async (req, res) => {
     }
 };
 
+const createCategory = async (req, res) => {
+    const { ID, title, description} = req.body;
+    console.log(req.body)
+    try {
+        const category = await Category.insertNewCategory(title, description);
+        console.log(category)
+        res.status(201).json({ data: category });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+const updateCategory = async (req, res) => {
+    // const { id } = req.params;
+    const { id, title, description } = req.body;
+    try {
+        const category = await Category.updateCategory(id, title, description);
+        res.status(200).json({ data: category });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const deleteCategory = async (req, res) => {
+    const { id } = req.params;
+    console.log(id)
+    try {
+        await Category.deleteCategory(id);
+        res.status(200).json({ message: 'Category deleted successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 const getAllTopic = async (req, res) => {
     try {
         const topics = await Topic.getAll();
@@ -1403,6 +1462,45 @@ const getAllTopic = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+const createTopic = async (req, res) => {
+    const { category_id, user_id, title, description} = req.body;
+    console.log(req.body)
+    try {
+        const topic = await Topic.insertTopic(category_id, 1, title, description);
+        console.log(topic)
+        res.status(201).json({ data: topic });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+const updateTopic = async (req, res) => {
+    // const { id } = req.params;
+    const { ID, category_id, user_id, title, description, created_at, last_updated } = req.body;
+    try {
+        const topic = await Topic.updateTopic(ID, title, description);
+        res.status(200).json({ data: topic });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const deleteTopic = async (req, res) => {
+    const { id } = req.params;
+    console.log(id)
+    try {
+        await Topic.deleteTopic(id);
+        res.status(200).json({ message: 'Topic deleted successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 
 // Admin Activity Management
 const getAllActivities = async (req, res) => {
@@ -1704,5 +1802,13 @@ module.exports = {
     getAllComments,
     createComment,
     updateComment,
-    deleteComment
+    deleteComment,
+    updateUser,
+    createUser,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    createTopic,
+    updateTopic,
+    deleteTopic
 };
