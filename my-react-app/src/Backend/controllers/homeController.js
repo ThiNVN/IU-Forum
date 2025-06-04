@@ -248,12 +248,12 @@ const addNewComment = async (req, res) => {
         // Insert the new comment into the database
         var CommentResult;
         if (guestID) {
-            CommentResult = await Comment.insertComment(thread_id, guestID, content);
+            CommentResult = await Comment.create(thread_id, guestID, content);
         } else {
-            CommentResult = await Comment.insertComment(thread_id, user_id, content);
+            CommentResult = await Comment.create(thread_id, user_id, content);
         }
 
-        const newComment = await Comment.getCommentByID(CommentResult.insertId);
+        const newComment = await Comment.getCommentByID(CommentResult.id);
         const userData = await User.getUserByID(newComment[0].user_id);
 
         const thread = await Thread.getThreadByID(thread_id);
