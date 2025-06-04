@@ -123,6 +123,11 @@
   min-width: 0;
 }
 
+.main-column.admin-full-width {
+  max-width: 100%;
+  margin-left: 0;
+}
+
 .sectionCard {
   margin-bottom: 1rem;
   padding: 1rem;

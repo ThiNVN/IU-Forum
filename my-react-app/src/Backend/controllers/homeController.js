@@ -248,12 +248,12 @@ const addNewComment = async (req, res) => {
         // Insert the new comment into the database
         var CommentResult;
         if (guestID) {
-            CommentResult = await Comment.insertComment(thread_id, guestID, content);
+            CommentResult = await Comment.create(thread_id, guestID, content);
         } else {
-            CommentResult = await Comment.insertComment(thread_id, user_id, content);
+            CommentResult = await Comment.create(thread_id, user_id, content);
         }
 
-        const newComment = await Comment.getCommentByID(CommentResult.insertId);
+        const newComment = await Comment.getCommentByID(CommentResult.id);
         const userData = await User.getUserByID(newComment[0].user_id);
 
         const thread = await Thread.getThreadByID(thread_id);
@@ -1172,8 +1172,9 @@ const createClub = async (req, res) => {
 // Update club
 const updateClub = async (req, res) => {
     try {
-        const { id, name, description, president, contact_email } = req.body;
-        const success = await Club.update(id, name, description, president, contact_email);
+        const { id, name, description, president, link } = req.body;
+        console.log(req.body)
+        const success = await Club.update(id, name, description, president, link);
         if (!success) {
             return res.status(404).json({ message: 'Club not found' });
         }
@@ -1280,6 +1281,509 @@ const deleteThread = async (req, res) => {
     }
 };
 
+// Admin Controllers
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.getAll();
+        res.status(200).json({
+            message: 'Successfully retrieved all users',
+            result: users
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const updateUserRole = async (req, res) => {
+    const { userId } = req.params;
+    const { role } = req.body;
+
+    try {
+        const result = await User.updateUserRole(userId, role);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ message: 'User role updated successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const createUser = async (req, res) => {
+    const { ID, username, full_name, avatar, age, school, major, bio, is_admin, total_message, total_reaction, point, title, location, occupation, website, Twitter, LinkedIn } = req.body;
+    console.log(req.body)
+    try {
+        const user = await User.insertUser(username, full_name, avatar, age, school, major, bio, is_admin, total_message, total_reaction, point, title, location, occupation, website, Twitter, LinkedIn);
+        console.log(user)
+        res.status(201).json({ data: user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Update user
+const updateUser = async (req, res) => {
+    try {
+        const { ID, username, full_name, avatar, age, school, major, bio, is_admin, created_at, last_login, total_message, total_reaction, point, title, location, occupation, website, Twitter, LinkedIn } = req.body;
+        console.log(req.body)
+        const success = await User.updateUser(ID, username, full_name, avatar, age, school, major, bio, is_admin, created_at, last_login, total_message, total_reaction, point, title, location, occupation, website, Twitter, LinkedIn);
+        if (!success) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({
+            message: 'User updated successfully'
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const deleteUser = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const result = await User.deleteUser(userId);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ message: 'User deleted successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const getAdminDashboard = async (req, res) => {
+    try {
+        const totalUsers = await User.getTotalUsers();
+        const totalThreads = await Thread.getTotalThreads();
+        const totalComments = await Comment.getTotalComments();
+        const recentActivities = await Activity.getRecentActivities(10);
+
+        res.status(200).json({
+            message: 'Successfully retrieved admin dashboard data',
+            dashboard: {
+                totalUsers,
+                totalThreads,
+                totalComments,
+                recentActivities
+            }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const getAdminStats = async (req, res) => {
+    try {
+        const userStats = await User.getUserStats();
+        const threadStats = await Thread.getThreadStats();
+        const commentStats = await Comment.getCommentStats();
+
+        res.status(200).json({
+            message: 'Successfully retrieved admin statistics',
+            stats: {
+                users: userStats,
+                threads: threadStats,
+                comments: commentStats
+            }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const getAllThreads = async (req, res) => {
+    try {
+        const threads = await Thread.getAll();
+        res.status(200).json({
+            message: 'Successfully retrieved all threads',
+            result: threads
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const createCategory = async (req, res) => {
+    const { ID, title, description} = req.body;
+    console.log(req.body)
+    try {
+        const category = await Category.insertNewCategory(title, description);
+        console.log(category)
+        res.status(201).json({ data: category });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+const updateCategory = async (req, res) => {
+    // const { id } = req.params;
+    const { id, title, description } = req.body;
+    try {
+        const category = await Category.updateCategory(id, title, description);
+        res.status(200).json({ data: category });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const deleteCategory = async (req, res) => {
+    const { id } = req.params;
+    console.log(id)
+    try {
+        await Category.deleteCategory(id);
+        res.status(200).json({ message: 'Category deleted successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const getAllTopic = async (req, res) => {
+    try {
+        const topics = await Topic.getAll();
+        res.status(200).json({
+            message: 'Successfully retrieved all topics',
+            result: topics
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const createTopic = async (req, res) => {
+    const { category_id, user_id, title, description} = req.body;
+    console.log(req.body)
+    try {
+        const topic = await Topic.insertTopic(category_id, 1, title, description);
+        console.log(topic)
+        res.status(201).json({ data: topic });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+const updateTopic = async (req, res) => {
+    // const { id } = req.params;
+    const { ID, category_id, user_id, title, description, created_at, last_updated } = req.body;
+    try {
+        const topic = await Topic.updateTopic(ID, title, description);
+        res.status(200).json({ data: topic });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const deleteTopic = async (req, res) => {
+    const { id } = req.params;
+    console.log(id)
+    try {
+        await Topic.deleteTopic(id);
+        res.status(200).json({ message: 'Topic deleted successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+// Admin Activity Management
+const getAllActivities = async (req, res) => {
+    try {
+        const activities = await Activity.getAllActivities();
+        res.status(200).json({ data: activities });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const createActivity = async (req, res) => {
+    const { user_id, activity_type, description } = req.body;
+    try {
+        const activity = await Activity.createActivity(user_id, activity_type, description);
+        res.status(201).json({ data: activity });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const updateActivity = async (req, res) => {
+    const { id } = req.params;
+    const { user_id, activity_type, description } = req.body;
+    try {
+        const activity = await Activity.updateActivity(id, user_id, activity_type, description);
+        res.status(200).json({ data: activity });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const deleteActivity = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await Activity.deleteActivity(id);
+        res.status(200).json({ message: 'Activity deleted successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Admin Notification Management
+const getAllNotifications = async (req, res) => {
+    try {
+        const notifications = await Notification.getAllNotifications();
+        res.status(200).json({ data: notifications });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const createNotification = async (req, res) => {
+    const { thread_id, user_id, from_user_id, comment_id, like_id, message, is_read, new_thread, new_follower, new_comment, new_reply, new_like } = req.body;
+    try {
+        const notification = await Notification.createNotification(thread_id, user_id, from_user_id, comment_id, like_id, message, is_read, new_thread, new_follower, new_comment, new_reply, new_like);
+        res.status(201).json({ data: notification });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const updateNotification = async (req, res) => {
+    const { id } = req.params;
+    const { thread_id, user_id, from_user_id, comment_id, like_id, message, is_read, new_thread, new_follower, new_comment, new_reply, new_like } = req.body;
+    try {
+        const notification = await Notification.updateNotification(id, thread_id, user_id, from_user_id, comment_id, like_id, message, is_read, new_thread, new_follower, new_comment, new_reply, new_like);
+        res.status(200).json({ data: notification });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const deleteNotification = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await Notification.deleteNotification(id);
+        res.status(200).json({ message: 'Notification deleted successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Admin Tag Management Functions
+const createTag = async (req, res) => {
+    try {
+        const { name } = req.body;
+        const tag = await Tag.create(name);
+        res.status(201).json(tag);
+    } catch (error) {
+        console.error('Error creating tag:', error);
+        res.status(500).json({ message: 'Error creating tag' });
+    }
+};
+
+const updateTag = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name } = req.body;
+        const tag = await Tag.update(id, name);
+        res.json(tag);
+    } catch (error) {
+        console.error('Error updating tag:', error);
+        res.status(500).json({ message: 'Error updating tag' });
+    }
+};
+
+const deleteTag = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Tag.delete(id);
+        res.json({ message: 'Tag deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting tag:', error);
+        res.status(500).json({ message: 'Error deleting tag' });
+    }
+};
+
+// Admin File Management Functions
+const getAllFiles = async (req, res) => {
+    try {
+        const files = await File.getAll();
+        res.json({result:files});
+    } catch (error) {
+        console.error('Error getting files:', error);
+        res.status(500).json({ message: 'Error getting files' });
+    }
+};
+
+const createFile = async (req, res) => {
+    try {
+        const { user_id, file_link, thread_id } = req.body;
+        const file = await File.create(user_id, file_link, thread_id);
+        res.status(201).json(file);
+    } catch (error) {
+        console.error('Error creating file:', error);
+        res.status(500).json({ message: 'Error creating file' });
+    }
+};
+
+const updateFile = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { user_id, file_link, thread_id } = req.body;
+        const file = await File.update(id, user_id, file_link, thread_id);
+        res.json(file);
+    } catch (error) {
+        console.error('Error updating file:', error);
+        res.status(500).json({ message: 'Error updating file' });
+    }
+};
+
+const deleteFile = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await File.delete(id);
+        res.json({ message: 'File deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting file:', error);
+        res.status(500).json({ message: 'Error deleting file' });
+    }
+};
+
+const getAllTag = async (req, res) => {
+    try {
+        const tags = await Tag.getAll();
+        res.json({result:tags});
+    } catch (error) {
+        console.error('Error getting tags:', error);
+        res.status(500).json({ message: 'Error getting tags' });
+    }
+};
+
+const getAllComments = async (req, res) => {
+    try {
+        const comments = await Comment.getAll();
+        res.json({ result: comments });
+    } catch (error) {
+        console.error('Error getting comments:', error);
+        res.status(500).json({ message: 'Error getting comments' });
+    }
+};
+
+const createComment = async (req, res) => {
+    try {
+        const { thread_id, user_id, content } = req.body;
+        const comment = await Comment.create(thread_id, user_id, content);
+        res.status(201).json(comment);
+    } catch (error) {
+        console.error('Error creating comment:', error);
+        res.status(500).json({ message: 'Error creating comment' });
+    }
+};
+
+const updateComment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { content } = req.body;
+        const comment = await Comment.update(id, content);
+        res.json(comment);
+    } catch (error) {
+        console.error('Error updating comment:', error);
+        res.status(500).json({ message: 'Error updating comment' });
+    }
+};
+
+const deleteComment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Comment.delete(id);
+        res.json({ message: 'Comment deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        res.status(500).json({ message: 'Error deleting comment' });
+    }
+};
+
+// Admin Thread Management Functions
+const createAdminThread = async (req, res) => {
+  const { title, description, content, topic_id, user_id } = req.body;
+  try {
+    const newThreadResult = await Thread.insertNewThread(topic_id, 2, title, null, description, content);
+    const newThread = await Thread.getThreadByID(newThreadResult.insertId);
+    
+    // Create activity record
+    const activity_type = "post";
+    const ACdescription = "Admin created a new thread in topic " + (await Topic.getTopicByID(topic_id))[0].title;
+    await Activity.insertActivity(2, activity_type, ACdescription);
+    
+    res.status(201).json({ 
+      message: 'Thread created successfully', 
+      thread: newThread[0] 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const updateAdminThread = async (req, res) => {
+  const { id } = req.params;
+  const { title, description, content, topic_id } = req.body;
+
+  try {
+    const success = await Thread.updateThread(id, topic_id, title, description, content);
+    if (success) {
+      const updatedThread = await Thread.getThreadByID(id);
+      res.status(200).json({ 
+        message: 'Thread updated successfully', 
+        thread: updatedThread[0] 
+      });
+    } else {
+      res.status(404).json({ message: 'Thread not found' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const deleteAdminThread = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const success = await Thread.deleteThread(id);
+    if (success) {
+      res.status(200).json({ message: 'Thread deleted successfully' });
+    } else {
+      res.status(404).json({ message: 'Thread not found' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -1329,5 +1833,43 @@ module.exports = {
     deleteClub,
     getClubsByPresident,
     editThread,
-    deleteThread
+    deleteThread,
+    getAllUsers,
+    updateUserRole,
+    deleteUser,
+    getAdminDashboard,
+    getAdminStats,
+    getAllThreads,
+    getAllTopic,
+    getAllActivities,
+    createActivity,
+    updateActivity,
+    deleteActivity,
+    getAllNotifications,
+    createNotification,
+    updateNotification,
+    deleteNotification,
+    createTag,
+    updateTag,
+    deleteTag,
+    getAllFiles,
+    createFile,
+    updateFile,
+    deleteFile,
+    getAllTag,
+    getAllComments,
+    createComment,
+    updateComment,
+    deleteComment,
+    updateUser,
+    createUser,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    createTopic,
+    updateTopic,
+    deleteTopic,
+    createAdminThread,
+    updateAdminThread,
+    deleteAdminThread
 };

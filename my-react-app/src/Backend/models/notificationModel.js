@@ -152,6 +152,106 @@ class Notification {
             dbConnection.release();
         }
     }
+
+    // Admin: Get all notifications with user details
+    static async getAllNotifications() {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [notifications] = await dbConnection.query(
+                `SELECT n.*, 
+                    u.username as user_username,
+                    u.avatar as user_avatar,
+                    fu.username as from_username,
+                    fu.avatar as from_avatar
+                FROM notification n
+                LEFT JOIN user u ON n.user_id = u.ID
+                LEFT JOIN user fu ON n.from_user_id = fu.ID
+                ORDER BY n.create_at DESC`
+            );
+
+            await dbConnection.commit();
+            return notifications;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    // Admin: Create notification
+    static async createNotification(thread_id, user_id, from_user_id, comment_id, like_id, message, is_read, 
+                                    new_thread, new_follower, new_comment, new_reply, new_like) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            const [notificationResult] = await dbConnection.query(
+                `INSERT INTO notification (
+                    thread_id, user_id, from_user_id, comment_id, like_id,
+                    message, is_read, create_at, new_thread, new_follower,
+                    new_comment, new_reply, new_like
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)`,
+                [
+                    thread_id, user_id, from_user_id, comment_id, like_id,
+                    message, is_read, new_thread, new_follower,
+                    new_comment, new_reply, new_like
+                ]
+            );
+
+            const [newNotification] = await dbConnection.query(
+                'SELECT * FROM notification WHERE ID = ?',
+                [notificationResult.insertId]
+            );
+
+            await dbConnection.commit();
+            return newNotification[0];
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    // Admin: Update notification
+    static async updateNotification(id, thread_id, user_id, from_user_id, comment_id, like_id, message, is_read, 
+                                    new_thread, new_follower, new_comment, new_reply, new_like) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            await dbConnection.query(
+                `UPDATE notification SET 
+                    thread_id = ?, user_id = ?, from_user_id = ?, comment_id = ?, like_id = ?,
+                    message = ?, is_read = ?, new_thread = ?, new_follower = ?,
+                    new_comment = ?, new_reply = ?, new_like = ?
+                WHERE ID = ?`,
+                [
+                    thread_id, user_id, from_user_id, comment_id, like_id,
+                    message, is_read, new_thread, new_follower,
+                    new_comment, new_reply, new_like, id
+                ]
+            );
+
+            const [updatedNotification] = await dbConnection.query(
+                'SELECT * FROM notification WHERE ID = ?',
+                [id]
+            );
+
+            await dbConnection.commit();
+            return updatedNotification[0];
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 
 module.exports = Notification; 

@@ -8,7 +8,7 @@ class Topic {
     }
 
     // Insert a new thread
-    static async insertTopic(ID, category_id, user_id, title, description) {
+    static async insertTopic(category_id, user_id, title, description) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
 
@@ -16,7 +16,7 @@ class Topic {
 
             // Insert into 'thread' table
             const [threadResult] = await dbConnection.query(
-                'INSERT INTO thread (category_id, user_id, title, description) VALUES (?, ?, ?, ?)',
+                'INSERT INTO topic (category_id, user_id, title, description) VALUES (?, ?, ?, ?)',
                 [category_id, user_id, title, description]
             );
 

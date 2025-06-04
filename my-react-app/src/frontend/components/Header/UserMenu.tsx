@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/auth';
 import '../../styles/userMenu.css';
 
 interface UserMenuProps {
@@ -11,6 +12,7 @@ interface UserMenuProps {
 
 const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl, activeTab, setActiveTab }) => {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const isGuest = username === 'Guest';
 
   const handleMenuClick = (e: React.MouseEvent, path?: string) => {
@@ -94,6 +96,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl, activeTab, set
                   <a href="#" onClick={e => handleMenuClick(e, '/privacy')}>Privacy</a>
                   <a href="#" onClick={e => handleMenuClick(e, '/preferences')}>Preferences</a>
                   <a href="#" onClick={e => handleMenuClick(e, '/signature')}>Signature</a>
+                  {isAdmin && (
+                    <a href="#" onClick={e => handleMenuClick(e, '/admin')} className="admin-link">Admin Dashboard</a>
+                  )}
                 </div>
                 <div>
                   <a href="#" onClick={e => handleMenuClick(e, '/reactions-received')}>Reactions received</a>

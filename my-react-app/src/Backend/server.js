@@ -7,7 +7,7 @@ const https = require('https');
 const fs = require('fs');
 const WebSocket = require('ws');
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8081;
 const webRoutes = require('./routes/web');
 const cookieParser = require('cookie-parser');
 // const threadRoutes = require('./routes/threadRoutes');
@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 
 // Apply CORS middleware first
 app.use(cors({
-    origin: [process.env.FRONTEND_URL],
+    origin: process.env.FRONTEND_URL || 'https://localhost:3000',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'],
     optionsSuccessStatus: 204

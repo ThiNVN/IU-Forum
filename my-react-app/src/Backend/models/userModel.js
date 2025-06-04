@@ -388,17 +388,17 @@ class User {
     }
 
     // Update User
-    static async updateUser(ID, username, title, location, occupation, website, Twitter, LinkedIn, bio) {
+    static async updateUser(ID, username, full_name, avatar, age, school, major, bio, is_admin, created_at, last_login, total_message, total_reaction, point, title, location, occupation, website, Twitter, LinkedIn) {
         const dbConnection = await connection.getConnection();
         await dbConnection.beginTransaction();
 
         try {
             const [Result] = await dbConnection.query(
-                'UPDATE user SET username = ?, title = ?, location = ?, occupation = ?, website = ?,Twitter = ?, LinkedIn = ?, bio = ? WHERE ID =  ?',
-                [username, title, location, occupation, website, Twitter, LinkedIn, bio, ID]
+                'UPDATE user SET username = ?, full_name = ?, avatar = ?, age = ?, school = ?, major = ?, bio = ?, is_admin = ?, total_message = ?, total_reaction =?, point =?, title =?, location =?, occupation =?, website =?, Twitter =?, LinkedIn =?  WHERE ID =  ?',
+                [username, full_name, avatar, age, school, major, bio, is_admin, total_message, total_reaction, point, title, location, occupation, website, Twitter, LinkedIn, ID]
             );
             await dbConnection.commit();
-            return 1;
+            return Result.affectedRows > 0;
         } catch (err) {
             await dbConnection.rollback();
             console.error("Database error:", err);
@@ -572,6 +572,83 @@ class User {
 
             await dbConnection.commit();
             return avatar;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    // Admin methods
+    static async getAllUsers() {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [users] = await dbConnection.query(
+                'SELECT u.*, uc.email FROM user u LEFT JOIN user_credentials uc ON u.ID = uc.user_id'
+            );
+            await dbConnection.commit();
+            return users;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    static async updateUserRole(userId, role) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [result] = await dbConnection.query(
+                'UPDATE user SET is_admin = ? WHERE ID = ?',
+                [role === 'admin' ? 1 : 0, userId]
+            );
+            await dbConnection.commit();
+            return result;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    static async getTotalUsers() {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [result] = await dbConnection.query('SELECT COUNT(*) as total FROM user');
+            await dbConnection.commit();
+            return result[0].total;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    static async getUserStats() {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [stats] = await dbConnection.query(`
+                SELECT 
+                    COUNT(*) as total_users,
+                    SUM(CASE WHEN is_admin = 1 THEN 1 ELSE 0 END) as total_admins,
+                    COUNT(CASE WHEN last_login >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as active_users_7d,
+                    COUNT(CASE WHEN last_login >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as active_users_30d
+                FROM user
+            `);
+            await dbConnection.commit();
+            return stats[0];
         } catch (err) {
             await dbConnection.rollback();
             console.error("Database error:", err);

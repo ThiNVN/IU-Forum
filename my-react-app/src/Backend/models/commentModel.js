@@ -1,37 +1,64 @@
-const connection = require('../configuration/database');
+const db = require('../configuration/database');
 
 class Comment {
     // Get all comments
     static async getAll() {
-        const [rows] = await connection.query('SELECT * FROM comment');
-        return rows;
+        const query = 'SELECT * FROM comment';
+        try {
+            const [rows] = await db.query(query);
+            return rows;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Get a comment by ID
+    static async getById(id) {
+        const query = 'SELECT * FROM comment WHERE ID = ?';
+        try {
+            const [rows] = await db.query(query, [id]);
+            return rows[0];
+        } catch (error) {
+            throw error;
+        }
     }
 
     // Insert a new comment
-    static async insertComment(thread_id, user_id, content) {
-        const dbConnection = await connection.getConnection();
-        await dbConnection.beginTransaction();
-
+    static async create(thread_id, user_id, content) {
+        const query = 'INSERT INTO comment (thread_id, user_id, content) VALUES (?, ?, ?)';
         try {
-            const [commentResult] = await dbConnection.query(
-                'INSERT INTO comment (thread_id, user_id, content, create_at) VALUES (?, ?, ?, NOW())',
-                [thread_id, user_id, content]
-            );
+            const [result] = await db.query(query, [thread_id, user_id, content]);
+            return { id: result.insertId, thread_id, user_id, content };
+        } catch (error) {
+            throw error;
+        }
+    }
 
-            await dbConnection.commit();
-            return commentResult;
-        } catch (err) {
-            await dbConnection.rollback();
-            console.error("Database error:", err);
-            throw err;
-        } finally {
-            dbConnection.release();
+    // Update a comment
+    static async update(id, content) {
+        const query = 'UPDATE comment SET content = ? WHERE ID = ?';
+        try {
+            await db.query(query, [content, id]);
+            return this.getById(id);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Delete a comment
+    static async delete(id) {
+        const query = 'DELETE FROM comment WHERE ID = ?';
+        try {
+            await db.query(query, [id]);
+            return true;
+        } catch (error) {
+            throw error;
         }
     }
 
     // Get comments by thread ID
     static async getCommentsByThreadID(thread_id) {
-        const dbConnection = await connection.getConnection();
+        const dbConnection = await db.getConnection();
         await dbConnection.beginTransaction();
         try {
             const [comments] = await dbConnection.query(
@@ -56,7 +83,7 @@ class Comment {
 
     //Get comments by ID
     static async getCommentByID(comment_id) {
-        const dbConnection = await connection.getConnection();
+        const dbConnection = await db.getConnection();
         await dbConnection.beginTransaction();
         try {
             const [comments] = await dbConnection.query(
@@ -81,7 +108,7 @@ class Comment {
 
     // Get comments by user ID
     static async getCommentsByUserID(user_id) {
-        const dbConnection = await connection.getConnection();
+        const dbConnection = await db.getConnection();
         await dbConnection.beginTransaction();
         try {
             const [comments] = await dbConnection.query(
@@ -104,60 +131,9 @@ class Comment {
         }
     }
 
-    // Update a comment
-    static async updateComment(comment_id, content) {
-        const dbConnection = await connection.getConnection();
-        await dbConnection.beginTransaction();
-
-        try {
-            const [Result] = await dbConnection.query(
-                'UPDATE comment SET content = ? WHERE ID = ?',
-                [content, comment_id]
-            );
-
-            await dbConnection.commit();
-            return Result.affectedRows > 0;
-        } catch (err) {
-            await dbConnection.rollback();
-            console.error("Database error:", err);
-            throw err;
-        } finally {
-            dbConnection.release();
-        }
-    }
-
-    // Delete a comment
-    static async deleteComment(comment_id) {
-        const dbConnection = await connection.getConnection();
-        await dbConnection.beginTransaction();
-
-        try {
-            // First delete any likes associated with this comment
-            await dbConnection.query(
-                'DELETE FROM like_table WHERE comment_id = ?',
-                [comment_id]
-            );
-
-            // Then delete the comment
-            const [Result] = await dbConnection.query(
-                'DELETE FROM comment WHERE ID = ?',
-                [comment_id]
-            );
-
-            await dbConnection.commit();
-            return Result.affectedRows > 0;
-        } catch (err) {
-            await dbConnection.rollback();
-            console.error("Database error:", err);
-            throw err;
-        } finally {
-            dbConnection.release();
-        }
-    }
-
-    //Count comment by thread_id
+    // Count comment by thread_id
     static async countCommentByThreadID(thread_id) {
-        const dbConnection = await connection.getConnection();
+        const dbConnection = await db.getConnection();
         await dbConnection.beginTransaction();
         try {
             // Get threads for this user (profile threads only)
@@ -180,6 +156,45 @@ class Comment {
         }
     }
 
+    // Admin methods
+    static async getTotalComments() {
+        const dbConnection = await db.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [result] = await dbConnection.query('SELECT COUNT(*) as total FROM comment');
+            await dbConnection.commit();
+            return result[0].total;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    static async getCommentStats() {
+        const dbConnection = await db.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [stats] = await dbConnection.query(`
+                SELECT 
+                    COUNT(*) as total_comments,
+                    COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as new_comments_7d,
+                    COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as new_comments_30d,
+                    COUNT(DISTINCT user_id) as unique_commenters
+                FROM comment
+            `);
+            await dbConnection.commit();
+            return stats[0];
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 
 module.exports = Comment;

@@ -19,17 +19,17 @@ class Club {
     // Create new club
     static async create(name, description, president, contact_email) {
         const [result] = await connection.query(
-            'INSERT INTO club (name, description, president_id, contact_email) VALUES (?, ?, ?, ?)',
+            'INSERT INTO club (name, description, president_id, link) VALUES (?, ?, ?, ?)',
             [name, description, president, contact_email]
         );
         return result.insertId;
     }
 
     // Update club
-    static async update(ID, name, description, president, contact_email) {
+    static async update(ID, name, description, president, link) {
         const [result] = await connection.query(
-            'UPDATE club SET name = ?, description = ?, president_id = ?, contact_email = ? WHERE id = ?',
-            [name, description, president, contact_email, ID]
+            'UPDATE club SET name = ?, description = ?, president_id = ?, link = ? WHERE id = ?',
+            [name, description, president, link, ID]
         );
         return result.affectedRows > 0;
     }

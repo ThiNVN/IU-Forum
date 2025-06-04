@@ -32,7 +32,7 @@ const processBase64Images = async (htmlContent: string): Promise<string> => {
                 const formData = new FormData();
                 formData.append('image', blob, 'image.png');
 
-                const response = await fetch('https://localhost:8081/api/uploadImage', {
+                const response = await fetch('http://localhost:8081/api/uploadImage', {
                     method: 'POST',
                     body: formData,
                 });

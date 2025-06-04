@@ -321,22 +321,28 @@ label {
 
 .carousel {
   display: flex;
-  flex-direction: column;
-  /* changed from row to column */
-  gap: 10px;
-  overflow-y: auto;
-  /* changed from x to y for vertical scroll */
-  padding: 10px 0;
-  max-height: 1200px;
-  /* optional: limit height to enable scrolling */
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 20px;
+  padding: 20px 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.carousel::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 .carouselImage {
+  flex: 0 0 auto;
+  width: 700px;
+  height: 300px;
   object-fit: cover;
-  border-radius: 8px;
-  transition: transform 0.3s;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
 }
 
 .carouselImage:hover {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
