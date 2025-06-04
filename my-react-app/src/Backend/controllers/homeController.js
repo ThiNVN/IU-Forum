@@ -1726,6 +1726,64 @@ const deleteComment = async (req, res) => {
     }
 };
 
+// Admin Thread Management Functions
+const createAdminThread = async (req, res) => {
+  const { title, description, content, topic_id, user_id } = req.body;
+  try {
+    const newThreadResult = await Thread.insertNewThread(topic_id, 2, title, null, description, content);
+    const newThread = await Thread.getThreadByID(newThreadResult.insertId);
+    
+    // Create activity record
+    const activity_type = "post";
+    const ACdescription = "Admin created a new thread in topic " + (await Topic.getTopicByID(topic_id))[0].title;
+    await Activity.insertActivity(2, activity_type, ACdescription);
+    
+    res.status(201).json({ 
+      message: 'Thread created successfully', 
+      thread: newThread[0] 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const updateAdminThread = async (req, res) => {
+  const { id } = req.params;
+  const { title, description, content, topic_id } = req.body;
+
+  try {
+    const success = await Thread.updateThread(id, topic_id, title, description, content);
+    if (success) {
+      const updatedThread = await Thread.getThreadByID(id);
+      res.status(200).json({ 
+        message: 'Thread updated successfully', 
+        thread: updatedThread[0] 
+      });
+    } else {
+      res.status(404).json({ message: 'Thread not found' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const deleteAdminThread = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const success = await Thread.deleteThread(id);
+    if (success) {
+      res.status(200).json({ message: 'Thread deleted successfully' });
+    } else {
+      res.status(404).json({ message: 'Thread not found' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -1810,5 +1868,8 @@ module.exports = {
     deleteCategory,
     createTopic,
     updateTopic,
-    deleteTopic
+    deleteTopic,
+    createAdminThread,
+    updateAdminThread,
+    deleteAdminThread
 };

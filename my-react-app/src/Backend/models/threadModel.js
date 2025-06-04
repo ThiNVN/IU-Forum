@@ -202,7 +202,7 @@ class Thread {
         }
     }
     //Update thread
-    static async updateThread(id, topic_id, user_id, title, image, responses, views, description, content) {
+    static async updateThread(id, topic_id, title, description, content) {
         const dbConnection = await connection.getConnection(); // Get a connection for the transaction
         await dbConnection.beginTransaction(); // Start transaction
 
@@ -211,16 +211,12 @@ class Thread {
             const [result] = await dbConnection.query(
                 `UPDATE thread 
                  SET topic_id = ?, 
-                     user_id = ?, 
                      title = ?, 
-                     image = ?, 
-                     responses = ?, 
-                     views = ?,
                      last_activity = NOW(),
                      description = ?,
                      content = ? 
                  WHERE id = ?`,
-                [topic_id, user_id, title, image, responses, views, description, content, id]
+                [topic_id, title, description, content, id]
             );
 
             await dbConnection.commit();

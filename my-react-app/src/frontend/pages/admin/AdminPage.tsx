@@ -24,6 +24,7 @@ import {
   Notifications as NotificationIcon,
   AttachFile as FileIcon,
   ThumbUp as LikeIcon,
+  Forum as ThreadIcon,
 } from '@mui/icons-material';
 import UserManagement from '../../components/admin/UserManagement';
 import CategoryManagement from '../../components/admin/CategoryManagement';
@@ -34,6 +35,7 @@ import NotificationManagement from '../../components/admin/NotificationManagemen
 import ActivityManagement from '../../components/admin/ActivityManagement';
 import ClubManagement from '../../components/admin/ClubManagement';
 import CommentManagement from '../../components/admin/CommentManagement';
+import ThreadManagement from '../../components/admin/ThreadManagement';
 
 const drawerWidth = 240;
 
@@ -68,6 +70,7 @@ const AdminPage: React.FC = () => {
     { id: 'users', label: 'Users', icon: <PeopleIcon /> },
     { id: 'categories', label: 'Categories', icon: <CategoryIcon /> },
     { id: 'topics', label: 'Topics', icon: <TopicIcon /> },
+    { id: 'threads', label: 'Threads', icon: <ThreadIcon /> },
     { id: 'comments', label: 'Comments', icon: <CommentIcon /> },
     { id: 'tags', label: 'Tags', icon: <TagIcon /> },
     { id: 'clubs', label: 'Clubs', icon: <ClubIcon /> },
@@ -85,6 +88,8 @@ const AdminPage: React.FC = () => {
         return <CategoryManagement />;
       case 'topics':
         return <TopicManagement />;
+      case 'threads':
+        return <ThreadManagement />;
       case 'tags':
         return <TagManagement />;
       case 'clubs':
