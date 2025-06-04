@@ -199,4 +199,17 @@
 
 .user-menu-register-btn:hover {
   background-color: #218838;
+}
+
+.admin-link {
+  color: #ff4081 !important;
+  font-weight: 600 !important;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  padding: 8px 0 !important;
+  margin: 8px 0 !important;
+}
+
+.admin-link:hover {
+  background-color: rgba(255, 64, 129, 0.1) !important;
 } 

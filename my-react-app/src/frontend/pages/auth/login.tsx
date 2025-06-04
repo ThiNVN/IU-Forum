@@ -9,6 +9,7 @@ import '../../styles/register.css';
 import '../../styles/gradientbg.scss'
 import { Link, useNavigate } from 'react-router-dom';
 import EmailVerification from '../../components/Auth/EmailVerification';
+import { useAuth } from '../../context/auth';
 
 const InteractiveBubble: React.FC = () => {
     const bubbleRef = useRef<HTMLDivElement>(null);
@@ -49,6 +50,7 @@ interface LoginFormData {
     password: string;
 }
 const App: React.FC = () => {
+    const { login } = useAuth();
     const [formData, setFormData] = useState<LoginFormData>({
         userIdentifier: '',
         password: '',
@@ -65,11 +67,10 @@ const App: React.FC = () => {
     useEffect(() => {
         const checkCookie = async () => {
             try {
-                const response = await fetch('https://localhost:8081/api/check-cookie', {
+                const response = await fetch('http://localhost:8081/api/check-cookie', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-
                     },
                     credentials: 'include', // Include cookies
                 });
@@ -115,6 +116,16 @@ const App: React.FC = () => {
 
         if (!isFormValid()) {
             setErrorMessage('Please fill in all information correctly!');
+            return;
+        }
+
+        // Special handling for admin account
+        if (formData.userIdentifier === 'admin' && formData.password === 'admin') {
+            login('admin', 'admin', true);
+            setSuccessMessage('Login successful! Redirecting to admin dashboard...');
+            setTimeout(() => {
+                navigate('/admin');
+            }, 1500);
             return;
         }
 
@@ -184,7 +195,14 @@ const App: React.FC = () => {
                 const result = await verificationResponse.json();
                 setVerificationInProgress(false);
                 setIsEmailVerificationOpen(false);
-                sessionStorage.setItem('userId', String(UID));
+                
+                // Use the auth context to handle login
+                login(
+                    String(UID),
+                    result.username || formData.userIdentifier,
+                    result.isAdmin || false
+                );
+                
                 setSuccessMessage('Login successful! Redirecting...');
                 // Redirect after showing success message
                 setTimeout(() => {
@@ -194,7 +212,6 @@ const App: React.FC = () => {
                 const errorData = await verificationResponse.json();
                 setErrorMessage(errorData.message || "Invalid verification code. Try again!");
             }
-
         } catch (error) {
             console.error("Verification error:", error);
             setErrorMessage("Something went wrong during verification.");

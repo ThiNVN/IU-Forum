@@ -257,6 +257,46 @@ class Thread {
             dbConnection.release();
         }
     }
+
+    // Admin methods
+    static async getTotalThreads() {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [result] = await dbConnection.query('SELECT COUNT(*) as total FROM thread');
+            await dbConnection.commit();
+            return result[0].total;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    static async getThreadStats() {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [stats] = await dbConnection.query(`
+                SELECT 
+                    COUNT(*) as total_threads,
+                    COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as new_threads_7d,
+                    COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as new_threads_30d,
+                    COUNT(DISTINCT user_id) as unique_authors
+                FROM thread
+            `);
+            await dbConnection.commit();
+            return stats[0];
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 
 module.exports = Thread;

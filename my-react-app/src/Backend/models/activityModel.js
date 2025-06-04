@@ -102,6 +102,83 @@ class Activity {
             dbConnection.release();
         }
     }
+
+    // Admin: Get all activities with user details
+    static async getAllActivities() {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+        try {
+            const [activities] = await dbConnection.query(
+                `SELECT a.*, u.username, u.avatar
+                FROM activity a
+                LEFT JOIN user u ON a.user_id = u.ID
+                ORDER BY a.created_at DESC`
+            );
+
+            await dbConnection.commit();
+            return activities;
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    // Admin: Create activity
+    static async createActivity(user_id, activity_type, description) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            const [activityResult] = await dbConnection.query(
+                'INSERT INTO activity (user_id, activity_type, description, created_at) VALUES (?, ?, ?, NOW())',
+                [user_id, activity_type, description]
+            );
+
+            const [newActivity] = await dbConnection.query(
+                'SELECT * FROM activity WHERE ID = ?',
+                [activityResult.insertId]
+            );
+
+            await dbConnection.commit();
+            return newActivity[0];
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
+
+    // Admin: Update activity
+    static async updateActivity(id, user_id, activity_type, description) {
+        const dbConnection = await connection.getConnection();
+        await dbConnection.beginTransaction();
+
+        try {
+            await dbConnection.query(
+                'UPDATE activity SET user_id = ?, activity_type = ?, description = ? WHERE ID = ?',
+                [user_id, activity_type, description, id]
+            );
+
+            const [updatedActivity] = await dbConnection.query(
+                'SELECT * FROM activity WHERE ID = ?',
+                [id]
+            );
+
+            await dbConnection.commit();
+            return updatedActivity[0];
+        } catch (err) {
+            await dbConnection.rollback();
+            console.error("Database error:", err);
+            throw err;
+        } finally {
+            dbConnection.release();
+        }
+    }
 }
 
 module.exports = Activity;

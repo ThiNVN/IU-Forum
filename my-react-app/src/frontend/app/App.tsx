@@ -20,7 +20,10 @@ import Help from '../pages/Help';
 import RecentActivity from '../pages/RecentActivity';
 import Chatbot from '../pages/Chatbot';
 import Clubs from '../pages/Clubs';
+import AdminPage from '../pages/admin/AdminPage';
 import { ThemeProvider } from '../context/ThemeContext';
+import { AuthProvider } from '../context/auth';
+import ProtectedRoute from '../components/ProtectedRoute';
 import '../styles/darkMode.css';
 
 //import ThreadList from "../features/threads/pages/ThreadList";
@@ -28,30 +31,40 @@ import '../styles/darkMode.css';
 export default function App() {
     return (
         <ThemeProvider>
-            <BrowserRouter>
-                <Routes>
-                    <Route element={<LayoutComponent />}>
-                        <Route path="/*" element={<Main />} />
-                        <Route path="/home" element={<HomePage />} />
-                        <Route path="/topic" element={<TopicPage />} />
-                        <Route path="/profile/:id" element={<UserProfile1 />} />
-                        <Route path="/profile/:id/edit" element={<EditProfile />} />
-                        <Route path="/profile" element={<Profile />} />
-                        <Route path="/changePassword" element={<ChangePassword />} />
-                        <Route path="/about" element={<About />} />
-                        <Route path="/privacy" element={<Privacy />} />
-                        <Route path="/terms" element={<Terms />} />
-                        <Route path="/help" element={<Help />} />
-                        <Route path="/recent" element={<RecentActivity />} />
-                        <Route path="/chatbot" element={<Chatbot />} />
-                        <Route path="/clubs" element={<Clubs />} />
-                    </Route>
+            <AuthProvider>
+                <BrowserRouter>
+                    <Routes>
+                        <Route element={<LayoutComponent />}>
+                            <Route path="/*" element={<Main />} />
+                            <Route path="/home" element={<HomePage />} />
+                            <Route path="/topic" element={<TopicPage />} />
+                            <Route path="/profile/:id" element={<UserProfile1 />} />
+                            <Route path="/profile/:id/edit" element={<EditProfile />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/changePassword" element={<ChangePassword />} />
+                            <Route path="/about" element={<About />} />
+                            <Route path="/privacy" element={<Privacy />} />
+                            <Route path="/terms" element={<Terms />} />
+                            <Route path="/help" element={<Help />} />
+                            <Route path="/recent" element={<RecentActivity />} />
+                            <Route path="/chatbot" element={<Chatbot />} />
+                            <Route path="/clubs" element={<Clubs />} />
+                            <Route 
+                                path="/admin" 
+                                element={
+                                    <ProtectedRoute requireAdmin>
+                                        <AdminPage />
+                                    </ProtectedRoute>
+                                } 
+                            />
+                        </Route>
 
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    {/* <Route path="/threads" element={<ThreadList />} /> */}
-                </Routes>
-            </BrowserRouter>
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        {/* <Route path="/threads" element={<ThreadList />} /> */}
+                    </Routes>
+                </BrowserRouter>
+            </AuthProvider>
         </ThemeProvider>
     );
 }
